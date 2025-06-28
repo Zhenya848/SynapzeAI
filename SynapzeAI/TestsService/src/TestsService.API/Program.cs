@@ -44,12 +44,18 @@ builder.Services
     
 var app = builder.Build();
 
+app.UseStaticFiles();
+
 app.UseMiddleware<ExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.EnableTryItOutByDefault();
+        c.InjectStylesheet("/swagger-ui/SwaggerDark.css");
+    });
 }
 
 app.UseHttpsRedirection();

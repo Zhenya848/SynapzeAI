@@ -17,7 +17,7 @@ public class TaskDtoConfiguration : IEntityTypeConfiguration<TaskDto>
         
         builder.Property(tn => tn.TaskName);
         builder.Property(tm => tm.TaskMessage);
-        builder.Property(ra => ra.RightAnswer);
+        builder.Property(ra => ra.RightAnswer).IsRequired(false);
 
         builder.Property(imp => imp.ImagePath).IsRequired(false);
         builder.Property(ap => ap.AudioPath).IsRequired(false);

@@ -10,7 +10,7 @@ public class Task : SoftDeletableEntity<TaskId>
 {
     public string TaskName { get; private set; }
     public string TaskMessage { get; private set; }
-    public string RightAnswer { get; private set; }
+    public string? RightAnswer { get; private set; }
     
     public string? ImagePath { get; private set; }
     public string? AudioPath { get; private set; }
@@ -27,14 +27,14 @@ public class Task : SoftDeletableEntity<TaskId>
     }
     
     protected Task(
-        TaskId id, 
+        TaskId id,
         string taskName, 
         string taskMessage, 
-        string rightAnswer,
         PriorityNumber priorityNumber,
+        string? rightAnswer = null,
+        IEnumerable<string>? answers = null,
         string? imagePath = null,
-        string? audioPath = null,
-        IEnumerable<string>? answers = null) : base(id)
+        string? audioPath = null) : base(id)
     {
         TaskName = taskName;
         TaskMessage = taskMessage;
@@ -46,11 +46,11 @@ public class Task : SoftDeletableEntity<TaskId>
     }
 
     public static Result<Task, Error> Create(
-        TaskId id, 
+        TaskId id,
         string taskName, 
         string taskMessage, 
-        string rightAnswer,
         PriorityNumber priorityNumber,
+        string? rightAnswer = null,
         IEnumerable<string>? answers = null,
         string? imagePath = null,
         string? audioPath = null)
@@ -64,7 +64,7 @@ public class Task : SoftDeletableEntity<TaskId>
         if (string.IsNullOrWhiteSpace(rightAnswer))
             return Errors.General.ValueIsRequired(nameof(rightAnswer));
         
-        return new Task(id, taskName, taskMessage, rightAnswer, priorityNumber, imagePath, audioPath, answers);
+        return new Task(id, taskName, taskMessage, priorityNumber, rightAnswer, answers, imagePath, audioPath);
     }
 
     public void UpdateImagePath(string imagePath) =>
