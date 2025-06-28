@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TestsService.Application.Tasks.Commands.Create;
@@ -19,6 +20,7 @@ namespace TestsService.Presentation;
 public class TestController : ControllerBase
 {
     [HttpPost("{userId:guid}/test")]
+    [Authorize]
     //[Permission("test.create")]
     public async Task<IActionResult> CreateTest(
         [FromRoute] Guid userId,

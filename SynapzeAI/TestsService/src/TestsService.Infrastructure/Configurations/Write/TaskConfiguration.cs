@@ -19,7 +19,7 @@ public class TaskConfiguration : IEntityTypeConfiguration<Task>
         
         builder.Property(tn => tn.TaskName).IsRequired().HasMaxLength(Constants.MAX_LOW_TEXT_LENGTH);
         builder.Property(tm => tm.TaskMessage).IsRequired().HasMaxLength(Constants.MAX_LOW_TEXT_LENGTH);
-        builder.Property(ra => ra.RightAnswer).IsRequired().HasMaxLength(Constants.MAX_LOW_TEXT_LENGTH);
+        builder.Property(ra => ra.RightAnswer).IsRequired(false).HasMaxLength(Constants.MAX_LOW_TEXT_LENGTH);
         
         builder.Property(pv => pv.PriorityNumber)
             .HasConversion(priority => priority.Value, value => PriorityNumber.Create(value).Value);

@@ -2,6 +2,7 @@ using CSharpFunctionalExtensions;
 using UserService.Application.Abstractions;
 using UserService.Application.Repositories;
 using UserService.Application.Responses;
+using UserService.Application.Responses.Login;
 using UserService.Domain.Shared;
 using UserService.Domain.User;
 

@@ -1,5 +1,5 @@
 ﻿services:
-  postgres:
+  postgres_tests_service:
     container_name: tests_service_db
     image: postgres
     restart: always
@@ -23,9 +23,9 @@
     command: server --console-address ":9001" /data
     restart: always
     
-  seq:
+  seq_tests_service:
     image: datalust/seq:latest
-    container_name: seq
+    container_name: tests_service_logging
     restart: always
     environment:
       - ACCEPT_EULA=Y

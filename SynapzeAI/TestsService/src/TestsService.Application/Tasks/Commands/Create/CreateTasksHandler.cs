@@ -40,8 +40,8 @@ public class CreateTasksHandler : ICommandHandler<CreateTasksCommand, Result<IEn
                     TaskId.AddNewId(),
                     t.TaskName,
                     t.TaskMessage,
-                    t.RightAnswer,
                     PriorityNumber.Create().Value,
+                    t.RightAnswer,
                     t.Answers)
             )
             .ToList();

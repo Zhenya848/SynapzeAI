@@ -28,4 +28,12 @@
       <ProjectReference Include="..\TestsService.Presentation\TestsService.Presentation.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="wwwroot\swagger-ui\SwaggerDark.css" />
+    </ItemGroup>
+
 </Project>

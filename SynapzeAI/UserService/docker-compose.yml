@@ -1,5 +1,5 @@
 ﻿services:
-  postgres:
+  postgres_user_service:
     container_name: user_service_db
     image: postgres
     restart: always
@@ -12,9 +12,9 @@
     volumes:
       - postgres-data:/var/lib/postgresql/data
   
-  seq:
+  seq_user_service:
     image: datalust/seq:latest
-    container_name: seq
+    container_name: user_service_logging
     restart: always
     environment:
       - ACCEPT_EULA=Y
