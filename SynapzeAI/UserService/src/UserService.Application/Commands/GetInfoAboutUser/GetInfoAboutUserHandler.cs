@@ -45,7 +45,6 @@ public class GetInfoAboutUserHandler : ICommandHandler<Guid, Result<UserDto, Err
             
             UserName = userResult.Value.UserName!, 
             Email = userResult.Value.Email!,
-            Telegram = userResult.Value.Telegram,
             
             ParticipantAccount = participantAccount,
             AdminAccount = adminAccount

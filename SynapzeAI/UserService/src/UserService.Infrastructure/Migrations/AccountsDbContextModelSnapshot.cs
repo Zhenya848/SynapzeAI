@@ -398,11 +398,6 @@ namespace UserService.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("security_stamp");
 
-                    b.Property<string>("Telegram")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("telegram");
-
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("two_factor_enabled");

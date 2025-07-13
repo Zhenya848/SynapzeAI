@@ -27,9 +27,9 @@ public class CreateTestHandler : ICommandHandler<CreateTestCommand, Result<Guid,
     {
         LimitTime? limitTime = null;
 
-        if (command.Seconds != null && command.Minutes != null && command.Hours != null)
+        if (command.Seconds != null && command.Minutes != null)
         {
-            var limitTimeResult = LimitTime.Create(command.Seconds.Value, command.Minutes.Value, command.Hours.Value);
+            var limitTimeResult = LimitTime.Create(command.Seconds.Value, command.Minutes.Value);
         
             if (limitTimeResult.IsFailure)
                 return (ErrorList)limitTimeResult.Error;
@@ -41,6 +41,7 @@ public class CreateTestHandler : ICommandHandler<CreateTestCommand, Result<Guid,
             TestId.AddNewId(), 
             command.UserId,
             command.TestName, 
+            command.Theme,
             command.IsPublished,
             limitTime);
         

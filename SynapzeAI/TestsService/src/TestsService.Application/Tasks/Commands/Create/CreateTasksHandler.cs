@@ -40,14 +40,13 @@ public class CreateTasksHandler : ICommandHandler<CreateTasksCommand, Result<IEn
                     TaskId.AddNewId(),
                     t.TaskName,
                     t.TaskMessage,
-                    PriorityNumber.Create().Value,
                     t.RightAnswer,
                     t.Answers)
             )
             .ToList();
 
         if (tasksResult.Any(t => t.IsFailure))
-            return (ErrorList)tasksResult.Select(e => e.Error);
+            return (ErrorList)tasksResult.Select(e => e.Error).ToList();
 
         var tasks = tasksResult.Select(v => v.Value).ToList();
         

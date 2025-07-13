@@ -37,9 +37,9 @@ public class UpdateTestHandler : ICommandHandler<UpdateTestCommand, Result<Guid,
         
         LimitTime? limitTime = null;
 
-        if (command.Seconds != null && command.Minutes != null && command.Hours != null)
+        if (command.Seconds != null && command.Minutes != null)
         {
-            var limitTimeResult = LimitTime.Create(command.Seconds.Value, command.Minutes.Value, command.Hours.Value);
+            var limitTimeResult = LimitTime.Create(command.Seconds.Value, command.Minutes.Value);
         
             if (limitTimeResult.IsFailure)
                 return (ErrorList)limitTimeResult.Error;
@@ -47,7 +47,7 @@ public class UpdateTestHandler : ICommandHandler<UpdateTestCommand, Result<Guid,
             limitTime = limitTimeResult.Value;
         }
 
-        test.UpdateInfo(command.TestName, command.IsPublished, limitTime);
+        test.UpdateInfo(command.TestName, command.Theme, command.IsPublished, limitTime);
         
         _testRepository.Save(test);
         await _unitOfWork.SaveChanges(cancellationToken);

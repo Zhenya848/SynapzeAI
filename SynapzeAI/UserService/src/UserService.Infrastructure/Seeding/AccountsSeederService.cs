@@ -45,7 +45,7 @@ public class AccountsSeederService(
 
         if (adminUser == null)
         {
-            adminUser = User.CreateAdmin(adminOptions.FirstName, adminOptions.Email, adminOptions.Telegram, adminRole);
+            adminUser = User.CreateAdmin(adminOptions.FirstName, adminOptions.Email, adminRole);
             await userManager.CreateAsync(adminUser, adminOptions.Password);
             
             logger.LogInformation("Created user admin successfully");

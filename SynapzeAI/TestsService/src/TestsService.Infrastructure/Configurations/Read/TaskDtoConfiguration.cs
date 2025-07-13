@@ -21,14 +21,16 @@ public class TaskDtoConfiguration : IEntityTypeConfiguration<TaskDto>
 
         builder.Property(imp => imp.ImagePath).IsRequired(false);
         builder.Property(ap => ap.AudioPath).IsRequired(false);
-
-        builder.Property(pn => pn.PriorityNumber);
         
         builder.OwnsOne(ts => ts.TaskStatistic, tsb =>
         {
             tsb.Property(ec => ec.ErrorsCount);
             tsb.Property(rac => rac.RightAnswersCount);
+            tsb.Property(lrt => lrt.LastReviewTime);
+            tsb.Property(ats => ats.AvgTimeSolvingSec);
         });
+        
+        builder.Property(nr => nr.NextReview).IsRequired(false);
         
         builder.Property(a => a.Answers).HasConversion(
                 value => JsonSerializer.Serialize(value, JsonSerializerOptions.Default),

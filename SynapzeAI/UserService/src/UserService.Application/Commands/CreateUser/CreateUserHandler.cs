@@ -47,9 +47,9 @@ public class CreateUserHandler : ICommandHandler<CreateUserCommand, UnitResult<E
         var role = await _roleManager.FindByNameAsync(AccountRoles.PARTICIPANT)
                    ?? throw new ApplicationException($"Role {AccountRoles.PARTICIPANT} does not exist");
         
-        var user = User.CreateParticipant(command.Username, command.Email, command.Telegram, role);
+        var user = User.CreateParticipant(command.Username, command.Email, role);
         
-        var participantAccount = ParticipantAccount.CreateParticipant(command.Nickname, user);
+        var participantAccount = ParticipantAccount.CreateParticipant(command.Username, user);
 
         _accountRepository.CreateParticipant(participantAccount);
         

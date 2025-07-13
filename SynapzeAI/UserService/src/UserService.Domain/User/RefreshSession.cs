@@ -2,7 +2,7 @@ namespace UserService.Domain.User;
 
 public class RefreshSession
 {
-    public User User { get; set; }
+    public User User { get; init; }
     
     public Guid Id { get; init; }
     public Guid UserId { get; init; }

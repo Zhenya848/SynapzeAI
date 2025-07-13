@@ -13,6 +13,7 @@ public class TestDtoConfiguration : IEntityTypeConfiguration<TestDto>
         builder.HasKey(i => i.Id);
         
         builder.Property(tn => tn.TestName);
+        builder.Property(t => t.Theme);
         builder.Property(ip => ip.IsPublished);
 
         builder.Property(ui => ui.UserId);
@@ -21,7 +22,6 @@ public class TestDtoConfiguration : IEntityTypeConfiguration<TestDto>
         {
             ltb.Property(s => s.Seconds).IsRequired();
             ltb.Property(m => m.Minutes).IsRequired();
-            ltb.Property(h => h.Hours).IsRequired();
         });
         
         builder.Navigation(lt => lt.LimitTime).IsRequired(false);

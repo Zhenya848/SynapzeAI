@@ -10,6 +10,7 @@ public class Test : SoftDeletableEntity<TestId>
     public Guid UserId { get; private set; }
     
     public string TestName { get; private set; }
+    public string Theme { get; private set; }
     public bool IsPublished { get; private set; }
     
     public LimitTime? LimitTime { get; private set; }
@@ -26,11 +27,13 @@ public class Test : SoftDeletableEntity<TestId>
         TestId id, 
         Guid userId,
         string testName, 
+        string theme,
         bool isPublished,
         LimitTime? limitTime = null,
         IEnumerable<Task>? tasks = null) : base(id)
     {
         TestName = testName;
+        Theme = theme;
         UserId = userId;
         IsPublished = isPublished;
         LimitTime = limitTime;
@@ -41,6 +44,7 @@ public class Test : SoftDeletableEntity<TestId>
         TestId id, 
         Guid userId,
         string testName, 
+        string theme,
         bool isPublished,
         LimitTime? limitTime = null,
         IEnumerable<Task>? tasks = null)
@@ -48,7 +52,10 @@ public class Test : SoftDeletableEntity<TestId>
         if (string.IsNullOrWhiteSpace(testName))
             return Errors.General.ValueIsRequired(nameof(TestName));
         
-        return new Test(id, userId, testName, isPublished, limitTime, tasks);
+        if (string.IsNullOrWhiteSpace(theme))
+            return Errors.General.ValueIsRequired(nameof(Theme));
+        
+        return new Test(id, userId, testName, theme, isPublished, limitTime, tasks);
     }
 
     public void AddTasks(IEnumerable<Task> tasks) =>
@@ -71,10 +78,12 @@ public class Test : SoftDeletableEntity<TestId>
     
     public void UpdateInfo(
         string testName,
+        string theme,
         bool isPublished,
         LimitTime? limitTime)
     {
         TestName = testName;
+        Theme = theme;
         IsPublished = isPublished;
         LimitTime = limitTime;
     }
