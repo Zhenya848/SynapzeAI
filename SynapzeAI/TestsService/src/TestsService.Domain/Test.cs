@@ -61,6 +61,22 @@ public class Test : SoftDeletableEntity<TestId>
     public void AddTasks(IEnumerable<Task> tasks) =>
         _tasks.AddRange(tasks);
 
+    public void UpdateTasks(IEnumerable<Task> tasks)
+    {
+        var taskIds = tasks.Select(t => t.Id);
+
+        foreach (var task in _tasks.Where(t => taskIds.Contains(t.Id)))
+        {
+            var newTask = tasks.First(i => i.Id == task.Id);
+
+            task.UpdateInfo(
+                newTask.TaskName,
+                newTask.TaskMessage,
+                newTask.RightAnswer,
+                newTask.Answers);
+        }
+    }
+
     public List<Task> GetTasksByIds(IEnumerable<Guid> TaskIds)
     {
         var result = new List<Task>();
@@ -76,16 +92,24 @@ public class Test : SoftDeletableEntity<TestId>
         return result;
     }
     
-    public void UpdateInfo(
+    public UnitResult<Error> UpdateInfo(
         string testName,
         string theme,
         bool isPublished,
         LimitTime? limitTime)
     {
+        if (string.IsNullOrWhiteSpace(testName))
+            return Errors.General.ValueIsRequired(nameof(TestName));
+        
+        if (string.IsNullOrWhiteSpace(theme))
+            return Errors.General.ValueIsRequired(nameof(Theme));
+        
         TestName = testName;
         Theme = theme;
         IsPublished = isPublished;
         LimitTime = limitTime;
+
+        return Result.Success<Error>();
     }
 
     public override void Delete()

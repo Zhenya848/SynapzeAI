@@ -17,7 +17,7 @@ public class Task : SoftDeletableEntity<TaskId>
     
     public TaskStatistic? TaskStatistic { get; private set; }
     public DateTime? NextReview { get; private set; }
-    public List<string>? Answers { get; init; }
+    public List<string>? Answers { get; private set; }
 
     protected Task(TaskId id) : base(id)
     {
@@ -57,6 +57,26 @@ public class Task : SoftDeletableEntity<TaskId>
             return Errors.General.ValueIsRequired(nameof(taskMessage));
         
         return new Task(id, taskName, taskMessage, rightAnswer, answers, imagePath, audioPath);
+    }
+
+    public UnitResult<Error> UpdateInfo(
+        string taskName,
+        string taskMessage,
+        string? rightAnswer = null,
+        IEnumerable<string>? answers = null)
+    {
+        if (string.IsNullOrWhiteSpace(taskName))
+            return Errors.General.ValueIsRequired(nameof(taskName));
+        
+        if  (string.IsNullOrWhiteSpace(taskMessage))
+            return Errors.General.ValueIsRequired(nameof(taskMessage));
+        
+        TaskName = taskName;
+        TaskMessage = taskMessage;
+        RightAnswer = rightAnswer;
+        Answers = answers?.ToList();
+
+        return Result.Success<Error>();
     }
 
     public void UpdateImagePath(string imagePath) =>

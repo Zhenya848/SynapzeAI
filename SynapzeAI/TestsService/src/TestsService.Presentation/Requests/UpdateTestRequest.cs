@@ -1,3 +1,5 @@
+using TestsService.Application.Models.Dtos;
+
 namespace TestsService.Presentation.Requests;
 
 public record UpdateTestRequest(
@@ -5,4 +7,7 @@ public record UpdateTestRequest(
     string Theme,
     bool IsPublished,
     int? Seconds,
-    int? Minutes);
+    int? Minutes,
+    IEnumerable<CreateTaskDto>? TasksToCreate,
+    IEnumerable<UpdateTaskDto>? TasksToUpdate,
+    IEnumerable<Guid>? TaskIdsToDelete);

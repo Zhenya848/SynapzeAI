@@ -5,6 +5,7 @@ using TestsService.Domain;
 using TestsService.Domain.Shared;
 using TestsService.Domain.Shared.ValueObjects.Id;
 using TestsService.Domain.ValueObjects;
+using Task = TestsService.Domain.Task;
 
 namespace TestsService.Application.Tests.Commands.Create;
 
@@ -27,7 +28,7 @@ public class CreateTestHandler : ICommandHandler<CreateTestCommand, Result<Guid,
     {
         LimitTime? limitTime = null;
 
-        if (command.Seconds != null && command.Minutes != null)
+        if (command is { Seconds: not null, Minutes: not null })
         {
             var limitTimeResult = LimitTime.Create(command.Seconds.Value, command.Minutes.Value);
         
@@ -36,6 +37,18 @@ public class CreateTestHandler : ICommandHandler<CreateTestCommand, Result<Guid,
             
             limitTime = limitTimeResult.Value;
         }
+
+        var tasks = command.Tasks?
+            .Select(t => Task.Create(
+                TaskId.AddNewId(),
+                t.TaskName,
+                t.TaskMessage,
+                t.RightAnswer,
+                t.Answers))
+            .ToList();
+        
+        if (tasks is not null && tasks.Any(t => t.IsFailure))
+            return (ErrorList)tasks.Select(t => t.Error).ToList();
         
         var test = Test.Create(
             TestId.AddNewId(), 
@@ -43,7 +56,8 @@ public class CreateTestHandler : ICommandHandler<CreateTestCommand, Result<Guid,
             command.TestName, 
             command.Theme,
             command.IsPublished,
-            limitTime);
+            limitTime,
+            tasks?.Select(t => t.Value));
         
         if (test.IsFailure)
             return (ErrorList)test.Error;

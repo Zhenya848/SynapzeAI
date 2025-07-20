@@ -35,7 +35,8 @@ public class TestController : ControllerBase
             request.Theme,
             request.IsPublished,
             request.Seconds,
-            request.Minutes);
+            request.Minutes,
+            request.Tasks);
         
         var result = await handler.Handle(command, cancellationToken);
         
@@ -59,7 +60,10 @@ public class TestController : ControllerBase
             request.Theme,
             request.IsPublished,
             request.Seconds,
-            request.Minutes);
+            request.Minutes,
+            request.TasksToCreate,
+            request.TasksToUpdate,
+            request.TaskIdsToDelete);
         
         var result = await handler.Handle(command, cancellationToken);
         
