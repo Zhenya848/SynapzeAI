@@ -20,9 +20,6 @@ public class TaskConfiguration : IEntityTypeConfiguration<Task>
         builder.Property(tn => tn.TaskName).IsRequired().HasMaxLength(Constants.MAX_LOW_TEXT_LENGTH);
         builder.Property(tm => tm.TaskMessage).IsRequired().HasMaxLength(Constants.MAX_LOW_TEXT_LENGTH);
         builder.Property(ra => ra.RightAnswer).IsRequired(false).HasMaxLength(Constants.MAX_LOW_TEXT_LENGTH);
-        
-        builder.Property(pv => pv.PriorityNumber)
-            .HasConversion(priority => priority.Value, value => PriorityNumber.Create(value).Value);
 
         builder.Property(imp => imp.ImagePath).IsRequired(false);
         builder.Property(ap => ap.AudioPath).IsRequired(false);
@@ -34,7 +31,11 @@ public class TaskConfiguration : IEntityTypeConfiguration<Task>
         {
             tsb.Property(ec => ec.ErrorsCount);
             tsb.Property(rac => rac.RightAnswersCount);
+            tsb.Property(lrt => lrt.LastReviewTime);
+            tsb.Property(ats => ats.AvgTimeSolvingSec);
         });
+        
+        builder.Property(nr => nr.NextReview).IsRequired(false);
         
         builder.Property(a => a.Answers).HasConversion(
                 value => JsonSerializer.Serialize(value, JsonSerializerOptions.Default),

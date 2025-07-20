@@ -10,6 +10,7 @@ public class Test : SoftDeletableEntity<TestId>
     public Guid UserId { get; private set; }
     
     public string TestName { get; private set; }
+    public string Theme { get; private set; }
     public bool IsPublished { get; private set; }
     
     public LimitTime? LimitTime { get; private set; }
@@ -26,11 +27,13 @@ public class Test : SoftDeletableEntity<TestId>
         TestId id, 
         Guid userId,
         string testName, 
+        string theme,
         bool isPublished,
         LimitTime? limitTime = null,
         IEnumerable<Task>? tasks = null) : base(id)
     {
         TestName = testName;
+        Theme = theme;
         UserId = userId;
         IsPublished = isPublished;
         LimitTime = limitTime;
@@ -41,6 +44,7 @@ public class Test : SoftDeletableEntity<TestId>
         TestId id, 
         Guid userId,
         string testName, 
+        string theme,
         bool isPublished,
         LimitTime? limitTime = null,
         IEnumerable<Task>? tasks = null)
@@ -48,11 +52,30 @@ public class Test : SoftDeletableEntity<TestId>
         if (string.IsNullOrWhiteSpace(testName))
             return Errors.General.ValueIsRequired(nameof(TestName));
         
-        return new Test(id, userId, testName, isPublished, limitTime, tasks);
+        if (string.IsNullOrWhiteSpace(theme))
+            return Errors.General.ValueIsRequired(nameof(Theme));
+        
+        return new Test(id, userId, testName, theme, isPublished, limitTime, tasks);
     }
 
     public void AddTasks(IEnumerable<Task> tasks) =>
         _tasks.AddRange(tasks);
+
+    public void UpdateTasks(IEnumerable<Task> tasks)
+    {
+        var taskIds = tasks.Select(t => t.Id);
+
+        foreach (var task in _tasks.Where(t => taskIds.Contains(t.Id)))
+        {
+            var newTask = tasks.First(i => i.Id == task.Id);
+
+            task.UpdateInfo(
+                newTask.TaskName,
+                newTask.TaskMessage,
+                newTask.RightAnswer,
+                newTask.Answers);
+        }
+    }
 
     public List<Task> GetTasksByIds(IEnumerable<Guid> TaskIds)
     {
@@ -69,14 +92,24 @@ public class Test : SoftDeletableEntity<TestId>
         return result;
     }
     
-    public void UpdateInfo(
+    public UnitResult<Error> UpdateInfo(
         string testName,
+        string theme,
         bool isPublished,
         LimitTime? limitTime)
     {
+        if (string.IsNullOrWhiteSpace(testName))
+            return Errors.General.ValueIsRequired(nameof(TestName));
+        
+        if (string.IsNullOrWhiteSpace(theme))
+            return Errors.General.ValueIsRequired(nameof(Theme));
+        
         TestName = testName;
+        Theme = theme;
         IsPublished = isPublished;
         LimitTime = limitTime;
+
+        return Result.Success<Error>();
     }
 
     public override void Delete()

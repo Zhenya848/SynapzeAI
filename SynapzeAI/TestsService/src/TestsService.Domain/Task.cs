@@ -15,11 +15,9 @@ public class Task : SoftDeletableEntity<TaskId>
     public string? ImagePath { get; private set; }
     public string? AudioPath { get; private set; }
     
-    public PriorityNumber PriorityNumber { get; private set; }
-    
     public TaskStatistic? TaskStatistic { get; private set; }
-    
-    public List<string>? Answers { get; init; }
+    public DateTime? NextReview { get; private set; }
+    public List<string>? Answers { get; private set; }
 
     protected Task(TaskId id) : base(id)
     {
@@ -29,8 +27,7 @@ public class Task : SoftDeletableEntity<TaskId>
     protected Task(
         TaskId id,
         string taskName, 
-        string taskMessage, 
-        PriorityNumber priorityNumber,
+        string taskMessage,
         string? rightAnswer = null,
         IEnumerable<string>? answers = null,
         string? imagePath = null,
@@ -39,7 +36,6 @@ public class Task : SoftDeletableEntity<TaskId>
         TaskName = taskName;
         TaskMessage = taskMessage;
         RightAnswer = rightAnswer;
-        PriorityNumber = priorityNumber;
         ImagePath = imagePath;
         AudioPath = audioPath;
         Answers = answers?.ToList();
@@ -48,8 +44,7 @@ public class Task : SoftDeletableEntity<TaskId>
     public static Result<Task, Error> Create(
         TaskId id,
         string taskName, 
-        string taskMessage, 
-        PriorityNumber priorityNumber,
+        string taskMessage,
         string? rightAnswer = null,
         IEnumerable<string>? answers = null,
         string? imagePath = null,
@@ -61,10 +56,27 @@ public class Task : SoftDeletableEntity<TaskId>
         if  (string.IsNullOrWhiteSpace(taskMessage))
             return Errors.General.ValueIsRequired(nameof(taskMessage));
         
-        if (string.IsNullOrWhiteSpace(rightAnswer))
-            return Errors.General.ValueIsRequired(nameof(rightAnswer));
+        return new Task(id, taskName, taskMessage, rightAnswer, answers, imagePath, audioPath);
+    }
+
+    public UnitResult<Error> UpdateInfo(
+        string taskName,
+        string taskMessage,
+        string? rightAnswer = null,
+        IEnumerable<string>? answers = null)
+    {
+        if (string.IsNullOrWhiteSpace(taskName))
+            return Errors.General.ValueIsRequired(nameof(taskName));
         
-        return new Task(id, taskName, taskMessage, priorityNumber, rightAnswer, answers, imagePath, audioPath);
+        if  (string.IsNullOrWhiteSpace(taskMessage))
+            return Errors.General.ValueIsRequired(nameof(taskMessage));
+        
+        TaskName = taskName;
+        TaskMessage = taskMessage;
+        RightAnswer = rightAnswer;
+        Answers = answers?.ToList();
+
+        return Result.Success<Error>();
     }
 
     public void UpdateImagePath(string imagePath) =>
@@ -72,9 +84,28 @@ public class Task : SoftDeletableEntity<TaskId>
     
     public void UpdateAudioPath(string audioPath) =>
         AudioPath = string.IsNullOrWhiteSpace(audioPath) ? AudioPath : audioPath;
-    
-    public void UpdateStatistic(TaskStatistic statistic) =>
+
+    public void UpdateStatistic(TaskStatistic statistic)
+    {
         TaskStatistic = statistic;
+        
+        double successRate = statistic.RightAnswersCount / (statistic.ErrorsCount + statistic.RightAnswersCount + 1e-6);
+        
+        double interval = 1;
+
+        if (statistic.RightAnswersCount > 0)
+        {
+            interval *= Math.Pow(1.2, statistic.RightAnswersCount - 1);
+            interval *= Math.Pow(successRate, 0.5);
+        }
+        
+        double timeFactor = Math.Clamp(statistic.AvgTimeSolvingSec / 30, 0.5, 2.0);
+        interval /= timeFactor;
+        
+        interval = Math.Clamp(interval, 1, 30);
+        
+        NextReview = statistic.LastReviewTime.AddDays(interval);
+    }
     
     public override void Delete()
     {

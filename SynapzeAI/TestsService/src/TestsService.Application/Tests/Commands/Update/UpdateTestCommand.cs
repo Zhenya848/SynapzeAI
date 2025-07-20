@@ -1,9 +1,14 @@
+using TestsService.Application.Models.Dtos;
+
 namespace TestsService.Application.Tests.Commands.Update;
 
 public record UpdateTestCommand(
     Guid TestId,
     string TestName,
+    string Theme,
     bool IsPublished,
     int? Seconds,
     int? Minutes,
-    int? Hours);
+    IEnumerable<CreateTaskDto>? TasksToCreate,
+    IEnumerable<UpdateTaskDto>? TasksToUpdate,
+    IEnumerable<Guid>? TaskIdsToDelete);

@@ -13,7 +13,7 @@ using UserService.Infrastructure;
 namespace UserService.Infrastructure.Migrations
 {
     [DbContext(typeof(AccountsDbContext))]
-    [Migration("20250603105931_Initial")]
+    [Migration("20250706153446_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -400,11 +400,6 @@ namespace UserService.Infrastructure.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text")
                         .HasColumnName("security_stamp");
-
-                    b.Property<string>("Telegram")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("telegram");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean")

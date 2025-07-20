@@ -12,7 +12,7 @@ using TestsService.Infrastructure.DbContexts;
 namespace TestsService.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250622184827_Initial")]
+    [Migration("20250712205317_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -51,12 +51,11 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<float>("PriorityNumber")
-                        .HasColumnType("real")
-                        .HasColumnName("priority_number");
+                    b.Property<DateTime?>("NextReview")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("next_review");
 
                     b.Property<string>("RightAnswer")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("right_answer");
@@ -110,6 +109,12 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("test_name");
 
+                    b.Property<string>("Theme")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("theme");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
@@ -134,9 +139,17 @@ namespace TestsService.Infrastructure.Migrations
                                 .HasColumnType("uuid")
                                 .HasColumnName("id");
 
+                            b1.Property<float>("AvgTimeSolvingSec")
+                                .HasColumnType("real")
+                                .HasColumnName("task_statistic_avg_time_solving_sec");
+
                             b1.Property<int>("ErrorsCount")
                                 .HasColumnType("integer")
                                 .HasColumnName("task_statistic_errors_count");
+
+                            b1.Property<DateTime>("LastReviewTime")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("task_statistic_last_review_time");
 
                             b1.Property<int>("RightAnswersCount")
                                 .HasColumnType("integer")
@@ -161,10 +174,6 @@ namespace TestsService.Infrastructure.Migrations
                             b1.Property<Guid>("TestId")
                                 .HasColumnType("uuid")
                                 .HasColumnName("id");
-
-                            b1.Property<int>("Hours")
-                                .HasColumnType("integer")
-                                .HasColumnName("limit_time_hours");
 
                             b1.Property<int>("Minutes")
                                 .HasColumnType("integer")

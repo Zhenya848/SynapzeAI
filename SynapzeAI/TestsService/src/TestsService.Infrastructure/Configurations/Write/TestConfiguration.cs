@@ -18,13 +18,13 @@ public class TestConfiguration : IEntityTypeConfiguration<Test>
         builder.Property(ui => ui.UserId).IsRequired();
         
         builder.Property(tn => tn.TestName).IsRequired().HasMaxLength(Constants.MAX_LOW_TEXT_LENGTH);
+        builder.Property(t => t.Theme).IsRequired().HasMaxLength(Constants.MAX_LOW_TEXT_LENGTH);
         builder.Property(ip => ip.IsPublished).IsRequired();
 
         builder.OwnsOne(lt => lt.LimitTime, ltb =>
         {
             ltb.Property(s => s.Seconds);
             ltb.Property(m => m.Minutes);
-            ltb.Property(h => h.Hours);
         });
         
         builder.Navigation(lt => lt.LimitTime).IsRequired(false);

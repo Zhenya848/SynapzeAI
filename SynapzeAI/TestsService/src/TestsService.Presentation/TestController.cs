@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TestsService.Application.Models.Dtos;
 using TestsService.Application.Tasks.Commands.Create;
 using TestsService.Application.Tasks.Commands.Delete;
+using TestsService.Application.Tasks.Commands.UpdateStatistic;
 using TestsService.Application.Tasks.Commands.UploadPhotos;
 using TestsService.Application.Tests.Commands.Create;
 using TestsService.Application.Tests.Commands.Delete;
@@ -16,11 +18,10 @@ using TestsService.Presentation.Requests;
 namespace TestsService.Presentation;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class TestController : ControllerBase
 {
-    [HttpPost("{userId:guid}/test")]
-    [Authorize]
+    [HttpPost("{userId:guid}")]
     //[Permission("test.create")]
     public async Task<IActionResult> CreateTest(
         [FromRoute] Guid userId,
@@ -31,10 +32,11 @@ public class TestController : ControllerBase
         var command = new CreateTestCommand(
             userId,
             request.TestName,
+            request.Theme,
             request.IsPublished,
             request.Seconds,
             request.Minutes,
-            request.Hours);
+            request.Tasks);
         
         var result = await handler.Handle(command, cancellationToken);
         
@@ -44,7 +46,7 @@ public class TestController : ControllerBase
         return Ok(Envelope.Ok(result.Value));
     }
     
-    [HttpPut("{testId:guid}/test")]
+    [HttpPut("{testId:guid}")]
     //[Permission("test.update")]
     public async Task<IActionResult> UpdateTest(
         [FromRoute] Guid testId,
@@ -55,10 +57,13 @@ public class TestController : ControllerBase
         var command = new UpdateTestCommand(
             testId,
             request.TestName,
+            request.Theme,
             request.IsPublished,
             request.Seconds,
             request.Minutes,
-            request.Hours);
+            request.TasksToCreate,
+            request.TasksToUpdate,
+            request.TaskIdsToDelete);
         
         var result = await handler.Handle(command, cancellationToken);
         
@@ -68,7 +73,7 @@ public class TestController : ControllerBase
         return Ok(Envelope.Ok(result.Value));
     }
 
-    [HttpDelete("{testId:guid}/test")]
+    [HttpDelete("{testId:guid}")]
     //[Permission("test.delete")]
     public async Task<IActionResult> DeleteTest(
         [FromRoute] Guid testId,
@@ -141,9 +146,26 @@ public class TestController : ControllerBase
         
         return Ok(Envelope.Ok(result.Value));
     }
+
+    [HttpPut("{testId:guid}/task")]
+    public async Task<IActionResult> UpdateTasksStatistic(
+        [FromRoute] Guid testId,
+        [FromBody] UpdateTasksStatisticRequest request,
+        [FromServices] UpdateTasksStatisticHandler handler,
+        CancellationToken cancellationToken = default)
+    {
+        var command = new UpdateTasksStatisticCommand(testId, request.Tasks);
+        
+        var result = await handler.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return result.Error.ToResponse();
+
+        return Ok(Envelope.Ok(null));
+    }
     
     [HttpGet("{userId:guid}")]
-    //[Permission("test.get")]
+    [Permission("test.create")]
     public async Task<ActionResult> GetTestsById(
         [FromRoute] Guid userId,
         [FromServices] GetTestsHandler handler,

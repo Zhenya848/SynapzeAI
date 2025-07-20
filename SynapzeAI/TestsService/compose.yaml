@@ -4,7 +4,7 @@
     image: postgres
     restart: always
     environment:
-      POSTGRES_DB: tests_service
+      POSTGRES_DB: tests_service_project
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:

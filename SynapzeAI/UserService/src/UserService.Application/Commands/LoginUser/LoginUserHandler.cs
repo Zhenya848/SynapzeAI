@@ -41,6 +41,6 @@ public class LoginUserHandler : ICommandHandler<LoginUserCommand, Result<LoginRe
         
         _logger.LogInformation("Login successfully");
         
-        return new LoginResponse(accessToken.AccessToken, refreshToken);
+        return new LoginResponse(accessToken.AccessToken, refreshToken, user.Id, user.Email!, user.UserName!);
     }
 }

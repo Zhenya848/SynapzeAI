@@ -36,13 +36,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-
-    //await app.ApplyMigrations();
 }
 
 app.UseCors(config =>
 {
-    config.WithOrigins("http://localhost:5179")
+    config.WithOrigins("http://localhost:5173")
+        .AllowCredentials()
         .AllowAnyHeader()
         .AllowAnyMethod();
 });
