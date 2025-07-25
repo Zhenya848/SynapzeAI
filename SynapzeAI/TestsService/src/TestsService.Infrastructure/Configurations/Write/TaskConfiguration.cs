@@ -18,7 +18,7 @@ public class TaskConfiguration : IEntityTypeConfiguration<Task>
         builder.HasKey(i => i.Id);
         
         builder.Property(tn => tn.TaskName).IsRequired().HasMaxLength(Constants.MAX_LOW_TEXT_LENGTH);
-        builder.Property(tm => tm.TaskMessage).IsRequired().HasMaxLength(Constants.MAX_LOW_TEXT_LENGTH);
+        builder.Property(tm => tm.TaskMessage).IsRequired().HasMaxLength(Constants.MAX_HIGH_TEXT_LENGTH);
         builder.Property(ra => ra.RightAnswer).IsRequired(false).HasMaxLength(Constants.MAX_LOW_TEXT_LENGTH);
 
         builder.Property(imp => imp.ImagePath).IsRequired(false);
