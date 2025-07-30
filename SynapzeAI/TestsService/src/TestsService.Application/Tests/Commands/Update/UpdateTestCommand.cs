@@ -6,7 +6,7 @@ public record UpdateTestCommand(
     Guid TestId,
     string TestName,
     string Theme,
-    bool IsPublished,
+    bool WithAI,
     int? Seconds,
     int? Minutes,
     IEnumerable<CreateTaskDto>? TasksToCreate,

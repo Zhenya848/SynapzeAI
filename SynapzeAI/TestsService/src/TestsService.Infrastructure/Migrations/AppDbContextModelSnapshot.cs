@@ -48,10 +48,6 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<DateTime?>("NextReview")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("next_review");
-
                     b.Property<string>("RightAnswer")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
@@ -59,8 +55,8 @@ namespace TestsService.Infrastructure.Migrations
 
                     b.Property<string>("TaskMessage")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
                         .HasColumnName("task_message");
 
                     b.Property<string>("TaskName")
@@ -96,10 +92,6 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<bool>("IsPublished")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_published");
-
                     b.Property<string>("TestName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -116,10 +108,46 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
+                    b.Property<bool>("WithAI")
+                        .HasColumnType("boolean")
+                        .HasColumnName("with_ai");
+
                     b.HasKey("Id")
                         .HasName("pk_tests");
 
                     b.ToTable("tests", (string)null);
+                });
+
+            modelBuilder.Entity("TestsService.Domain.ValueObjects.SolvingHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("SolvingDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("solving_date");
+
+                    b.Property<int>("SolvingTimeSeconds")
+                        .HasColumnType("integer")
+                        .HasColumnName("solving_time_seconds");
+
+                    b.Property<string>("TaskHistories")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("task_histories");
+
+                    b.Property<Guid?>("test_id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("test_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_solving_histories");
+
+                    b.HasIndex("test_id")
+                        .HasDatabaseName("ix_solving_histories_test_id");
+
+                    b.ToTable("solving_histories", (string)null);
                 });
 
             modelBuilder.Entity("TestsService.Domain.Task", b =>
@@ -192,8 +220,19 @@ namespace TestsService.Infrastructure.Migrations
                     b.Navigation("LimitTime");
                 });
 
+            modelBuilder.Entity("TestsService.Domain.ValueObjects.SolvingHistory", b =>
+                {
+                    b.HasOne("TestsService.Domain.Test", null)
+                        .WithMany("SolvingHistories")
+                        .HasForeignKey("test_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_solving_histories_tests_test_id");
+                });
+
             modelBuilder.Entity("TestsService.Domain.Test", b =>
                 {
+                    b.Navigation("SolvingHistories");
+
                     b.Navigation("Tasks");
                 });
 #pragma warning restore 612, 618

@@ -20,7 +20,7 @@ public class GetTestsWithPaginationHandler : IQueryHandler<GetTestsWithPaginatio
         CancellationToken cancellationToken = default)
     {
         var testsQuery = _readDbContext.Tests
-            .Where(ip => ip.IsPublished)
+            .Where(ip => ip.WithAI)
             .GetItemsWithPagination(query.Page, query.PageSize);
 
         var tests = await testsQuery.ToListAsync(cancellationToken);

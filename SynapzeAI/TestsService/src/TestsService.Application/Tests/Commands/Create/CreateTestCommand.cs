@@ -7,7 +7,7 @@ public record CreateTestCommand(
     Guid UserId,
     string TestName,
     string Theme,
-    bool IsPublished,
+    bool WithAI,
     int? Seconds,
     int? Minutes,
     IEnumerable<CreateTaskDto>? Tasks);

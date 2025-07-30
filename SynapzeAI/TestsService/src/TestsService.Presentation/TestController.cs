@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TestsService.Application.Models.Dtos;
+using TestsService.Application.SolvingHistories.Commands.Create;
+using TestsService.Application.SolvingHistories.Commands.Get;
 using TestsService.Application.Tasks.Commands.Create;
 using TestsService.Application.Tasks.Commands.Delete;
 using TestsService.Application.Tasks.Commands.UpdateStatistic;
@@ -12,6 +14,7 @@ using TestsService.Application.Tests.Commands.Get;
 using TestsService.Application.Tests.Commands.Update;
 using TestsService.Application.Tests.Queries;
 using TestsService.Domain.Shared.ValueObjects.Dtos;
+using TestsService.Domain.ValueObjects;
 using TestsService.Presentation.Authorization;
 using TestsService.Presentation.Requests;
 
@@ -33,7 +36,7 @@ public class TestController : ControllerBase
             userId,
             request.TestName,
             request.Theme,
-            request.IsPublished,
+            request.WithAI,
             request.Seconds,
             request.Minutes,
             request.Tasks);
@@ -58,7 +61,7 @@ public class TestController : ControllerBase
             testId,
             request.TestName,
             request.Theme,
-            request.IsPublished,
+            request.WithAI,
             request.Seconds,
             request.Minutes,
             request.TasksToCreate,
@@ -86,6 +89,38 @@ public class TestController : ControllerBase
             return result.Error.ToResponse();
         
         return Ok(Envelope.Ok(result.Value));
+    }
+
+    [HttpPut("{testId:guid}/history")]
+    public async Task<IActionResult> AddSolvingHistory(
+        [FromRoute] Guid testId,
+        [FromBody] AddSolvingHistoryRequest request,
+        [FromServices] AddSolvingHistoryHandler handler,
+        CancellationToken cancellationToken = default)
+    {
+        var command = new AddSolvingHistoryCommand(
+            testId, 
+            request.TaskHistories, 
+            request.SolvingDate,
+            request.SolvingTimeSeconds);
+        
+        var result = await handler.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return result.Error.ToResponse();
+
+        return Ok(Envelope.Ok(null));
+    }
+
+    [HttpGet("{testId:guid}/history")]
+    public async Task<IActionResult> GetSolvingHistory(
+        [FromRoute] Guid testId,
+        [FromServices] GetSolvingHistoriesHandler handler,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await handler.Handle(testId, cancellationToken);
+        
+        return Ok(Envelope.Ok(result));
     }
     
     [HttpPost("{testId:guid}/task")]

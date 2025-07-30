@@ -5,7 +5,7 @@ namespace TestsService.Presentation.Requests;
 public record UpdateTestRequest(
     string TestName,
     string Theme,
-    bool IsPublished,
+    bool WithAI,
     int? Seconds,
     int? Minutes,
     IEnumerable<CreateTaskDto>? TasksToCreate,

@@ -14,7 +14,7 @@ public class TestDtoConfiguration : IEntityTypeConfiguration<TestDto>
         
         builder.Property(tn => tn.TestName);
         builder.Property(t => t.Theme);
-        builder.Property(ip => ip.IsPublished);
+        builder.Property(wa => wa.WithAI);
 
         builder.Property(ui => ui.UserId);
 

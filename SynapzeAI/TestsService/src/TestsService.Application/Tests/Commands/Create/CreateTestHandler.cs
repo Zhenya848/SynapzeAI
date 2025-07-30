@@ -55,7 +55,7 @@ public class CreateTestHandler : ICommandHandler<CreateTestCommand, Result<Guid,
             command.UserId,
             command.TestName, 
             command.Theme,
-            command.IsPublished,
+            command.WithAI,
             limitTime,
             tasks?.Select(t => t.Value));
         

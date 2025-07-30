@@ -19,7 +19,7 @@ public class TestConfiguration : IEntityTypeConfiguration<Test>
         
         builder.Property(tn => tn.TestName).IsRequired().HasMaxLength(Constants.MAX_LOW_TEXT_LENGTH);
         builder.Property(t => t.Theme).IsRequired().HasMaxLength(Constants.MAX_LOW_TEXT_LENGTH);
-        builder.Property(ip => ip.IsPublished).IsRequired();
+        builder.Property(wa => wa.WithAI).IsRequired();
 
         builder.OwnsOne(lt => lt.LimitTime, ltb =>
         {
@@ -30,6 +30,7 @@ public class TestConfiguration : IEntityTypeConfiguration<Test>
         builder.Navigation(lt => lt.LimitTime).IsRequired(false);
         
         builder.HasMany(t => t.Tasks).WithOne().HasForeignKey("test_id").OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(sh => sh.SolvingHistories).WithOne().HasForeignKey("test_id").OnDelete(DeleteBehavior.Cascade);
         
         builder.Property(idlt => idlt.IsDeleted);
         builder.Property(dd => dd.DeletionDate);

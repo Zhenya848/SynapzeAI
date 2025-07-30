@@ -9,7 +9,7 @@ public record TestDto
     
     public string TestName { get; set; }
     public string Theme { get; set; }
-    public bool IsPublished { get; set; }
+    public bool WithAI { get; set; }
 
     public LimitTimeDto? LimitTime { get; set; }
     

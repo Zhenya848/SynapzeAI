@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using TestsService.Application.Repositories;
+using TestsService.Domain.Shared.ValueObjects.Dtos;
 using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 
 namespace TestsService.Infrastructure.DbContexts;
@@ -10,6 +11,7 @@ public class ReadDbContext(IConfiguration configuration) : DbContext, IReadDbCon
 {
     public IQueryable<TestDto> Tests => Set<TestDto>();
     public IQueryable<TaskDto> Tasks => Set<TaskDto>();
+    public IQueryable<SolvingHistoryDto> SolvingHistories => Set<SolvingHistoryDto>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

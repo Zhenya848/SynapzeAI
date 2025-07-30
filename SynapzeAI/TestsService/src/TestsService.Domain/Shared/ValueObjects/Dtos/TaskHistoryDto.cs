@@ -1,10 +1,7 @@
-namespace TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
+namespace TestsService.Domain.Shared.ValueObjects.Dtos;
 
-public record TaskDto
+public record TaskHistoryDto
 {
-    public Guid Id { get; set; }
-    public Guid TestId { get; set; }
-    
     public string TaskName { get; set; }
     public string TaskMessage { get; set; }
     public string? RightAnswer { get; set; }
@@ -12,7 +9,8 @@ public record TaskDto
     public string? ImagePath { get; set; }
     public string? AudioPath { get; set; }
     
-    public TaskStatisticDto? TaskStatistic { get; set; }
-    
     public string[]?  Answers { get; set; }
+    public string UserAnswer { get; set; }
+
+    public string? MessageAI { get; set; }
 }

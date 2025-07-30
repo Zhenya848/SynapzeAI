@@ -30,8 +30,6 @@ public class TaskDtoConfiguration : IEntityTypeConfiguration<TaskDto>
             tsb.Property(ats => ats.AvgTimeSolvingSec);
         });
         
-        builder.Property(nr => nr.NextReview).IsRequired(false);
-        
         builder.Property(a => a.Answers).HasConversion(
                 value => JsonSerializer.Serialize(value, JsonSerializerOptions.Default),
                 json => JsonSerializer.Deserialize<string[]>(json, JsonSerializerOptions.Default)!)

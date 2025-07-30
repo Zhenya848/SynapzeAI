@@ -16,7 +16,7 @@ public class Task : SoftDeletableEntity<TaskId>
     public string? AudioPath { get; private set; }
     
     public TaskStatistic? TaskStatistic { get; private set; }
-    public DateTime? NextReview { get; private set; }
+    
     public List<string>? Answers { get; private set; }
 
     protected Task(TaskId id) : base(id)
@@ -88,23 +88,6 @@ public class Task : SoftDeletableEntity<TaskId>
     public void UpdateStatistic(TaskStatistic statistic)
     {
         TaskStatistic = statistic;
-        
-        double successRate = statistic.RightAnswersCount / (statistic.ErrorsCount + statistic.RightAnswersCount + 1e-6);
-        
-        double interval = 1;
-
-        if (statistic.RightAnswersCount > 0)
-        {
-            interval *= Math.Pow(1.2, statistic.RightAnswersCount - 1);
-            interval *= Math.Pow(successRate, 0.5);
-        }
-        
-        double timeFactor = Math.Clamp(statistic.AvgTimeSolvingSec / 30, 0.5, 2.0);
-        interval /= timeFactor;
-        
-        interval = Math.Clamp(interval, 1, 30);
-        
-        NextReview = statistic.LastReviewTime.AddDays(interval);
     }
     
     public override void Delete()

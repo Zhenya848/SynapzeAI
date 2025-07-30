@@ -35,8 +35,6 @@ public class TaskConfiguration : IEntityTypeConfiguration<Task>
             tsb.Property(ats => ats.AvgTimeSolvingSec);
         });
         
-        builder.Property(nr => nr.NextReview).IsRequired(false);
-        
         builder.Property(a => a.Answers).HasConversion(
                 value => JsonSerializer.Serialize(value, JsonSerializerOptions.Default),
                 json => JsonSerializer.Deserialize<List<string>>(json, JsonSerializerOptions.Default)!)

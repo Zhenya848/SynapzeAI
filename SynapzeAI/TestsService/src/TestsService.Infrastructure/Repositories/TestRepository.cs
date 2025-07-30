@@ -74,4 +74,19 @@ public class TestRepository : ITestRepository
         
         return taskIds;
     }
+
+    public IEnumerable<Guid> DeleteSolvingHistories(IEnumerable<SolvingHistory> solvingHistories)
+    {
+        _context.SolvingHistories.RemoveRange(solvingHistories);
+        
+        string solvingHistoriesNames = string.Join(", ", solvingHistories.Select(s => s.Id));
+        var solvingHistoriesIds = solvingHistories.Select(s => s.Id.Value);
+        
+        _logger.LogInformation(
+            "Deleted solving histories {solvingHistories} with ids {id}", 
+            solvingHistoriesNames, 
+            string.Join(", ", solvingHistoriesIds));
+        
+        return solvingHistoriesIds;
+    }
 }
