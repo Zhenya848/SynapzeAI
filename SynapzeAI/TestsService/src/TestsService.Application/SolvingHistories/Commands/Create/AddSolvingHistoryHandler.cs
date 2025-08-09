@@ -8,7 +8,7 @@ using TestsService.Domain.ValueObjects;
 
 namespace TestsService.Application.SolvingHistories.Commands.Create;
 
-public class AddSolvingHistoryHandler : ICommandHandler<AddSolvingHistoryCommand, UnitResult<ErrorList>>
+public class AddSolvingHistoryHandler : ICommandHandler<AddSolvingHistoryCommand, Result<Guid, ErrorList>>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITestRepository _testRepository;
@@ -19,7 +19,7 @@ public class AddSolvingHistoryHandler : ICommandHandler<AddSolvingHistoryCommand
         _testRepository = testRepository;
     }
     
-    public async Task<UnitResult<ErrorList>> Handle(
+    public async Task<Result<Guid, ErrorList>> Handle(
         AddSolvingHistoryCommand command, 
         CancellationToken cancellationToken = default)
     {
@@ -33,6 +33,7 @@ public class AddSolvingHistoryHandler : ICommandHandler<AddSolvingHistoryCommand
 
         var taskHistoriesResult = command.TaskHistories
             .Select(th => TaskHistory.Create(
+                th.SerialNumber,
                 th.TaskName,
                 th.TaskMessage,
                 th.UserAnswer,
@@ -65,6 +66,6 @@ public class AddSolvingHistoryHandler : ICommandHandler<AddSolvingHistoryCommand
         test.AddSolvingHistory(solvingHistoriesResult.Value);
         await _unitOfWork.SaveChanges(cancellationToken);
 
-        return Result.Success<ErrorList>();
+        return (Guid)solvingHistoriesResult.Value.Id;
     }
 }

@@ -40,7 +40,9 @@ public class Test : SoftDeletableEntity<TestId>
         UserId = userId;
         WithAI = withAi;
         LimitTime = limitTime;
-        _tasks = tasks?.ToList() ?? [];
+        
+        if (tasks is not null)
+            AddTasks(tasks);
     }
 
     public static Result<Test, Error> Create(
@@ -61,8 +63,14 @@ public class Test : SoftDeletableEntity<TestId>
         return new Test(id, userId, testName, theme, withAI, limitTime, tasks);
     }
 
-    public void AddTasks(IEnumerable<Task> tasks) =>
-        _tasks.AddRange(tasks);
+    public void AddTasks(IEnumerable<Task> tasks)
+    {
+        tasks.ToList().ForEach(t =>
+        {
+            t.SetSerialNumber(_tasks.Count + 1);
+            _tasks.Add(t);
+        });
+    }
 
     public void UpdateTasks(IEnumerable<Task> tasks)
     {
@@ -117,6 +125,15 @@ public class Test : SoftDeletableEntity<TestId>
     
     public void AddSolvingHistory(SolvingHistory solvingHistory) =>
         _solvingHistories.Add(solvingHistory);
+
+    public void UpdateSolvingHistory(SolvingHistory solvingHistory)
+    {
+        _solvingHistories[_solvingHistories.FindIndex(s => s.Id == solvingHistory.Id)]
+            .UpdateInfo(
+                solvingHistory.TaskHistories,
+                solvingHistory.SolvingDate,
+                solvingHistory.SolvingTimeSeconds);
+    }
 
     public override void Delete()
     {

@@ -15,6 +15,7 @@ public class TaskDtoConfiguration : IEntityTypeConfiguration<TaskDto>
 
         builder.Property(ti => ti.TestId);
         
+        builder.Property(sn => sn.SerialNumber);
         builder.Property(tn => tn.TaskName);
         builder.Property(tm => tm.TaskMessage);
         builder.Property(ra => ra.RightAnswer).IsRequired(false);

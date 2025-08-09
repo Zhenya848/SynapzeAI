@@ -2,6 +2,7 @@ namespace TestsService.Domain.Shared.ValueObjects.Dtos;
 
 public record TaskHistoryDto
 {
+    public int SerialNumber { get; set; }
     public string TaskName { get; set; }
     public string TaskMessage { get; set; }
     public string? RightAnswer { get; set; }

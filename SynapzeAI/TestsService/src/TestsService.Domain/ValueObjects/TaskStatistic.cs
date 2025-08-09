@@ -38,7 +38,7 @@ public record TaskStatistic
         if (lastReviewTime > DateTime.Now)
             return Errors.General.ValueIsInvalid(nameof(lastReviewTime));
         
-        if (avgTimeSolvingSec <= 0)
+        if (avgTimeSolvingSec < 0)
             return Errors.General.ValueIsInvalid(nameof(avgTimeSolvingSec));
         
         return new TaskStatistic(

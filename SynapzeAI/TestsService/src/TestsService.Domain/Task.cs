@@ -8,6 +8,7 @@ namespace TestsService.Domain;
 
 public class Task : SoftDeletableEntity<TaskId>
 {
+    public int SerialNumber { get; private set; }
     public string TaskName { get; private set; }
     public string TaskMessage { get; private set; }
     public string? RightAnswer { get; private set; }
@@ -88,6 +89,16 @@ public class Task : SoftDeletableEntity<TaskId>
     public void UpdateStatistic(TaskStatistic statistic)
     {
         TaskStatistic = statistic;
+    }
+
+    internal UnitResult<Error> SetSerialNumber(int serialNumber)
+    {
+        if (serialNumber < 1)
+            return Errors.General.ValueIsInvalid(nameof(serialNumber));
+        
+        SerialNumber = serialNumber;
+        
+        return Result.Success<Error>();
     }
     
     public override void Delete()

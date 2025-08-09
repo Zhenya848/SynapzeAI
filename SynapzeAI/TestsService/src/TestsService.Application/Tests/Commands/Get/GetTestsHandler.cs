@@ -34,6 +34,7 @@ public class GetTestsHandler : IQueryHandler<Guid, IEnumerable<TestDto>>
         
         tests.ForEach(test => test.Tasks = tasks
             .Where(t => t.TestId == test.Id)
+            .OrderBy(t => t.SerialNumber)
             .ToArray());
         
         return tests;

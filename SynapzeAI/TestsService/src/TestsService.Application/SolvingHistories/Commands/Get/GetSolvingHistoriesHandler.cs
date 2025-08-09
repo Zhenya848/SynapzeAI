@@ -3,6 +3,7 @@ using TestsService.Application.Abstractions;
 using TestsService.Application.Repositories;
 using TestsService.Domain.Shared;
 using TestsService.Domain.Shared.ValueObjects.Dtos;
+using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 
 namespace TestsService.Application.SolvingHistories.Commands.Get;
 

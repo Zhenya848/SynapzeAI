@@ -1,4 +1,4 @@
-namespace TestsService.Domain.Shared.ValueObjects.Dtos;
+namespace TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 
 public record SolvingHistoryDto
 {

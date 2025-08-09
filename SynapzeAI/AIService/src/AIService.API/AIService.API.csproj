@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>19336d7a-f88e-446d-b581-0b02c6f7b010</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AIService.Application\AIService.Application.csproj" />
+      <ProjectReference Include="..\AIService.Domain\AIService.Domain.csproj" />
+      <ProjectReference Include="..\AIService.Infrastructure\AIService.Infrastructure.csproj" />
+      <ProjectReference Include="..\AIService.Presentation\AIService.Presentation.csproj" />
+    </ItemGroup>
+
+</Project>

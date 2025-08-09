@@ -44,7 +44,8 @@ public class TestRepository : ITestRepository
         CancellationToken cancellationToken)
     {
         var tests = _context.Tests
-            .Include(t => t.Tasks);
+            .Include(t => t.Tasks)
+            .Include(sh => sh.SolvingHistories);
         
         var testResult = await tests
             .FirstOrDefaultAsync(i => i.Id == id, cancellationToken);

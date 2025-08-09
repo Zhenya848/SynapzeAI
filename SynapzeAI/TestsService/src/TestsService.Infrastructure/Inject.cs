@@ -24,11 +24,14 @@ public static class Inject
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddHttpClient();
+        
         services.AddScoped<IReadDbContext, ReadDbContext>();
         
         services.AddScoped<AppDbContext>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ITestRepository, TestRepository>();
+        services.AddScoped<IAIProvider, AIProvider>();
 
         services.AddHostedService<FileCleanerBackgroundService>();
         services.AddMinio(configuration);

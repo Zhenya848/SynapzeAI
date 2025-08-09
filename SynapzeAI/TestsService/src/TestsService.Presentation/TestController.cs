@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TestsService.Application.Models.Dtos;
 using TestsService.Application.SolvingHistories.Commands.Create;
+using TestsService.Application.SolvingHistories.Commands.ExplainLastSolvingAITest;
 using TestsService.Application.SolvingHistories.Commands.Get;
-using TestsService.Application.Tasks.Commands.Create;
-using TestsService.Application.Tasks.Commands.Delete;
 using TestsService.Application.Tasks.Commands.UpdateStatistic;
 using TestsService.Application.Tasks.Commands.UploadPhotos;
 using TestsService.Application.Tests.Commands.Create;
+using TestsService.Application.Tests.Commands.CreateWithAI;
 using TestsService.Application.Tests.Commands.Delete;
 using TestsService.Application.Tests.Commands.Get;
 using TestsService.Application.Tests.Commands.Update;
@@ -43,6 +43,31 @@ public class TestController : ControllerBase
         
         var result = await handler.Handle(command, cancellationToken);
         
+        if (result.IsFailure)
+            return result.Error.ToResponse();
+        
+        return Ok(Envelope.Ok(result.Value));
+    }
+
+    [HttpPost("{userId:guid}/withAI")]
+    public async Task<IActionResult> CreateTestWithAI(
+        [FromRoute] Guid userId,
+        [FromServices] CreateTestWithAIHandler handler,
+        [FromBody] CreateTestWithAIRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var command = new CreateTestWithAICommand(
+            userId, 
+            request.Theme, 
+            request.IsTimeLimited,
+            request.PercentOfOpenTasks, 
+            request.TasksCount, 
+            request.Difficulty,
+            request.Seconds,
+            request.Minutes);
+        
+        var result = await handler.Handle(command, cancellationToken);
+
         if (result.IsFailure)
             return result.Error.ToResponse();
         
@@ -109,7 +134,7 @@ public class TestController : ControllerBase
         if (result.IsFailure)
             return result.Error.ToResponse();
 
-        return Ok(Envelope.Ok(null));
+        return Ok(Envelope.Ok(result.Value));
     }
 
     [HttpGet("{testId:guid}/history")]
@@ -122,16 +147,15 @@ public class TestController : ControllerBase
         
         return Ok(Envelope.Ok(result));
     }
-    
-    [HttpPost("{testId:guid}/task")]
-    //[Permission("tasks.create")]
-    public async Task<IActionResult> CreateTask(
+
+    [HttpPut("{testId:guid}/history/explain/{solvingHistoryId:guid}")]
+    public async Task<IActionResult> ExplainSolvingTest(
         [FromRoute] Guid testId,
-        [FromServices] CreateTasksHandler handler,
-        [FromBody] CreateTasksRequest request,
+        [FromRoute] Guid solvingHistoryId,
+        [FromServices] ExplainSolvingTestHandler handler,
         CancellationToken cancellationToken = default)
     {
-        var command = new CreateTasksCommand(testId, request.Tasks);
+        var command = new ExplainSolvingTestCommand(testId, solvingHistoryId);
         
         var result = await handler.Handle(command, cancellationToken);
         
@@ -140,7 +164,6 @@ public class TestController : ControllerBase
         
         return Ok(Envelope.Ok(result.Value));
     }
-
     
     [HttpPost("{testId:guid}/task/photos")]
     //[Permission("tasks.upload_photos")]
@@ -155,24 +178,6 @@ public class TestController : ControllerBase
         List<UploadFileDto> fileDtos = formFileProcessor.StartProcess(files);
         
         var command = new UploadFilesToTasksCommand(testId, taskIds, fileDtos);
-        
-        var result = await handler.Handle(command, cancellationToken);
-        
-        if (result.IsFailure)
-            return result.Error.ToResponse();
-        
-        return Ok(Envelope.Ok(result.Value));
-    }
-    
-    [HttpDelete("{testId:guid}/task")]
-    //[Permission("tasks.delete")]
-    public async Task<IActionResult> DeleteTasks(
-        [FromRoute] Guid testId,
-        [FromForm] IEnumerable<Guid> taskIds,
-        [FromServices] DeleteTasksHandler handler,
-        CancellationToken cancellationToken = default)
-    {
-        var command = new DeleteTasksCommand(testId, taskIds);
         
         var result = await handler.Handle(command, cancellationToken);
         
@@ -200,7 +205,7 @@ public class TestController : ControllerBase
     }
     
     [HttpGet("{userId:guid}")]
-    [Permission("test.create")]
+    //[Permission("test.create")] 
     public async Task<ActionResult> GetTestsById(
         [FromRoute] Guid userId,
         [FromServices] GetTestsHandler handler,

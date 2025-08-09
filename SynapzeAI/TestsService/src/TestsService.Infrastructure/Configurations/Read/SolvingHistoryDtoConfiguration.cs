@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TestsService.Domain.Shared.ValueObjects.Dtos;
+using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 using TestsService.Domain.ValueObjects;
 
 namespace TestsService.Infrastructure.Configurations.Read;

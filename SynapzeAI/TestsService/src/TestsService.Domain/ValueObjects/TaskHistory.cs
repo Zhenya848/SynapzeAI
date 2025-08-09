@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using CSharpFunctionalExtensions;
 using TestsService.Domain.Shared;
 using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
@@ -6,19 +7,27 @@ namespace TestsService.Domain.ValueObjects;
 
 public record TaskHistory
 {
-    public string TaskName { get; set; }
-    public string TaskMessage { get; set; }
-    public string? RightAnswer { get; set; }
+    public int SerialNumber { get; init; }
+    public string TaskName { get; init; }
+    public string TaskMessage { get; init; }
+    public string? RightAnswer { get; init; }
     
-    public string? ImagePath { get; set; }
-    public string? AudioPath { get; set; }
+    public string? ImagePath { get; init; }
+    public string? AudioPath { get; init; }
     
-    public List<string>?  Answers { get; set; }
-    public string UserAnswer { get; }
+    public List<string>?  Answers { get; init; }
+    public string UserAnswer { get; init; }
 
-    public string? MessageAI { get; }
-
+    public string? MessageAI { get; private set; }
+    
+    [JsonConstructor]
+    private TaskHistory()
+    {
+        
+    }
+    
     private TaskHistory(
+        int serialNumber,
         string taskName, 
         string taskMessage, 
         string userAnswer, 
@@ -28,6 +37,7 @@ public record TaskHistory
         string? imagePath = null,
         string? audioPath = null)
     {
+        SerialNumber = serialNumber;
         TaskName = taskName;
         TaskMessage = taskMessage;
         UserAnswer = userAnswer;
@@ -39,6 +49,7 @@ public record TaskHistory
     }
 
     public static Result<TaskHistory, Error> Create(
+        int serialNumber,
         string taskName, 
         string taskMessage, 
         string userAnswer, 
@@ -48,6 +59,9 @@ public record TaskHistory
         string? imagePath = null,
         string? audioPath = null)
     {
+        if (serialNumber < 1)
+            return Errors.General.ValueIsInvalid(nameof(serialNumber));
+        
         if (string.IsNullOrWhiteSpace(taskName))
             return Errors.General.ValueIsRequired(nameof(taskName));
         
@@ -58,6 +72,7 @@ public record TaskHistory
             return Errors.General.ValueIsRequired(nameof(userAnswer));
         
         return new TaskHistory(
+            serialNumber,
             taskName,
             taskMessage,
             userAnswer,
@@ -66,5 +81,15 @@ public record TaskHistory
             messageAI,
             imagePath,
             audioPath);
+    }
+    
+    public UnitResult<Error> UpdateAIMessage(string? aiMessage)
+    {
+        if (string.IsNullOrWhiteSpace(aiMessage))
+            return Errors.General.ValueIsInvalid(nameof(aiMessage));
+        
+        MessageAI = aiMessage;
+
+        return Result.Success<Error>();
     }
 }

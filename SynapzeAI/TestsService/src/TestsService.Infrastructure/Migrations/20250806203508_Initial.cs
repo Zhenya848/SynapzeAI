@@ -56,6 +56,7 @@ namespace TestsService.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
+                    serial_number = table.Column<int>(type: "integer", nullable: false),
                     task_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     task_message = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     right_answer = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),

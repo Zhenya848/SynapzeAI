@@ -12,7 +12,7 @@ using TestsService.Infrastructure.DbContexts;
 namespace TestsService.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250727191627_Initial")]
+    [Migration("20250806203508_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -24,6 +24,38 @@ namespace TestsService.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("TestsService.Domain.SolvingHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("SolvingDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("solving_date");
+
+                    b.Property<int>("SolvingTimeSeconds")
+                        .HasColumnType("integer")
+                        .HasColumnName("solving_time_seconds");
+
+                    b.Property<string>("TaskHistories")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("task_histories");
+
+                    b.Property<Guid?>("test_id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("test_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_solving_histories");
+
+                    b.HasIndex("test_id")
+                        .HasDatabaseName("ix_solving_histories_test_id");
+
+                    b.ToTable("solving_histories", (string)null);
+                });
 
             modelBuilder.Entity("TestsService.Domain.Task", b =>
                 {
@@ -55,6 +87,10 @@ namespace TestsService.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("right_answer");
+
+                    b.Property<int>("SerialNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("serial_number");
 
                     b.Property<string>("TaskMessage")
                         .IsRequired()
@@ -121,36 +157,13 @@ namespace TestsService.Infrastructure.Migrations
                     b.ToTable("tests", (string)null);
                 });
 
-            modelBuilder.Entity("TestsService.Domain.ValueObjects.SolvingHistory", b =>
+            modelBuilder.Entity("TestsService.Domain.SolvingHistory", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("SolvingDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("solving_date");
-
-                    b.Property<int>("SolvingTimeSeconds")
-                        .HasColumnType("integer")
-                        .HasColumnName("solving_time_seconds");
-
-                    b.Property<string>("TaskHistories")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("task_histories");
-
-                    b.Property<Guid?>("test_id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("test_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_solving_histories");
-
-                    b.HasIndex("test_id")
-                        .HasDatabaseName("ix_solving_histories_test_id");
-
-                    b.ToTable("solving_histories", (string)null);
+                    b.HasOne("TestsService.Domain.Test", null)
+                        .WithMany("SolvingHistories")
+                        .HasForeignKey("test_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_solving_histories_tests_test_id");
                 });
 
             modelBuilder.Entity("TestsService.Domain.Task", b =>
@@ -221,15 +234,6 @@ namespace TestsService.Infrastructure.Migrations
                         });
 
                     b.Navigation("LimitTime");
-                });
-
-            modelBuilder.Entity("TestsService.Domain.ValueObjects.SolvingHistory", b =>
-                {
-                    b.HasOne("TestsService.Domain.Test", null)
-                        .WithMany("SolvingHistories")
-                        .HasForeignKey("test_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_solving_histories_tests_test_id");
                 });
 
             modelBuilder.Entity("TestsService.Domain.Test", b =>
