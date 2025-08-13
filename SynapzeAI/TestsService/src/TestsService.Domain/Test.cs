@@ -15,6 +15,8 @@ public class Test : SoftDeletableEntity<TestId>
     
     public LimitTime? LimitTime { get; private set; }
     
+    public PrivacySettings PrivacySettings { get; private set; }
+    
     private List<Task> _tasks  = new List<Task>();
     public IReadOnlyList<Task> Tasks => _tasks;
     
@@ -33,12 +35,14 @@ public class Test : SoftDeletableEntity<TestId>
         string theme,
         bool withAi,
         LimitTime? limitTime = null,
+        PrivacySettings? privacySettings = null,
         IEnumerable<Task>? tasks = null) : base(id)
     {
         TestName = testName;
         Theme = theme;
         UserId = userId;
         WithAI = withAi;
+        PrivacySettings = privacySettings ?? PrivacySettings.AddDefault();
         LimitTime = limitTime;
         
         if (tasks is not null)
@@ -52,6 +56,7 @@ public class Test : SoftDeletableEntity<TestId>
         string theme,
         bool withAI,
         LimitTime? limitTime = null,
+        PrivacySettings? privacySettings = null,
         IEnumerable<Task>? tasks = null)
     {
         if (string.IsNullOrWhiteSpace(testName))
@@ -60,7 +65,7 @@ public class Test : SoftDeletableEntity<TestId>
         if (string.IsNullOrWhiteSpace(theme))
             return Errors.General.ValueIsRequired(nameof(Theme));
         
-        return new Test(id, userId, testName, theme, withAI, limitTime, tasks);
+        return new Test(id, userId, testName, theme, withAI, limitTime, privacySettings, tasks);
     }
 
     public void AddTasks(IEnumerable<Task> tasks)
@@ -107,6 +112,7 @@ public class Test : SoftDeletableEntity<TestId>
         string testName,
         string theme,
         bool withAI,
+        PrivacySettings? privacySettings,
         LimitTime? limitTime)
     {
         if (string.IsNullOrWhiteSpace(testName))
@@ -119,6 +125,9 @@ public class Test : SoftDeletableEntity<TestId>
         Theme = theme;
         WithAI = withAI;
         LimitTime = limitTime;
+
+        if (privacySettings is not null)
+            PrivacySettings = privacySettings;
 
         return Result.Success<Error>();
     }

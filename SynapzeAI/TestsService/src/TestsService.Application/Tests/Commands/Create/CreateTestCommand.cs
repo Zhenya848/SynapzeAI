@@ -10,4 +10,7 @@ public record CreateTestCommand(
     bool WithAI,
     int? Seconds,
     int? Minutes,
+    bool? IsPrivate,
+    IEnumerable<string>? UsersNamesAreAllowed,
+    IEnumerable<string>? UsersEmailsAreAllowed,
     IEnumerable<CreateTaskDto>? Tasks);

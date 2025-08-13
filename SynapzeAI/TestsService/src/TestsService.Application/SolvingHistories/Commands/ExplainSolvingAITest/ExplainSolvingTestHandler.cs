@@ -6,10 +6,9 @@ using TestsService.Application.Models.Dtos;
 using TestsService.Application.Providers;
 using TestsService.Application.Repositories;
 using TestsService.Domain.Shared;
-using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 using TestsService.Domain.Shared.ValueObjects.Id;
 
-namespace TestsService.Application.SolvingHistories.Commands.ExplainLastSolvingAITest;
+namespace TestsService.Application.SolvingHistories.Commands.ExplainSolvingAITest;
 
 public class ExplainSolvingTestHandler 
     : ICommandHandler<ExplainSolvingTestCommand, Result<IEnumerable<AIMessageForTask>, ErrorList>>
@@ -47,7 +46,7 @@ public class ExplainSolvingTestHandler
             .Where(th => th.RightAnswer is null || th.UserAnswer.ToLower() != th.RightAnswer.ToLower());
 
         var tasksHistoryJson = JsonConvert.SerializeObject(taskHistoriesToExplain);
-        var aiMessageForTaskJsonFormat = JsonConvert.SerializeObject(new AIMessageForTask(1, "Your text"));
+        var aiMessageForTaskJsonFormat = JsonConvert.SerializeObject(new AIMessageForTask[] { new (1, "Your text") });
 
         var userRequest = $"История решения задач представлена в формате json: {tasksHistoryJson}. " +
                           $"Цель: проанализировать каждую задачу и ответ пользователя к ней " +

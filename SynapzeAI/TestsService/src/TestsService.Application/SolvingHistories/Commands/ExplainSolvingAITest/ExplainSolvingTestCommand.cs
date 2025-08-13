@@ -1,4 +1,4 @@
-namespace TestsService.Application.SolvingHistories.Commands.ExplainLastSolvingAITest;
+namespace TestsService.Application.SolvingHistories.Commands.ExplainSolvingAITest;
 
 public record ExplainSolvingTestCommand(
     Guid TestId,

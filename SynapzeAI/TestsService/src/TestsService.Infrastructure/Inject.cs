@@ -6,6 +6,7 @@ using TestsService.Application.Abstractions;
 using TestsService.Application.Messaging;
 using TestsService.Application.Providers;
 using TestsService.Application.Repositories;
+using TestsService.Domain.Shared.ValueObjects.Dtos;
 using TestsService.Infrastructure.BackgroundServices;
 using TestsService.Infrastructure.DbContexts;
 using TestsService.Infrastructure.MessageQueue;
@@ -31,7 +32,9 @@ public static class Inject
         services.AddScoped<AppDbContext>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ITestRepository, TestRepository>();
+        
         services.AddScoped<IAIProvider, AIProvider>();
+        services.AddScoped<IAccountsProvider, AccountsProvider>();
 
         services.AddHostedService<FileCleanerBackgroundService>();
         services.AddMinio(configuration);

@@ -10,4 +10,7 @@ public record CreateTestRequest(
     bool WithAI,
     int? Seconds,
     int? Minutes,
+    bool? IsPrivate,
+    IEnumerable<string>? UsersNamesAreAllowed,
+    IEnumerable<string>? UsersEmailsAreAllowed,
     IEnumerable<CreateTaskDto> Tasks);

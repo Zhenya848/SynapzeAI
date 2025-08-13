@@ -37,6 +37,9 @@ public class UpdateTestHandler : ICommandHandler<UpdateTestCommand, Result<Guid,
         
         var test = testResult.Value;
         
+        if (test.UserId != command.UserId)
+            return (ErrorList)Error.Conflict("user_id.not.match", "User id does not match test id");
+        
         LimitTime? limitTime = null;
 
         if (command.Seconds != null && command.Minutes != null)
@@ -48,8 +51,15 @@ public class UpdateTestHandler : ICommandHandler<UpdateTestCommand, Result<Guid,
             
             limitTime = limitTimeResult.Value;
         }
+        
+        var privacySettings = PrivacySettings
+            .Create(command.IsPrivate ?? true, command.UsersNamesAreAllowed ?? [], command.UsersEmailsAreAllowed ?? []);
+        
+        if (privacySettings.IsFailure)
+            return (ErrorList)privacySettings.Error;
 
-        var updateResult = test.UpdateInfo(command.TestName, command.Theme, command.WithAI, limitTime);
+        var updateResult = test
+            .UpdateInfo(command.TestName, command.Theme, command.WithAI, privacySettings.Value, limitTime);
         
         if (updateResult.IsFailure)
             return (ErrorList)updateResult.Error;

@@ -12,7 +12,7 @@ using TestsService.Infrastructure.DbContexts;
 namespace TestsService.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250806203508_Initial")]
+    [Migration("20250813191911_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace TestsService.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.5")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -94,8 +94,8 @@ namespace TestsService.Infrastructure.Migrations
 
                     b.Property<string>("TaskMessage")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
                         .HasColumnName("task_message");
 
                     b.Property<string>("TaskName")
@@ -218,11 +218,38 @@ namespace TestsService.Infrastructure.Migrations
 
                             b1.Property<int>("Minutes")
                                 .HasColumnType("integer")
-                                .HasColumnName("limit_time_minutes");
+                                .HasColumnName("minutes");
 
                             b1.Property<int>("Seconds")
                                 .HasColumnType("integer")
-                                .HasColumnName("limit_time_seconds");
+                                .HasColumnName("seconds");
+
+                            b1.HasKey("TestId");
+
+                            b1.ToTable("tests");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TestId")
+                                .HasConstraintName("fk_tests_tests_id");
+                        });
+
+                    b.OwnsOne("TestsService.Domain.ValueObjects.PrivacySettings", "PrivacySettings", b1 =>
+                        {
+                            b1.Property<Guid>("TestId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<bool>("IsPrivate")
+                                .HasColumnType("boolean")
+                                .HasColumnName("is_private");
+
+                            b1.Property<string>("UsersEmailsAreAllowed")
+                                .HasColumnType("jsonb")
+                                .HasColumnName("users_emails_are_allowed");
+
+                            b1.Property<string>("UsersNamesAreAllowed")
+                                .HasColumnType("jsonb")
+                                .HasColumnName("users_names_are_allowed");
 
                             b1.HasKey("TestId");
 
@@ -234,6 +261,9 @@ namespace TestsService.Infrastructure.Migrations
                         });
 
                     b.Navigation("LimitTime");
+
+                    b.Navigation("PrivacySettings")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TestsService.Domain.Test", b =>

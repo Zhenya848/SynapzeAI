@@ -98,6 +98,7 @@ public class CreateTestWithAIHandler : ICommandHandler<CreateTestWithAICommand, 
             testData.Theme,
             true,
             limitTime.IsSuccess ? limitTime.Value : null,
+            PrivacySettings.AddDefault(),
             tasks.Select(t => t.Value));
         
         if (test.IsFailure)

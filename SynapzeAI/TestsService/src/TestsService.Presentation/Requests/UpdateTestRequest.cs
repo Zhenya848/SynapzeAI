@@ -8,6 +8,9 @@ public record UpdateTestRequest(
     bool WithAI,
     int? Seconds,
     int? Minutes,
+    bool? IsPrivate,
+    IEnumerable<string>? UsersNamesAreAllowed,
+    IEnumerable<string>? UsersEmailsAreAllowed,
     IEnumerable<CreateTaskDto>? TasksToCreate,
     IEnumerable<UpdateTaskDto>? TasksToUpdate,
     IEnumerable<Guid>? TaskIdsToDelete);

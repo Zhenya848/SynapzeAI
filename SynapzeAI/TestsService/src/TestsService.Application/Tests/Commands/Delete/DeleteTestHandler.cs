@@ -6,7 +6,7 @@ using TestsService.Domain.Shared.ValueObjects.Id;
 
 namespace TestsService.Application.Tests.Commands.Delete;
 
-public class DeleteTestHandler : ICommandHandler<Guid, Result<Guid, ErrorList>>
+public class DeleteTestHandler : ICommandHandler<DeleteTestCommand, Result<Guid, ErrorList>>
 {
     private readonly ITestRepository _testRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -20,16 +20,19 @@ public class DeleteTestHandler : ICommandHandler<Guid, Result<Guid, ErrorList>>
     }
 
     public async Task<Result<Guid, ErrorList>> Handle(
-        Guid testId, 
+        DeleteTestCommand command, 
         CancellationToken cancellationToken = default)
     {
         var testResult = await _testRepository
-            .GetById(TestId.Create(testId), cancellationToken);
+            .GetById(TestId.Create(command.TestId), cancellationToken);
+        
+        if (testResult.IsFailure)
+            return (ErrorList)Errors.General.NotFound(command.TestId);
         
         var test = testResult.Value;
         
-        if (testResult.IsFailure)
-            return (ErrorList)Errors.General.NotFound(testId);
+        if (test.UserId != command.UserId)
+            return (ErrorList)Error.Conflict("user_id.not.match", "User id does not match test id");
 
         _testRepository.DeleteTest(test);
         await _unitOfWork.SaveChanges(cancellationToken);

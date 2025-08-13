@@ -13,6 +13,8 @@ public record TestDto
 
     public LimitTimeDto? LimitTime { get; set; }
     
+    public PrivacySettingsDto PrivacySettings { get; set; }
+    
     [NotMapped]
     public TaskDto[] Tasks { get; set; }
 }
