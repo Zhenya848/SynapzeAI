@@ -1,9 +1,12 @@
+using System.Text.Json;
 using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TestsService.Application.Repositories;
 using TestsService.Domain;
 using TestsService.Domain.Shared;
+using TestsService.Domain.Shared.ValueObjects;
+using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 using TestsService.Domain.Shared.ValueObjects.Id;
 using TestsService.Infrastructure.DbContexts;
 using Task = TestsService.Domain.Task;
@@ -44,7 +47,8 @@ public class TestRepository : ITestRepository
         CancellationToken cancellationToken)
     {
         var tests = _context.Tests
-            .Include(t => t.Tasks);
+            .Include(t => t.Tasks)
+            .Include(sh => sh.SolvingHistories);
         
         var testResult = await tests
             .FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
@@ -53,6 +57,19 @@ public class TestRepository : ITestRepository
             return (ErrorList)Errors.General.NotFound(id.Value);
 
         return testResult;
+    }
+
+    public IQueryable<TestDto> GetAllowedTestsForUser(IQueryable<TestDto> source, UserInfo? user)
+    {
+        var userNameJson = JsonSerializer.Serialize(user?.UserName);
+        var emailJson = JsonSerializer.Serialize(user?.Email);
+
+        return source
+            .Where(t => (t.PrivacySettings.UsersEmailsAreAllowed.Length == 0 
+                        && t.PrivacySettings.UsersNamesAreAllowed.Length == 0)
+                        || (user != null && (t.UserId == user.Id
+                        || EF.Functions.JsonContains(t.PrivacySettings.UsersNamesAreAllowed, userNameJson)
+                        || EF.Functions.JsonContains(t.PrivacySettings.UsersEmailsAreAllowed, emailJson))));
     }
 
     public Guid DeleteTest(Test test)
@@ -73,5 +90,20 @@ public class TestRepository : ITestRepository
         _logger.LogInformation("Deleted tasks {tasks} with ids {id}", taskNames, string.Join(", ", taskIds));
         
         return taskIds;
+    }
+
+    public IEnumerable<Guid> DeleteSolvingHistories(IEnumerable<SolvingHistory> solvingHistories)
+    {
+        _context.SolvingHistories.RemoveRange(solvingHistories);
+        
+        string solvingHistoriesNames = string.Join(", ", solvingHistories.Select(s => s.Id));
+        var solvingHistoriesIds = solvingHistories.Select(s => s.Id.Value);
+        
+        _logger.LogInformation(
+            "Deleted solving histories {solvingHistories} with ids {id}", 
+            solvingHistoriesNames, 
+            string.Join(", ", solvingHistoriesIds));
+        
+        return solvingHistoriesIds;
     }
 }

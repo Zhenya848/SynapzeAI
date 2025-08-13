@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Application.Commands.CreateUser;
-using UserService.Application.Commands.GetInfoAboutUser;
+using UserService.Application.Commands.GetUser;
 using UserService.Application.Commands.GetUsers;
 using UserService.Application.Commands.LoginUser;
 using UserService.Application.Commands.LogoutUser;
@@ -92,30 +92,29 @@ public class AccountController : ControllerBase
         
         return Ok();
     }
-
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetInfoAboutUser(
-        [FromRoute] Guid id,
-        [FromServices] GetInfoAboutUserHandler handler,
+    
+    [HttpPost("users")]
+    public async Task<IActionResult> GetUsers(
+        [FromBody] IEnumerable<Guid> userIds,
+        [FromServices] GetUsersHandler handler,
         CancellationToken cancellationToken = default)
     {
-        var result = await handler.Handle(id, cancellationToken);
-        
+        var result = await handler.Handle(userIds, cancellationToken);
+
+        return Ok(result);
+    }
+    
+    [HttpGet("user/{email}")]
+    public async Task<IActionResult> GetUserByEmail(
+        [FromRoute] string email,
+        [FromServices] GetUserByEmailHandler handler,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await handler.Handle(email, cancellationToken);
+
         if (result.IsFailure)
             return result.Error.ToResponse();
 
         return Ok(result.Value);
-    }
-    
-    [HttpPost("users")]
-    public async Task<IActionResult> GetUsers(
-        [FromBody] GetUsersRequest request,
-        [FromServices] GetUsersHandler handler,
-        CancellationToken cancellationToken = default)
-    {
-        var command = new GetUsersCommand(request.Users, request.Roles);
-        var result = await handler.Handle(command, cancellationToken);
-
-        return Ok(result);
     }
 }

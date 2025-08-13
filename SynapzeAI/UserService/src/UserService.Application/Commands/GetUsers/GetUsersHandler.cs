@@ -1,10 +1,11 @@
 using UserService.Application.Abstractions;
 using UserService.Application.Repositories;
-using UserService.Domain.User.Dtos;
+using UserService.Domain;
+using UserService.Domain.User;
 
 namespace UserService.Application.Commands.GetUsers;
 
-public class GetUsersHandler : ICommandHandler<GetUsersCommand, IEnumerable<UserDto>>
+public class GetUsersHandler : ICommandHandler<IEnumerable<Guid>, IEnumerable<UserInfo>>
 {
     private readonly IAccountRepository _accountRepository;
 
@@ -13,37 +14,21 @@ public class GetUsersHandler : ICommandHandler<GetUsersCommand, IEnumerable<User
         _accountRepository = accountRepository;
     }
     
-    public async Task<IEnumerable<UserDto>> Handle(
-        GetUsersCommand command, 
+    public async Task<IEnumerable<UserInfo>> Handle(
+        IEnumerable<Guid> userIds, 
         CancellationToken cancellationToken = default)
     {
         var users = await _accountRepository
-            .GetUsers(command.Users, command.Roles, cancellationToken);
+            .GetUsers(userIds, cancellationToken);
         
-        var usersDto = users.Select(u => new UserDto()
+        var result = users.Select(u => new UserInfo()
         {
             Id = u.Id,
 
             UserName = u.UserName!,
-            Email = u.Email!,
-
-            AdminAccount = u.AdminAccount != null
-                ? new AdminAccountDto()
-                {
-                    FirstName = u.AdminAccount.FullName.FirstName,
-                    LastName = u.AdminAccount.FullName.LastName,
-                    Patronymic = u.AdminAccount.FullName.Patronymic
-                }
-                : null,
-
-            ParticipantAccount = u.ParticipantAccount != null
-                ? new ParticipantAccountDto()
-                {
-                    Nickname = u.ParticipantAccount.Nickname
-                }
-                : null
+            Email = u.Email!
         });
-        
-        return usersDto;
+
+        return result;
     }
 }

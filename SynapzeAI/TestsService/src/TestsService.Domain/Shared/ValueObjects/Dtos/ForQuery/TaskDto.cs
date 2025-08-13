@@ -5,6 +5,7 @@ public record TaskDto
     public Guid Id { get; set; }
     public Guid TestId { get; set; }
     
+    public int SerialNumber { get; set; }
     public string TaskName { get; set; }
     public string TaskMessage { get; set; }
     public string? RightAnswer { get; set; }
@@ -13,7 +14,6 @@ public record TaskDto
     public string? AudioPath { get; set; }
     
     public TaskStatisticDto? TaskStatistic { get; set; }
-    public DateTime? NextReview { get; set; }
     
     public string[]?  Answers { get; set; }
 }

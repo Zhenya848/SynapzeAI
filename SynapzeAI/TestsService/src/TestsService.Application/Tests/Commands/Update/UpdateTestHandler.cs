@@ -37,6 +37,9 @@ public class UpdateTestHandler : ICommandHandler<UpdateTestCommand, Result<Guid,
         
         var test = testResult.Value;
         
+        if (test.UserId != command.UserId)
+            return (ErrorList)Error.Conflict("user_id.not.match", "User id does not match test id");
+        
         LimitTime? limitTime = null;
 
         if (command.Seconds != null && command.Minutes != null)
@@ -48,8 +51,15 @@ public class UpdateTestHandler : ICommandHandler<UpdateTestCommand, Result<Guid,
             
             limitTime = limitTimeResult.Value;
         }
+        
+        var privacySettings = PrivacySettings
+            .Create(command.IsPrivate ?? true, command.UsersNamesAreAllowed ?? [], command.UsersEmailsAreAllowed ?? []);
+        
+        if (privacySettings.IsFailure)
+            return (ErrorList)privacySettings.Error;
 
-        var updateResult = test.UpdateInfo(command.TestName, command.Theme, command.IsPublished, limitTime);
+        var updateResult = test
+            .UpdateInfo(command.TestName, command.Theme, command.WithAI, privacySettings.Value, limitTime);
         
         if (updateResult.IsFailure)
             return (ErrorList)updateResult.Error;
@@ -67,7 +77,10 @@ public class UpdateTestHandler : ICommandHandler<UpdateTestCommand, Result<Guid,
                 .ToList();
 
             if (tasks.Any(t => t.IsFailure))
-                return (ErrorList)tasks.Select(e => e.Error).ToList();
+                return (ErrorList)tasks
+                    .Where(t => t.IsFailure)
+                    .Select(e => e.Error)
+                    .ToList();
         
             test.AddTasks(tasks.Select(t => t.Value));
         }
@@ -85,7 +98,10 @@ public class UpdateTestHandler : ICommandHandler<UpdateTestCommand, Result<Guid,
                 .ToList();
             
             if (tasks.Any(t => t.IsFailure))
-                return (ErrorList)tasks.Select(e => e.Error).ToList();
+                return (ErrorList)tasks
+                    .Where(t => t.IsFailure)
+                    .Select(e => e.Error)
+                    .ToList();
             
             test.UpdateTasks(tasks.Select(t => t.Value));
         }

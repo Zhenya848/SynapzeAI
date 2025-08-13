@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+
 namespace TestsService.Application.Extensions;
 
 public static class QueriesExtensions

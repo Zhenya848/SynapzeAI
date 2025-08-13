@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using UserService.Application.Commands.GetUsers;
 using UserService.Domain.Shared;
 using UserService.Domain.User;
 
@@ -19,7 +20,10 @@ public interface IAccountRepository
         CancellationToken cancellationToken = default);
     
     public Task<IEnumerable<User>> GetUsers(
-        IEnumerable<string> users,
-        IEnumerable<string> roles,
+        IEnumerable<Guid>? userIds,
+        CancellationToken cancellationToken = default);
+
+    public Task<Result<User, Error>> GetUserByEmail(
+        string email,
         CancellationToken cancellationToken = default);
 }

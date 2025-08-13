@@ -15,6 +15,7 @@ public class TaskDtoConfiguration : IEntityTypeConfiguration<TaskDto>
 
         builder.Property(ti => ti.TestId);
         
+        builder.Property(sn => sn.SerialNumber);
         builder.Property(tn => tn.TaskName);
         builder.Property(tm => tm.TaskMessage);
         builder.Property(ra => ra.RightAnswer).IsRequired(false);
@@ -29,8 +30,6 @@ public class TaskDtoConfiguration : IEntityTypeConfiguration<TaskDto>
             tsb.Property(lrt => lrt.LastReviewTime);
             tsb.Property(ats => ats.AvgTimeSolvingSec);
         });
-        
-        builder.Property(nr => nr.NextReview).IsRequired(false);
         
         builder.Property(a => a.Answers).HasConversion(
                 value => JsonSerializer.Serialize(value, JsonSerializerOptions.Default),

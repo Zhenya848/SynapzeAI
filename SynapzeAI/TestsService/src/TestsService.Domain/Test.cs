@@ -11,12 +11,17 @@ public class Test : SoftDeletableEntity<TestId>
     
     public string TestName { get; private set; }
     public string Theme { get; private set; }
-    public bool IsPublished { get; private set; }
+    public bool WithAI { get; private set; }
     
     public LimitTime? LimitTime { get; private set; }
     
+    public PrivacySettings PrivacySettings { get; private set; }
+    
     private List<Task> _tasks  = new List<Task>();
     public IReadOnlyList<Task> Tasks => _tasks;
+    
+    private List<SolvingHistory> _solvingHistories = new List<SolvingHistory>();
+    public IReadOnlyList<SolvingHistory> SolvingHistories => _solvingHistories;
 
     private Test(TestId id) : base(id)
     {
@@ -28,16 +33,20 @@ public class Test : SoftDeletableEntity<TestId>
         Guid userId,
         string testName, 
         string theme,
-        bool isPublished,
+        bool withAi,
         LimitTime? limitTime = null,
+        PrivacySettings? privacySettings = null,
         IEnumerable<Task>? tasks = null) : base(id)
     {
         TestName = testName;
         Theme = theme;
         UserId = userId;
-        IsPublished = isPublished;
+        WithAI = withAi;
+        PrivacySettings = privacySettings ?? PrivacySettings.AddDefault();
         LimitTime = limitTime;
-        _tasks = tasks?.ToList() ?? [];
+        
+        if (tasks is not null)
+            AddTasks(tasks);
     }
 
     public static Result<Test, Error> Create(
@@ -45,8 +54,9 @@ public class Test : SoftDeletableEntity<TestId>
         Guid userId,
         string testName, 
         string theme,
-        bool isPublished,
+        bool withAI,
         LimitTime? limitTime = null,
+        PrivacySettings? privacySettings = null,
         IEnumerable<Task>? tasks = null)
     {
         if (string.IsNullOrWhiteSpace(testName))
@@ -55,11 +65,17 @@ public class Test : SoftDeletableEntity<TestId>
         if (string.IsNullOrWhiteSpace(theme))
             return Errors.General.ValueIsRequired(nameof(Theme));
         
-        return new Test(id, userId, testName, theme, isPublished, limitTime, tasks);
+        return new Test(id, userId, testName, theme, withAI, limitTime, privacySettings, tasks);
     }
 
-    public void AddTasks(IEnumerable<Task> tasks) =>
-        _tasks.AddRange(tasks);
+    public void AddTasks(IEnumerable<Task> tasks)
+    {
+        tasks.ToList().ForEach(t =>
+        {
+            t.SetSerialNumber(_tasks.Count + 1);
+            _tasks.Add(t);
+        });
+    }
 
     public void UpdateTasks(IEnumerable<Task> tasks)
     {
@@ -95,7 +111,8 @@ public class Test : SoftDeletableEntity<TestId>
     public UnitResult<Error> UpdateInfo(
         string testName,
         string theme,
-        bool isPublished,
+        bool withAI,
+        PrivacySettings? privacySettings,
         LimitTime? limitTime)
     {
         if (string.IsNullOrWhiteSpace(testName))
@@ -106,10 +123,25 @@ public class Test : SoftDeletableEntity<TestId>
         
         TestName = testName;
         Theme = theme;
-        IsPublished = isPublished;
+        WithAI = withAI;
         LimitTime = limitTime;
 
+        if (privacySettings is not null)
+            PrivacySettings = privacySettings;
+
         return Result.Success<Error>();
+    }
+    
+    public void AddSolvingHistory(SolvingHistory solvingHistory) =>
+        _solvingHistories.Add(solvingHistory);
+
+    public void UpdateSolvingHistory(SolvingHistory solvingHistory)
+    {
+        _solvingHistories[_solvingHistories.FindIndex(s => s.Id == solvingHistory.Id)]
+            .UpdateInfo(
+                solvingHistory.TaskHistories,
+                solvingHistory.SolvingDate,
+                solvingHistory.SolvingTimeSeconds);
     }
 
     public override void Delete()

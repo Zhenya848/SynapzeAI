@@ -17,10 +17,42 @@ namespace TestsService.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.5")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("TestsService.Domain.SolvingHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("SolvingDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("solving_date");
+
+                    b.Property<int>("SolvingTimeSeconds")
+                        .HasColumnType("integer")
+                        .HasColumnName("solving_time_seconds");
+
+                    b.Property<string>("TaskHistories")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("task_histories");
+
+                    b.Property<Guid?>("test_id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("test_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_solving_histories");
+
+                    b.HasIndex("test_id")
+                        .HasDatabaseName("ix_solving_histories_test_id");
+
+                    b.ToTable("solving_histories", (string)null);
+                });
 
             modelBuilder.Entity("TestsService.Domain.Task", b =>
                 {
@@ -48,19 +80,19 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<DateTime?>("NextReview")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("next_review");
-
                     b.Property<string>("RightAnswer")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("right_answer");
 
+                    b.Property<int>("SerialNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("serial_number");
+
                     b.Property<string>("TaskMessage")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
                         .HasColumnName("task_message");
 
                     b.Property<string>("TaskName")
@@ -96,10 +128,6 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<bool>("IsPublished")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_published");
-
                     b.Property<string>("TestName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -116,10 +144,23 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
+                    b.Property<bool>("WithAI")
+                        .HasColumnType("boolean")
+                        .HasColumnName("with_ai");
+
                     b.HasKey("Id")
                         .HasName("pk_tests");
 
                     b.ToTable("tests", (string)null);
+                });
+
+            modelBuilder.Entity("TestsService.Domain.SolvingHistory", b =>
+                {
+                    b.HasOne("TestsService.Domain.Test", null)
+                        .WithMany("SolvingHistories")
+                        .HasForeignKey("test_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_solving_histories_tests_test_id");
                 });
 
             modelBuilder.Entity("TestsService.Domain.Task", b =>
@@ -174,11 +215,38 @@ namespace TestsService.Infrastructure.Migrations
 
                             b1.Property<int>("Minutes")
                                 .HasColumnType("integer")
-                                .HasColumnName("limit_time_minutes");
+                                .HasColumnName("minutes");
 
                             b1.Property<int>("Seconds")
                                 .HasColumnType("integer")
-                                .HasColumnName("limit_time_seconds");
+                                .HasColumnName("seconds");
+
+                            b1.HasKey("TestId");
+
+                            b1.ToTable("tests");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TestId")
+                                .HasConstraintName("fk_tests_tests_id");
+                        });
+
+                    b.OwnsOne("TestsService.Domain.ValueObjects.PrivacySettings", "PrivacySettings", b1 =>
+                        {
+                            b1.Property<Guid>("TestId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<bool>("IsPrivate")
+                                .HasColumnType("boolean")
+                                .HasColumnName("is_private");
+
+                            b1.Property<string>("UsersEmailsAreAllowed")
+                                .HasColumnType("jsonb")
+                                .HasColumnName("users_emails_are_allowed");
+
+                            b1.Property<string>("UsersNamesAreAllowed")
+                                .HasColumnType("jsonb")
+                                .HasColumnName("users_names_are_allowed");
 
                             b1.HasKey("TestId");
 
@@ -190,10 +258,15 @@ namespace TestsService.Infrastructure.Migrations
                         });
 
                     b.Navigation("LimitTime");
+
+                    b.Navigation("PrivacySettings")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TestsService.Domain.Test", b =>
                 {
+                    b.Navigation("SolvingHistories");
+
                     b.Navigation("Tasks");
                 });
 #pragma warning restore 612, 618
