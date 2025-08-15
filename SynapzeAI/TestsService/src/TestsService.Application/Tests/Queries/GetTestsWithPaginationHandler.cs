@@ -64,44 +64,36 @@ public class GetTestsWithPaginationHandler : IQueryHandler<GetTestsWithPaginatio
 
         if (string.IsNullOrEmpty(query.SearchUserEmail) == false)
         {
-            try
-            {
-                var userResult = await _accountsProvider
-                    .GetUserByEmail(query.SearchUserEmail, cancellationToken);
+            var userResult = await _accountsProvider
+                .GetUserByEmail(query.SearchUserEmail, cancellationToken);
 
-                if (userResult.IsFailure)
-                    return new PagedList<GlobalTestDto>()
-                    {
-                        Items = [],
-                        TotalCount = 0,
-                        Page = query.Page,
-                        PageSize = query.PageSize,
-                    };
-                
-                var user = userResult.Value;
-                
-                var userTests = await testsQuery
-                    .Where(ui => ui.UserId == user.Id)
-                    .GetItemsWithPagination(query.Page, query.PageSize)
-                    .ToListAsync(cancellationToken);
-
-                var userTestsResult = userTests
-                    .Select(t => new GlobalTestDto(t, user))
-                    .ToList();
-        
+            if (userResult.IsFailure)
                 return new PagedList<GlobalTestDto>()
                 {
-                    Items = userTestsResult,
-                    TotalCount = userTestsResult.Count,
+                    Items = [],
+                    TotalCount = 0,
                     Page = query.Page,
                     PageSize = query.PageSize,
                 };
-            }
-            catch (Exception e)
+            
+            var user = userResult.Value;
+            
+            var userTests = await testsQuery
+                .Where(ui => ui.UserId == user.Id)
+                .GetItemsWithPagination(query.Page, query.PageSize)
+                .ToListAsync(cancellationToken);
+
+            var userTestsResult = userTests
+                .Select(t => new GlobalTestDto(t, user))
+                .ToList();
+    
+            return new PagedList<GlobalTestDto>()
             {
-                Console.WriteLine(e);
-                throw;
-            }
+                Items = userTestsResult,
+                TotalCount = userTestsResult.Count,
+                Page = query.Page,
+                PageSize = query.PageSize,
+            };
         }
         
         testsQuery = testsQuery

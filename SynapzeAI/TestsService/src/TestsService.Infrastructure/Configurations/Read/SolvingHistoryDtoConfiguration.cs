@@ -15,6 +15,7 @@ public class SolvingHistoryDtoConfiguration : IEntityTypeConfiguration<SolvingHi
         
         builder.HasKey(i => i.Id);
 
+        builder.Property(i => i.UserId);
         builder.Property(ti => ti.TestId);
         
         builder.Property(sh => sh.TaskHistories)

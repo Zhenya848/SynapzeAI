@@ -7,6 +7,7 @@ namespace TestsService.Domain;
 
 public class SolvingHistory : Shared.Entity<SolvingHistoryId>
 {
+    public Guid UserId { get; }
     public List<TaskHistory> TaskHistories { get; private set; } = new List<TaskHistory>();
     public DateTime SolvingDate { get; private set; }
     public int SolvingTimeSeconds { get; private set; }
@@ -17,17 +18,20 @@ public class SolvingHistory : Shared.Entity<SolvingHistoryId>
     }
     
     private SolvingHistory(
+        Guid userId,
         SolvingHistoryId id,
         IEnumerable<TaskHistory> taskHistories,
         DateTime solvingDate,
         int solvingTimeSeconds) : base(id)
     {
         TaskHistories = taskHistories.ToList();
+        UserId = userId;
         SolvingDate = solvingDate;
         SolvingTimeSeconds = solvingTimeSeconds;
     }
 
     public static Result<SolvingHistory, Error> Create(
+        Guid userId,
         IEnumerable<TaskHistory> taskHistories,
         DateTime solvingDate,
         int solvingTimeSeconds)
@@ -38,7 +42,7 @@ public class SolvingHistory : Shared.Entity<SolvingHistoryId>
         if (taskHistories.Select(sn => sn.SerialNumber).Distinct().Count() != taskHistories.Count())
             return Error.Conflict("serial.number.conflict", "Some serial numbers are duplicated");
         
-        return new SolvingHistory(SolvingHistoryId.AddNewId(), taskHistories, solvingDate, solvingTimeSeconds);
+        return new SolvingHistory(userId, SolvingHistoryId.AddNewId(), taskHistories, solvingDate, solvingTimeSeconds);
     }
 
     public UnitResult<Error> UpdateInfo(

@@ -1,9 +1,12 @@
+using System.Net;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using UserService.API.Middlewares;
 using UserService.Application;
 using UserService.Infrastructure;
 using UserService.Infrastructure.Seeding;
+using UserService.Presentation.Grpc.Services;
 
 DotNetEnv.Env.Load();
 
@@ -17,6 +20,18 @@ Log.Logger = new LoggerConfiguration()
 builder.Services.AddSerilog();
 builder.Services.AddControllers();
 
+builder.Services.AddGrpc();
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Listen(IPAddress.Any, 5276);
+    
+    options.Listen(IPAddress.Any, 5275, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http2;
+    });
+});
+
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen();
@@ -26,6 +41,8 @@ builder.Services
     .AddFromInfrastructure(builder.Configuration);
 
 var app = builder.Build();
+
+app.MapGrpcService<GreeterService>();
 
 var accountsSeeder = app.Services.GetRequiredService<AccountsSeeder>();
 await accountsSeeder.SeedAsync();

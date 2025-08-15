@@ -1,8 +1,10 @@
 using System.Text;
 using CSharpFunctionalExtensions;
+using Grpc.Net.Client;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using TestService.Presentation;
 using TestsService.Application.Providers;
 using TestsService.Domain.Shared;
 using TestsService.Domain.Shared.ValueObjects;
@@ -33,19 +35,17 @@ public class AccountsProvider : IAccountsProvider
     {
         try
         {
-            var request = JsonSerializer.Serialize(userIds);
-            var content = new StringContent(request, Encoding.UTF8, "application/json");
+            using var channel = GrpcChannel.ForAddress("http://localhost:5275");
+            var client = new Greeter.GreeterClient(channel);
+            
+            var request = new GetUsersRequest();
+            request.UserIds.AddRange(userIds.Select(i => i.ToString()));
+            
+            var response = await client.GetUsersAsync(request);
 
-            var response =
-                await _httpClient.PostAsync("http://localhost:5276/api/Account/users", content, cancellationToken);
-            response.EnsureSuccessStatusCode();
-
-            var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-
-            var users = JsonConvert.DeserializeObject<UserInfo[]>(responseBody, _jsonSerializerSettings);
-
-            if (users is null)
-                return Error.Failure("parse.user.failure", "Cannot parse user data");
+            var users = response.Users
+                .Select(u => new UserInfo() { Id = Guid.Parse(u.Id), UserName = u.UserName, Email = u.Email })
+                .ToArray();
 
             return users;
         }
@@ -63,18 +63,17 @@ public class AccountsProvider : IAccountsProvider
     {
         try
         {
-            var response = await _httpClient
-                .GetAsync($"http://localhost:5276/api/Account/user/{email}", cancellationToken);
+            using var channel = GrpcChannel.ForAddress("http://localhost:5275");
+            var client = new Greeter.GreeterClient(channel);
+            
+            var request = new GetUserByEmailRequest { Email = email };
+            
+            var response = await client.GetUserByEmailAsync(request);
+            var user = response.User;
+            
+            var result = new UserInfo() { Id = Guid.Parse(user.Id), UserName = user.UserName, Email = user.Email };
 
-            response.EnsureSuccessStatusCode();
-            var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-
-            var user = JsonConvert.DeserializeObject<UserInfo>(responseBody, _jsonSerializerSettings);
-
-            if (user is null)
-                return Error.Failure("parse.user.failure", "Cannot parse user data");
-
-            return user;
+            return result;
         }
         catch (Exception ex)
         {

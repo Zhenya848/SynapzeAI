@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option csharp_namespace = "UserService.API";
+
+package greet;
+
+service Greeter {
+  rpc GetUsers (GetUsersRequest) returns (GetUsersResponse);
+  rpc GetUserByEmail (GetUserByEmailRequest) returns (GetUserByEmailResponse);
+}
+
+message GetUsersRequest {
+  repeated string user_ids = 1;
+}
+
+message GetUserByEmailRequest {
+  string email = 1;
+}
+
+message UserInfoResponse {
+  string id = 1;
+  string user_name = 2;
+  string email = 3;
+}
+
+message GetUsersResponse {
+  repeated UserInfoResponse users = 1;
+}
+
+message GetUserByEmailResponse {
+  UserInfoResponse user = 1;
+}

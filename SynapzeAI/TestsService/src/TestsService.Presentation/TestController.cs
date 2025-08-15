@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using TestsService.Application.Models.Dtos;
 using TestsService.Application.SolvingHistories.Commands.Create;
 using TestsService.Application.SolvingHistories.Commands.ExplainSolvingAITest;
-using TestsService.Application.SolvingHistories.Commands.Get;
+using TestsService.Application.SolvingHistories.Queries;
 using TestsService.Application.Tasks.Commands.UpdateStatistic;
 using TestsService.Application.Tasks.Commands.UploadPhotos;
 using TestsService.Application.Tests.Commands.Create;
@@ -127,14 +127,16 @@ public class TestController : ControllerBase
         return Ok(Envelope.Ok(result.Value));
     }
 
-    [HttpPut("{testId:guid}/history")]
+    [HttpPut("{userId:guid}/{testId:guid}/history")]
     public async Task<IActionResult> AddSolvingHistory(
+        [FromRoute] Guid userId,
         [FromRoute] Guid testId,
         [FromBody] AddSolvingHistoryRequest request,
         [FromServices] AddSolvingHistoryHandler handler,
         CancellationToken cancellationToken = default)
     {
         var command = new AddSolvingHistoryCommand(
+            userId,
             testId, 
             request.TaskHistories, 
             request.SolvingDate,
@@ -148,13 +150,20 @@ public class TestController : ControllerBase
         return Ok(Envelope.Ok(result.Value));
     }
 
-    [HttpGet("{testId:guid}/history")]
-    public async Task<IActionResult> GetSolvingHistory(
+    [HttpPost("{testId:guid}/history")]
+    public async Task<IActionResult> GetSolvingHistoriesByPagination(
         [FromRoute] Guid testId,
-        [FromServices] GetSolvingHistoriesHandler handler,
+        [FromBody] GetSolvingHistoriesByPaginationRequest request,
+        [FromServices] GetSolvingHistoriesByPaginationHandler handler,
         CancellationToken cancellationToken = default)
     {
-        var result = await handler.Handle(testId, cancellationToken);
+        var query = new GetSolvingHistoriesByPaginationQuery(
+            request.Page,
+            request.PageSize,
+            testId,
+            request.SearchUserEmail);
+        
+        var result = await handler.Handle(query, cancellationToken);
         
         return Ok(Envelope.Ok(result));
     }

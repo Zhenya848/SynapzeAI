@@ -18,6 +18,8 @@ public class SolvingHistoryConfiguration : IEntityTypeConfiguration<SolvingHisto
         
         builder.HasKey(i => i.Id);
         
+        builder.Property(i => i.UserId).IsRequired();
+        
         builder.Property(sh => sh.TaskHistories)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, JsonSerializerOptions.Default),

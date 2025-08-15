@@ -12,7 +12,7 @@ using TestsService.Infrastructure.DbContexts;
 namespace TestsService.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250813191911_Initial")]
+    [Migration("20250814200506_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -43,6 +43,10 @@ namespace TestsService.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb")
                         .HasColumnName("task_histories");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
 
                     b.Property<Guid?>("test_id")
                         .HasColumnType("uuid")

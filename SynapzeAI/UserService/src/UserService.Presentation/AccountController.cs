@@ -92,29 +92,4 @@ public class AccountController : ControllerBase
         
         return Ok();
     }
-    
-    [HttpPost("users")]
-    public async Task<IActionResult> GetUsers(
-        [FromBody] IEnumerable<Guid> userIds,
-        [FromServices] GetUsersHandler handler,
-        CancellationToken cancellationToken = default)
-    {
-        var result = await handler.Handle(userIds, cancellationToken);
-
-        return Ok(result);
-    }
-    
-    [HttpGet("user/{email}")]
-    public async Task<IActionResult> GetUserByEmail(
-        [FromRoute] string email,
-        [FromServices] GetUserByEmailHandler handler,
-        CancellationToken cancellationToken = default)
-    {
-        var result = await handler.Handle(email, cancellationToken);
-
-        if (result.IsFailure)
-            return result.Error.ToResponse();
-
-        return Ok(result.Value);
-    }
 }

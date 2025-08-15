@@ -41,6 +41,10 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("task_histories");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
                     b.Property<Guid?>("test_id")
                         .HasColumnType("uuid")
                         .HasColumnName("test_id");

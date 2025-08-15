@@ -38,6 +38,7 @@ namespace TestsService.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     task_histories = table.Column<string>(type: "jsonb", nullable: false),
                     solving_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     solving_time_seconds = table.Column<int>(type: "integer", nullable: false),
