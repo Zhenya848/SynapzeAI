@@ -5,12 +5,10 @@ using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 namespace TestsService.Presentation.Requests;
 
 public record CreateTestRequest(
+    string UniqueUserName,
     string TestName,
     string Theme,
-    bool WithAI,
+    bool IsPublished,
     int? Seconds,
     int? Minutes,
-    bool? IsPrivate,
-    IEnumerable<string>? UsersNamesAreAllowed,
-    IEnumerable<string>? UsersEmailsAreAllowed,
     IEnumerable<CreateTaskDto> Tasks);

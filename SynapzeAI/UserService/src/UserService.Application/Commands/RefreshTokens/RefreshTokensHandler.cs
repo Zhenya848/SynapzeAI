@@ -46,11 +46,14 @@ public class RefreshTokensHandler : ICommandHandler<Guid, Result<LoginResponse, 
         var newRefreshToken = await _tokenProvider
             .GenerateRefreshToken(oldRefreshSession.Value.User, accessToken.Jti, cancellationToken);
 
-        return new LoginResponse(
-            accessToken.AccessToken, 
-            newRefreshToken, 
-            oldRefreshSession.Value.User.Id, 
-            oldRefreshSession.Value.User.Email!,
-            oldRefreshSession.Value.User.UserName!);
+        var userData = new UserInfo()
+        {
+            Id = oldRefreshSession.Value.User.Id,
+            Email = oldRefreshSession.Value.User.Email!,
+            UniqueUserName = oldRefreshSession.Value.User.UniqueUserName,
+            UserName = oldRefreshSession.Value.User.UserName!
+        };
+        
+        return new LoginResponse(accessToken.AccessToken, newRefreshToken, userData);
     }
 }

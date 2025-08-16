@@ -17,6 +17,9 @@ public class SolvingHistoryDtoConfiguration : IEntityTypeConfiguration<SolvingHi
 
         builder.Property(ti => ti.TestId);
         
+        builder.Property(un => un.UniqueUserName);
+        builder.Property(un => un.UserEmail);
+        
         builder.Property(sh => sh.TaskHistories)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, JsonSerializerOptions.Default),

@@ -59,19 +59,6 @@ public class TestRepository : ITestRepository
         return testResult;
     }
 
-    public IQueryable<TestDto> GetAllowedTestsForUser(IQueryable<TestDto> source, UserInfo? user)
-    {
-        var userNameJson = JsonSerializer.Serialize(user?.UserName);
-        var emailJson = JsonSerializer.Serialize(user?.Email);
-
-        return source
-            .Where(t => (t.PrivacySettings.UsersEmailsAreAllowed.Length == 0 
-                        && t.PrivacySettings.UsersNamesAreAllowed.Length == 0)
-                        || (user != null && (t.UserId == user.Id
-                        || EF.Functions.JsonContains(t.PrivacySettings.UsersNamesAreAllowed, userNameJson)
-                        || EF.Functions.JsonContains(t.PrivacySettings.UsersEmailsAreAllowed, emailJson))));
-    }
-
     public Guid DeleteTest(Test test)
     {
         _context.Tests.Remove(test);

@@ -1,6 +1,5 @@
 using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
-using UserService.Application.Commands.GetUsers;
 using UserService.Application.Repositories;
 using UserService.Domain.Shared;
 using UserService.Domain.User;
@@ -57,29 +56,5 @@ public class AccountRepository : IAccountRepository
             return Errors.User.NotFound();
         
         return user;
-    }
-
-    public async Task<IEnumerable<User>> GetUsers(
-        IEnumerable<Guid>? userIds,
-        CancellationToken cancellationToken = default)
-    {
-        var usersExist = await _accountsDbContext.Users
-            .Where(u => userIds == null || userIds.Contains(u.Id))
-            .ToListAsync(cancellationToken);
-
-        return usersExist;
-    }
-
-    public async Task<Result<User, Error>> GetUserByEmail(
-        string email,
-        CancellationToken cancellationToken = default)
-    {
-        var result = _accountsDbContext.Users
-            .FirstOrDefault(u => u.Email!.Contains(email));
-            
-        if (result is null)
-            return Errors.User.NotFound(email);
-
-        return result;
     }
 }

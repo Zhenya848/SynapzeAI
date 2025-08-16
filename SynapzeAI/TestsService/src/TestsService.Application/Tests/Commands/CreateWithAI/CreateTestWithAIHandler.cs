@@ -94,11 +94,11 @@ public class CreateTestWithAIHandler : ICommandHandler<CreateTestWithAICommand, 
         var test = Test.Create(
             TestId.AddNewId(),
             command.UserId,
+            command.UniqueUserName,
             testData.TestName,
             testData.Theme,
-            true,
+            false,
             limitTime.IsSuccess ? limitTime.Value : null,
-            PrivacySettings.AddDefault(),
             tasks.Select(t => t.Value));
         
         if (test.IsFailure)

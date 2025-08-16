@@ -40,7 +40,15 @@ public class LoginUserHandler : ICommandHandler<LoginUserCommand, Result<LoginRe
         var refreshToken = await _tokenProvider.GenerateRefreshToken(user, accessToken.Jti, cancellationToken);
         
         _logger.LogInformation("Login successfully");
+
+        var userData = new UserInfo()
+        {
+            Id = user.Id,
+            Email = user.Email!,
+            UniqueUserName = user.UniqueUserName,
+            UserName = user.UserName!
+        };
         
-        return new LoginResponse(accessToken.AccessToken, refreshToken, user.Id, user.Email!, user.UserName!);
+        return new LoginResponse(accessToken.AccessToken, refreshToken, userData);
     }
 }

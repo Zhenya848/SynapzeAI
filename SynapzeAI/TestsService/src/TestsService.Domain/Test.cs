@@ -1,21 +1,23 @@
 using CSharpFunctionalExtensions;
 using TestsService.Domain.Shared;
+using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 using TestsService.Domain.Shared.ValueObjects.Id;
 using TestsService.Domain.ValueObjects;
 
 namespace TestsService.Domain;
 
-public class Test : SoftDeletableEntity<TestId>
+public class Test : Shared.Entity<TestId>
 {
     public Guid UserId { get; private set; }
     
+    public string UniqueUserName { get; private set; }
+    
     public string TestName { get; private set; }
     public string Theme { get; private set; }
-    public bool WithAI { get; private set; }
     
     public LimitTime? LimitTime { get; private set; }
     
-    public PrivacySettings PrivacySettings { get; private set; }
+    public bool IsPublished { get; private set; }
     
     private List<Task> _tasks  = new List<Task>();
     public IReadOnlyList<Task> Tasks => _tasks;
@@ -31,18 +33,18 @@ public class Test : SoftDeletableEntity<TestId>
     private Test(
         TestId id, 
         Guid userId,
+        string uniqueUserName,
         string testName, 
         string theme,
-        bool withAi,
+        bool isPublished,
         LimitTime? limitTime = null,
-        PrivacySettings? privacySettings = null,
         IEnumerable<Task>? tasks = null) : base(id)
     {
+        UniqueUserName = uniqueUserName;
         TestName = testName;
         Theme = theme;
         UserId = userId;
-        WithAI = withAi;
-        PrivacySettings = privacySettings ?? PrivacySettings.AddDefault();
+        IsPublished = isPublished;
         LimitTime = limitTime;
         
         if (tasks is not null)
@@ -52,20 +54,23 @@ public class Test : SoftDeletableEntity<TestId>
     public static Result<Test, Error> Create(
         TestId id, 
         Guid userId,
+        string uniqueUserName,
         string testName, 
         string theme,
-        bool withAI,
+        bool isPublished,
         LimitTime? limitTime = null,
-        PrivacySettings? privacySettings = null,
         IEnumerable<Task>? tasks = null)
     {
+        if (string.IsNullOrWhiteSpace(uniqueUserName))
+            return Errors.General.ValueIsRequired(nameof(UniqueUserName));
+        
         if (string.IsNullOrWhiteSpace(testName))
             return Errors.General.ValueIsRequired(nameof(TestName));
         
         if (string.IsNullOrWhiteSpace(theme))
             return Errors.General.ValueIsRequired(nameof(Theme));
         
-        return new Test(id, userId, testName, theme, withAI, limitTime, privacySettings, tasks);
+        return new Test(id, userId, uniqueUserName, testName, theme, isPublished, limitTime, tasks);
     }
 
     public void AddTasks(IEnumerable<Task> tasks)
@@ -109,12 +114,15 @@ public class Test : SoftDeletableEntity<TestId>
     }
     
     public UnitResult<Error> UpdateInfo(
+        string uniqueUserName,
         string testName,
         string theme,
-        bool withAI,
-        PrivacySettings? privacySettings,
+        bool isPublished,
         LimitTime? limitTime)
     {
+        if (string.IsNullOrWhiteSpace(uniqueUserName))
+            return Errors.General.ValueIsRequired(nameof(UniqueUserName));
+        
         if (string.IsNullOrWhiteSpace(testName))
             return Errors.General.ValueIsRequired(nameof(TestName));
         
@@ -123,11 +131,8 @@ public class Test : SoftDeletableEntity<TestId>
         
         TestName = testName;
         Theme = theme;
-        WithAI = withAI;
+        IsPublished = isPublished;
         LimitTime = limitTime;
-
-        if (privacySettings is not null)
-            PrivacySettings = privacySettings;
 
         return Result.Success<Error>();
     }
@@ -139,24 +144,10 @@ public class Test : SoftDeletableEntity<TestId>
     {
         _solvingHistories[_solvingHistories.FindIndex(s => s.Id == solvingHistory.Id)]
             .UpdateInfo(
+                solvingHistory.UniqueUserName,
+                solvingHistory.UserEmail,
                 solvingHistory.TaskHistories,
                 solvingHistory.SolvingDate,
                 solvingHistory.SolvingTimeSeconds);
-    }
-
-    public override void Delete()
-    {
-        base.Delete();
-
-        foreach (var task in Tasks)
-            task.Delete();
-    }
-
-    public override void Restore()
-    {
-        base.Restore();
-
-        foreach (var task in Tasks)
-            task.Restore();
     }
 }

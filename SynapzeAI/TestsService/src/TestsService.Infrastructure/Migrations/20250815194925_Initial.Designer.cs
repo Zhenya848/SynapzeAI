@@ -12,7 +12,7 @@ using TestsService.Infrastructure.DbContexts;
 namespace TestsService.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250813191911_Initial")]
+    [Migration("20250815194925_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -44,6 +44,16 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("task_histories");
 
+                    b.Property<string>("UniqueUserName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("unique_user_name");
+
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("user_email");
+
                     b.Property<Guid?>("test_id")
                         .HasColumnType("uuid")
                         .HasColumnName("test_id");
@@ -71,17 +81,9 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("audio_path");
 
-                    b.Property<DateTime>("DeletionDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deletion_date");
-
                     b.Property<string>("ImagePath")
                         .HasColumnType("text")
                         .HasColumnName("image_path");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
 
                     b.Property<string>("RightAnswer")
                         .HasMaxLength(50)
@@ -123,13 +125,9 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<DateTime>("DeletionDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deletion_date");
-
-                    b.Property<bool>("IsDeleted")
+                    b.Property<bool>("IsPublished")
                         .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
+                        .HasColumnName("is_published");
 
                     b.Property<string>("TestName")
                         .IsRequired()
@@ -143,13 +141,14 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("theme");
 
+                    b.Property<string>("UniqueUserName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("unique_user_name");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
-
-                    b.Property<bool>("WithAI")
-                        .HasColumnType("boolean")
-                        .HasColumnName("with_ai");
 
                     b.HasKey("Id")
                         .HasName("pk_tests");
@@ -233,37 +232,7 @@ namespace TestsService.Infrastructure.Migrations
                                 .HasConstraintName("fk_tests_tests_id");
                         });
 
-                    b.OwnsOne("TestsService.Domain.ValueObjects.PrivacySettings", "PrivacySettings", b1 =>
-                        {
-                            b1.Property<Guid>("TestId")
-                                .HasColumnType("uuid")
-                                .HasColumnName("id");
-
-                            b1.Property<bool>("IsPrivate")
-                                .HasColumnType("boolean")
-                                .HasColumnName("is_private");
-
-                            b1.Property<string>("UsersEmailsAreAllowed")
-                                .HasColumnType("jsonb")
-                                .HasColumnName("users_emails_are_allowed");
-
-                            b1.Property<string>("UsersNamesAreAllowed")
-                                .HasColumnType("jsonb")
-                                .HasColumnName("users_names_are_allowed");
-
-                            b1.HasKey("TestId");
-
-                            b1.ToTable("tests");
-
-                            b1.WithOwner()
-                                .HasForeignKey("TestId")
-                                .HasConstraintName("fk_tests_tests_id");
-                        });
-
                     b.Navigation("LimitTime");
-
-                    b.Navigation("PrivacySettings")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("TestsService.Domain.Test", b =>

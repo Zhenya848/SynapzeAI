@@ -3,6 +3,7 @@ using TestsService.Domain.Shared.ValueObjects.Dtos;
 namespace TestsService.Presentation.Requests;
 
 public record CreateTestWithAIRequest(
+    string UniqueUserName,
     string Theme, 
     bool IsTimeLimited, 
     int PercentOfOpenTasks,

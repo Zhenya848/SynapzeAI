@@ -11,4 +11,12 @@
       <ProjectReference Include="..\AIService.Domain\AIService.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Protobuf Include="Grpc\Protos\greet.proto" GrpcServices="Server"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
+    </ItemGroup>
+
 </Project>

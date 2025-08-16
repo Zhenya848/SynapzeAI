@@ -13,7 +13,7 @@ using UserService.Infrastructure;
 namespace UserService.Infrastructure.Migrations
 {
     [DbContext(typeof(AccountsDbContext))]
-    [Migration("20250720141045_Initial")]
+    [Migration("20250815201911_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -404,6 +404,11 @@ namespace UserService.Infrastructure.Migrations
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("two_factor_enabled");
+
+                    b.Property<string>("UniqueUserName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("unique_user_name");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)

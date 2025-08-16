@@ -51,15 +51,9 @@ public class UpdateTestHandler : ICommandHandler<UpdateTestCommand, Result<Guid,
             
             limitTime = limitTimeResult.Value;
         }
-        
-        var privacySettings = PrivacySettings
-            .Create(command.IsPrivate ?? true, command.UsersNamesAreAllowed ?? [], command.UsersEmailsAreAllowed ?? []);
-        
-        if (privacySettings.IsFailure)
-            return (ErrorList)privacySettings.Error;
 
         var updateResult = test
-            .UpdateInfo(command.TestName, command.Theme, command.WithAI, privacySettings.Value, limitTime);
+            .UpdateInfo(command.UniqueUserName, command.TestName, command.Theme, command.IsPublished, limitTime);
         
         if (updateResult.IsFailure)
             return (ErrorList)updateResult.Error;

@@ -24,9 +24,6 @@ public class TaskConfiguration : IEntityTypeConfiguration<Task>
 
         builder.Property(imp => imp.ImagePath).IsRequired(false);
         builder.Property(ap => ap.AudioPath).IsRequired(false);
-            
-        builder.Property(idlt => idlt.IsDeleted);
-        builder.Property(dd => dd.DeletionDate);
         
         builder.OwnsOne(ts => ts.TaskStatistic, tsb =>
         {

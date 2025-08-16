@@ -21,6 +21,4 @@ public interface ITestRepository
     public Guid DeleteTest(Test test);
     public IEnumerable<Guid> DeleteTasks(IEnumerable<Task> tasks);
     public IEnumerable<Guid> DeleteSolvingHistories(IEnumerable<SolvingHistory> solvingHistories);
-
-    public IQueryable<TestDto> GetAllowedTestsForUser(IQueryable<TestDto> source, UserInfo? user);
 }

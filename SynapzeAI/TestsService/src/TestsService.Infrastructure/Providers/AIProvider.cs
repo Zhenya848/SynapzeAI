@@ -1,10 +1,13 @@
 using System.Text;
 using System.Text.Json;
 using CSharpFunctionalExtensions;
+using Grpc.Net.Client;
 using Microsoft.Extensions.Logging;
 using TestsService.Application.Providers;
 using TestsService.Application.Tests.Commands.CreateWithAI;
 using TestsService.Domain.Shared;
+using TestsService.Domain.Shared.ValueObjects;
+using TestsService.Presentation;
 
 namespace TestsService.Infrastructure.Providers;
 
@@ -42,6 +45,18 @@ public class AIProvider : IAIProvider
             _logger.LogError("Ошибка: {errorCode}", ex.Message);
             
             return (ErrorList)Errors.General.Failure(ex.Message);
+        }
+        
+        try
+        {
+            using var channel = GrpcChannel.ForAddress("http://localhost:5275");
+            var client = new Greeter.
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            
+            return (ErrorList)Error.Failure("get.users.failure", "Cannot get users, see log errors");
         }
     }
     
