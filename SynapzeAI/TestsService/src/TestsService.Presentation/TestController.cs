@@ -4,13 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using TestsService.Application.Models.Dtos;
 using TestsService.Application.SolvingHistories.Commands.Create;
 using TestsService.Application.SolvingHistories.Commands.ExplainSolvingAITest;
-using TestsService.Application.SolvingHistories.Commands.Get;
+using TestsService.Application.SolvingHistories.Querise;
 using TestsService.Application.Tasks.Commands.UpdateStatistic;
 using TestsService.Application.Tasks.Commands.UploadPhotos;
 using TestsService.Application.Tests.Commands.Create;
 using TestsService.Application.Tests.Commands.CreateWithAI;
 using TestsService.Application.Tests.Commands.Delete;
-using TestsService.Application.Tests.Commands.Get;
+using TestsService.Application.Tests.Commands.GetTest;
+using TestsService.Application.Tests.Commands.GetTests;
 using TestsService.Application.Tests.Commands.Update;
 using TestsService.Application.Tests.Queries;
 using TestsService.Domain.Shared.ValueObjects.Dtos;
@@ -34,14 +35,12 @@ public class TestController : ControllerBase
     {
         var command = new CreateTestCommand(
             userId,
+            request.UniqueUserName,
             request.TestName,
             request.Theme,
-            request.WithAI,
+            request.IsPublished,
             request.Seconds,
             request.Minutes,
-            request.IsPrivate,
-            request.UsersNamesAreAllowed,
-            request.UsersEmailsAreAllowed,
             request.Tasks);
         
         var result = await handler.Handle(command, cancellationToken);
@@ -61,6 +60,7 @@ public class TestController : ControllerBase
     {
         var command = new CreateTestWithAICommand(
             userId, 
+            request.UniqueUserName,
             request.Theme, 
             request.IsTimeLimited,
             request.PercentOfOpenTasks, 
@@ -89,14 +89,12 @@ public class TestController : ControllerBase
         var command = new UpdateTestCommand(
             userId,
             testId,
+            request.UniqueUserName,
             request.TestName,
             request.Theme,
-            request.WithAI,
+            request.IsPublished,
             request.Seconds,
             request.Minutes,
-            request.IsPrivate,
-            request.UsersNamesAreAllowed,
-            request.UsersEmailsAreAllowed,
             request.TasksToCreate,
             request.TasksToUpdate,
             request.TaskIdsToDelete);
@@ -136,6 +134,8 @@ public class TestController : ControllerBase
     {
         var command = new AddSolvingHistoryCommand(
             testId, 
+            request.UniqueUserName,
+            request.UserEmail,
             request.TaskHistories, 
             request.SolvingDate,
             request.SolvingTimeSeconds);
@@ -148,14 +148,22 @@ public class TestController : ControllerBase
         return Ok(Envelope.Ok(result.Value));
     }
 
-    [HttpGet("{testId:guid}/history")]
-    public async Task<IActionResult> GetSolvingHistory(
+    [HttpPost("{testId:guid}/history")]
+    public async Task<IActionResult> GetSolvingHistoriesByPagination(
         [FromRoute] Guid testId,
-        [FromServices] GetSolvingHistoriesHandler handler,
+        [FromServices] GetSolvingHistoriesByPaginationHandler handler,
+        [FromBody] GetSolvingHistoriesByPaginationRequest request,
         CancellationToken cancellationToken = default)
     {
-        var result = await handler.Handle(testId, cancellationToken);
+        var command = new GetSolvingHistoriesByPaginationQuery(
+            request.Page,
+            request.PageSize,
+            testId,
+            request.SearchUserName,
+            request.SearchUserEmail);
         
+        var result = await handler.Handle(command, cancellationToken);
+
         return Ok(Envelope.Ok(result));
     }
 
@@ -215,7 +223,7 @@ public class TestController : ControllerBase
         return Ok(Envelope.Ok(null));
     }
     
-    [HttpGet("{userId:guid}")]
+    [HttpGet("{userId:guid}/tests")]
     [Permission("test.create")] 
     public async Task<ActionResult> GetTestsById(
         [FromRoute] Guid userId,
@@ -225,6 +233,20 @@ public class TestController : ControllerBase
         var result = await handler.Handle(userId, cancellationToken);
         
         return Ok(Envelope.Ok(result));
+    }
+    
+    [HttpGet("{testId:guid}/test")]
+    public async Task<ActionResult> GetTestById(
+        [FromRoute] Guid testId,
+        [FromServices] GetTestHandler handler,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await handler.Handle(testId, cancellationToken);
+
+        if (result.IsFailure)
+            return result.Error.ToResponse();
+        
+        return Ok(Envelope.Ok(result.Value));
     }
 
     [HttpPost("tests")]
@@ -239,9 +261,8 @@ public class TestController : ControllerBase
             request.PageSize,
             request.SearchTestName,
             request.SearchTestTheme,
-            request.SearchUserEmail,
-            request.OrderBy,
-            request.UserData);
+            request.SearchUserName,
+            request.OrderBy);
         
         var result = await handler.Handle(query, cancellationToken);
         

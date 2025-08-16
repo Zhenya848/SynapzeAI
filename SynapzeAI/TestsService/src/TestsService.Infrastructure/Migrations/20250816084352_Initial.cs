@@ -17,16 +17,12 @@ namespace TestsService.Infrastructure.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    unique_user_name = table.Column<string>(type: "text", nullable: false),
                     test_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     theme = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    with_ai = table.Column<bool>(type: "boolean", nullable: false),
                     seconds = table.Column<int>(type: "integer", nullable: true),
                     minutes = table.Column<int>(type: "integer", nullable: true),
-                    is_private = table.Column<bool>(type: "boolean", nullable: false),
-                    users_names_are_allowed = table.Column<string>(type: "jsonb", nullable: true),
-                    users_emails_are_allowed = table.Column<string>(type: "jsonb", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    deletion_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    is_published = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -38,6 +34,8 @@ namespace TestsService.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
+                    unique_user_name = table.Column<string>(type: "text", nullable: false),
+                    user_email = table.Column<string>(type: "text", nullable: false),
                     task_histories = table.Column<string>(type: "jsonb", nullable: false),
                     solving_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     solving_time_seconds = table.Column<int>(type: "integer", nullable: false),
@@ -70,9 +68,7 @@ namespace TestsService.Infrastructure.Migrations
                     task_statistic_last_review_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     task_statistic_avg_time_solving_sec = table.Column<float>(type: "real", nullable: true),
                     answers = table.Column<string>(type: "jsonb", nullable: true),
-                    test_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    deletion_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    test_id = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {

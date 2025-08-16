@@ -4,6 +4,7 @@ namespace TestsService.Application.Tests.Commands.CreateWithAI;
 
 public record CreateTestWithAICommand(
     Guid UserId,
+    string UniqueUserName,
     string Theme, 
     bool IsTimeLimited, 
     int PercentOfOpenTasks,

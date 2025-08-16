@@ -402,6 +402,11 @@ namespace UserService.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("two_factor_enabled");
 
+                    b.Property<string>("UniqueUserName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("unique_user_name");
+
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)")

@@ -1,7 +1,7 @@
 using AIService.Domain.Shared;
 using AIService.Presentation;
 
-namespace TestsService.API.Middleware;
+namespace AIService.API.Middleware;
 
 public class ExceptionMiddleware
 {

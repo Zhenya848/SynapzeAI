@@ -6,7 +6,7 @@ using TestsService.Domain.ValueObjects;
 
 namespace TestsService.Domain;
 
-public class Task : SoftDeletableEntity<TaskId>
+public class Task : Shared.Entity<TaskId>
 {
     public int SerialNumber { get; private set; }
     public string TaskName { get; private set; }
@@ -99,15 +99,5 @@ public class Task : SoftDeletableEntity<TaskId>
         SerialNumber = serialNumber;
         
         return Result.Success<Error>();
-    }
-    
-    public override void Delete()
-    {
-        base.Delete();
-    }
-
-    public override void Restore()
-    {
-        base.Restore();
     }
 }

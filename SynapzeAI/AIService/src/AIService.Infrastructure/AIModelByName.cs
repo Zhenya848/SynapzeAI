@@ -1,4 +1,6 @@
-namespace AIService.Domain;
+using AIService.Domain;
+
+namespace AIService.Infrastructure;
 
 public class AIModelByName
 {

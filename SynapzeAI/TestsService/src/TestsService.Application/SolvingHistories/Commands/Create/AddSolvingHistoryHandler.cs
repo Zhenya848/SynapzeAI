@@ -58,7 +58,12 @@ public class AddSolvingHistoryHandler : ICommandHandler<AddSolvingHistoryCommand
             .Select(th => th.Value);
 
         var solvingHistoriesResult = SolvingHistory
-            .Create(taskHistories, command.SolvingDate, command.SolvingTimeSeconds);
+            .Create(
+                command.UniqueUserName, 
+                command.UserEmail, 
+                taskHistories, 
+                command.SolvingDate, 
+                command.SolvingTimeSeconds);
         
         if (solvingHistoriesResult.IsFailure)
             return (ErrorList)solvingHistoriesResult.Error;

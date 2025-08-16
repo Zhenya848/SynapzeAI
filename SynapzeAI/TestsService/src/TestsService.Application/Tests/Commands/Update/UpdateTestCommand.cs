@@ -5,14 +5,12 @@ namespace TestsService.Application.Tests.Commands.Update;
 public record UpdateTestCommand(
     Guid UserId,
     Guid TestId,
+    string UniqueUserName,
     string TestName,
     string Theme,
-    bool WithAI,
+    bool IsPublished,
     int? Seconds,
     int? Minutes,
-    bool? IsPrivate,
-    IEnumerable<string>? UsersNamesAreAllowed,
-    IEnumerable<string>? UsersEmailsAreAllowed,
     IEnumerable<CreateTaskDto>? TasksToCreate,
     IEnumerable<UpdateTaskDto>? TasksToUpdate,
     IEnumerable<Guid>? TaskIdsToDelete);

@@ -34,7 +34,6 @@ public static class Inject
         services.AddScoped<ITestRepository, TestRepository>();
         
         services.AddScoped<IAIProvider, AIProvider>();
-        services.AddScoped<IAccountsProvider, AccountsProvider>();
 
         services.AddHostedService<FileCleanerBackgroundService>();
         services.AddMinio(configuration);

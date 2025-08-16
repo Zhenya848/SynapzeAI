@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Application.Commands.CreateUser;
-using UserService.Application.Commands.GetUser;
-using UserService.Application.Commands.GetUsers;
 using UserService.Application.Commands.LoginUser;
 using UserService.Application.Commands.LogoutUser;
 using UserService.Application.Commands.RefreshTokens;
+using UserService.Application.Commands.UpdateUser;
 using UserService.Domain.Shared;
 using UserService.Presentation.Requests;
 
@@ -92,29 +91,21 @@ public class AccountController : ControllerBase
         
         return Ok();
     }
-    
-    [HttpPost("users")]
-    public async Task<IActionResult> GetUsers(
-        [FromBody] IEnumerable<Guid> userIds,
-        [FromServices] GetUsersHandler handler,
-        CancellationToken cancellationToken = default)
-    {
-        var result = await handler.Handle(userIds, cancellationToken);
 
-        return Ok(result);
-    }
-    
-    [HttpGet("user/{email}")]
-    public async Task<IActionResult> GetUserByEmail(
-        [FromRoute] string email,
-        [FromServices] GetUserByEmailHandler handler,
+    [HttpPut("users/{userId:guid}")]
+    public async Task<IActionResult> UpdateUser(
+        [FromRoute] Guid userId,
+        [FromBody] UpdateUserRequest request,
+        [FromServices] UpdateUserHandler handler,
         CancellationToken cancellationToken = default)
     {
-        var result = await handler.Handle(email, cancellationToken);
+        var command = new UpdateUserCommand(userId, request.Username);
+        
+        var result = await handler.Handle(command, cancellationToken);
 
         if (result.IsFailure)
             return result.Error.ToResponse();
-
-        return Ok(result.Value);
+        
+        return Ok(Envelope.Ok(result.Value));
     }
 }

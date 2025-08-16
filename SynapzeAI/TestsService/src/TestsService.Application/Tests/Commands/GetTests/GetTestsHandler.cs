@@ -1,13 +1,9 @@
-using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
 using TestsService.Application.Abstractions;
 using TestsService.Application.Repositories;
-using TestsService.Domain.Shared;
-using TestsService.Domain.Shared.ValueObjects;
-using TestsService.Domain.Shared.ValueObjects.Dtos;
 using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 
-namespace TestsService.Application.Tests.Commands.Get;
+namespace TestsService.Application.Tests.Commands.GetTests;
 
 public class GetTestsHandler : IQueryHandler<Guid, IEnumerable<TestDto>>
 {

@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIService.Infrastructure", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIService.API", "src\AIService.API\AIService.API.csproj", "{559BA308-1BB5-417D-B48F-8D1E7D5C5363}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrpcService1", "GrpcService1\GrpcService1.csproj", "{F09E5480-3B65-454F-A657-DC5869E689E4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{559BA308-1BB5-417D-B48F-8D1E7D5C5363}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{559BA308-1BB5-417D-B48F-8D1E7D5C5363}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{559BA308-1BB5-417D-B48F-8D1E7D5C5363}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F09E5480-3B65-454F-A657-DC5869E689E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F09E5480-3B65-454F-A657-DC5869E689E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F09E5480-3B65-454F-A657-DC5869E689E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F09E5480-3B65-454F-A657-DC5869E689E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

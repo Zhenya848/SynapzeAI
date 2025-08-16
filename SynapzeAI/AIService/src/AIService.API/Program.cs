@@ -1,10 +1,11 @@
+using AIService.API.Middleware;
 using AIService.Application;
 using AIService.Infrastructure;
-using TestsService.API.Middleware;
+using AIService.Presentation.Grpc.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddGrpc();
 
 builder.Services.AddOpenApi();
 
@@ -19,15 +20,6 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.EnableTryItOutByDefault();
-    });
-}
-
 app.UseHttpsRedirection();
-app.MapControllers();
+app.MapGrpcService<GreeterService>();
 app.Run();

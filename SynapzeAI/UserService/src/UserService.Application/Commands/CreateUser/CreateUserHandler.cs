@@ -47,7 +47,11 @@ public class CreateUserHandler : ICommandHandler<CreateUserCommand, UnitResult<E
         var role = await _roleManager.FindByNameAsync(AccountRoles.PARTICIPANT)
                    ?? throw new ApplicationException($"Role {AccountRoles.PARTICIPANT} does not exist");
         
-        var user = User.CreateParticipant(command.Username, command.Email, role);
+        var usersCount = _userManager.Users.Count();
+        
+        var uniqueUserName = GenerateUniqueUserName(command.Username, usersCount);
+        
+        var user = User.CreateParticipant(command.Username, uniqueUserName, command.Email, role);
         
         var participantAccount = ParticipantAccount.CreateParticipant(command.Username, user);
 
@@ -62,5 +66,20 @@ public class CreateUserHandler : ICommandHandler<CreateUserCommand, UnitResult<E
         _logger.LogInformation("User created: {userName} a new account with password.", user.UserName);
         
         return Result.Success<ErrorList>();
+    }
+
+    private string GenerateUniqueUserName(string username, long usersCount)
+    {
+        var chars = Enumerable.Range('a', 26).Select(c => (char)c)
+            .Concat(Enumerable.Range('A', 26).Select(c => (char)c))
+            .Concat(Enumerable.Range('0', 10).Select(c => (char)c))
+            .ToArray();
+
+        username += "_";
+
+        for (var i = 0; i < Constants.USER_UNIQUE_CODE_LENGTH; i++)
+            username += chars[(usersCount / (int)Math.Pow(chars.Length, i)) % chars.Length];
+        
+        return username;
     }
 }

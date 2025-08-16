@@ -7,6 +7,5 @@ public record GetTestsWithPaginationRequest(
     int PageSize,
     string? SearchTestName = null,
     string? SearchTestTheme = null,
-    string? SearchUserEmail = null,
-    string? OrderBy = null,
-    UserInfo? UserData = null);
+    string? SearchUserName = null,
+    string? OrderBy = null);

@@ -37,12 +37,6 @@ public class CreateTestHandler : ICommandHandler<CreateTestCommand, Result<Guid,
             
             limitTime = limitTimeResult.Value;
         }
-        
-        var privacySettings = PrivacySettings
-            .Create(command.IsPrivate ?? true, command.UsersNamesAreAllowed ?? [], command.UsersEmailsAreAllowed ?? []);
-        
-        if (privacySettings.IsFailure)
-            return (ErrorList)privacySettings.Error;
 
         var tasks = command.Tasks?
             .Select(t => Task.Create(
@@ -59,11 +53,11 @@ public class CreateTestHandler : ICommandHandler<CreateTestCommand, Result<Guid,
         var test = Test.Create(
             TestId.AddNewId(), 
             command.UserId,
+            command.UniqueUserName,
             command.TestName, 
             command.Theme,
-            command.WithAI,
+            command.IsPublished,
             limitTime,
-            privacySettings.Value,
             tasks?.Select(t => t.Value));
         
         if (test.IsFailure)
