@@ -4,6 +4,7 @@ using UserService.Application.Commands.CreateUser;
 using UserService.Application.Commands.LoginUser;
 using UserService.Application.Commands.LogoutUser;
 using UserService.Application.Commands.RefreshTokens;
+using UserService.Application.Commands.UpdateUser;
 using UserService.Domain.Shared;
 using UserService.Presentation.Requests;
 
@@ -89,5 +90,22 @@ public class AccountController : ControllerBase
         HttpContext.Response.Cookies.Delete("refreshToken");
         
         return Ok();
+    }
+
+    [HttpPut("users/{userId:guid}")]
+    public async Task<IActionResult> UpdateUser(
+        [FromRoute] Guid userId,
+        [FromBody] UpdateUserRequest request,
+        [FromServices] UpdateUserHandler handler,
+        CancellationToken cancellationToken = default)
+    {
+        var command = new UpdateUserCommand(userId, request.Username);
+        
+        var result = await handler.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return result.Error.ToResponse();
+        
+        return Ok(Envelope.Ok(result.Value));
     }
 }

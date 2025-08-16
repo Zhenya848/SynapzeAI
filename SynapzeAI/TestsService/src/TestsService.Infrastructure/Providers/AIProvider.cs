@@ -28,29 +28,13 @@ public class AIProvider : IAIProvider
     {
         try
         {
-            _httpClient.Timeout = TimeSpan.FromMinutes(5);
+            using var channel = GrpcChannel.ForAddress("http://localhost:5101");
+            var client = new Greeter.GreeterClient(channel);
 
-            var request = JsonSerializer.Serialize(new GenerateContentRequest(userRequest));
-            var content = new StringContent(request, Encoding.UTF8, "application/json");
-
-            var response = await _httpClient.PostAsync("http://localhost:5101/api/AI", content, cancellationToken);
-            response.EnsureSuccessStatusCode();
-
-            var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-
-            return responseBody;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Ошибка: {errorCode}", ex.Message);
+            var request = new GenerateContentRequest() { UserMessage = userRequest };
+            var response = await client.GenerateContentAsync(request);
             
-            return (ErrorList)Errors.General.Failure(ex.Message);
-        }
-        
-        try
-        {
-            using var channel = GrpcChannel.ForAddress("http://localhost:5275");
-            var client = new Greeter.
+            return response.Result;
         }
         catch (Exception ex)
         {
@@ -59,6 +43,4 @@ public class AIProvider : IAIProvider
             return (ErrorList)Error.Failure("get.users.failure", "Cannot get users, see log errors");
         }
     }
-    
-    public record GenerateContentRequest(string UserRequest);
 }

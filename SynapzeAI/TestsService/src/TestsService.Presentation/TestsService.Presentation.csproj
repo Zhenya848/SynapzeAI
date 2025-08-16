@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Google.Protobuf" Version="3.32.0" />
+      <PackageReference Include="Google.Protobuf" Version="3.31.1" />
       <PackageReference Include="Grpc.Net.Client" Version="2.71.0" />
       <PackageReference Include="Grpc.Tools" Version="2.72.0">
         <PrivateAssets>all</PrivateAssets>
@@ -22,7 +22,17 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Protobuf Include="Grpc\Protos\greet.proto" GrpcServices="Server"/>
+      <Folder Include="Grpc\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Protobuf Include="Grpc\Protos\*.proto" GrpcServices="Server" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Protobuf Include="Grpc\Protos\greet.proto">
+        <Generator>MSBuild:Compile</Generator>
+      </Protobuf>
     </ItemGroup>
 
 </Project>

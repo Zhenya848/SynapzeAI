@@ -1,4 +1,4 @@
-namespace TestsService.Application.SolvingHistories.Queries;
+namespace TestsService.Application.SolvingHistories.Querise;
 
 public record GetSolvingHistoriesByPaginationQuery(
     int Page, 

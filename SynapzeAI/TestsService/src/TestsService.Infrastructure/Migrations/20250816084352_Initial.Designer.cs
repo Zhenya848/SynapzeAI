@@ -12,7 +12,7 @@ using TestsService.Infrastructure.DbContexts;
 namespace TestsService.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250815194925_Initial")]
+    [Migration("20250816084352_Initial")]
     partial class Initial
     {
         /// <inheritdoc />

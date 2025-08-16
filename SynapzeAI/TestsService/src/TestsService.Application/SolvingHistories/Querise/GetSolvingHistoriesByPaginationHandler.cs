@@ -1,13 +1,10 @@
-using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
 using TestsService.Application.Abstractions;
 using TestsService.Application.Extensions;
-using TestsService.Application.Providers;
 using TestsService.Application.Repositories;
-using TestsService.Domain.Shared;
 using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 
-namespace TestsService.Application.SolvingHistories.Queries;
+namespace TestsService.Application.SolvingHistories.Querise;
 
 public class GetSolvingHistoriesByPaginationHandler : 
     IQueryHandler<GetSolvingHistoriesByPaginationQuery, PagedList<SolvingHistoryDto>>
