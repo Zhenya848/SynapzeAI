@@ -12,6 +12,8 @@ public class ReadDbContext(IConfiguration configuration) : DbContext, IReadDbCon
     public IQueryable<TestDto> Tests => Set<TestDto>();
     public IQueryable<TaskDto> Tasks => Set<TaskDto>();
     public IQueryable<SolvingHistoryDto> SolvingHistories => Set<SolvingHistoryDto>();
+    public IQueryable<TaskStatisticDto> TaskStatistics => Set<TaskStatisticDto>();
+    public IQueryable<TaskHistoryDto> TaskHistories => Set<TaskHistoryDto>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

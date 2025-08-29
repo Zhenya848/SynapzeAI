@@ -16,7 +16,9 @@ public class LogoutUserHandler : ICommandHandler<Guid, UnitResult<ErrorList>>
         _unitOfWork = unitOfWork;
     }
     
-    public async Task<UnitResult<ErrorList>> Handle(Guid refreshToken, CancellationToken cancellationToken = default)
+    public async Task<UnitResult<ErrorList>> Handle(
+        Guid refreshToken, 
+        CancellationToken cancellationToken = default)
     {
         var oldRefreshSession = await _accountRepository
             .GetByRefreshToken(refreshToken, cancellationToken);

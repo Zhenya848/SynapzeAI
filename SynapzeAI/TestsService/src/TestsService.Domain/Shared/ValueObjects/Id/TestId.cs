@@ -12,10 +12,10 @@ public record TestId
     
     public static TestId Create(Guid id) => new (id);
 
-    public static implicit operator Guid(TestId testId)
+    public static implicit operator Guid(TestId id)
     {
-        ArgumentNullException.ThrowIfNull(testId);
+        ArgumentNullException.ThrowIfNull(id);
         
-        return testId.Value;
+        return id.Value;
     }
 }

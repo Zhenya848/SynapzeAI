@@ -12,7 +12,6 @@ public class PermissionRequirementHandler(IServiceScopeFactory scopeFactory)
         AuthorizationHandlerContext context, 
         PermissionAttribute requirement)
     {
-        var httpContext = (context.Resource as HttpContext)!;
         var userIdString = context.User.Claims
             .FirstOrDefault(c => c.Type == CustomClaims.Sub)?.Value;
         
@@ -20,8 +19,7 @@ public class PermissionRequirementHandler(IServiceScopeFactory scopeFactory)
 
         if (userIdString is null || Guid.TryParse(userIdString, out userId) == false)
         {
-            httpContext.Response.Headers.Append("Access-Control-Allow-Origin", "http://localhost:5173");
-            httpContext.Response.Headers.Append("Access-Control-Allow-Credentials", "true");
+            
             
             context.Fail();
             return;

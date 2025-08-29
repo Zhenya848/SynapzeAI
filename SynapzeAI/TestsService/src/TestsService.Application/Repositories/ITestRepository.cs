@@ -12,13 +12,25 @@ public interface ITestRepository
 {
     public Guid Add(Test client);
     
-    public Guid Save(Test test);
-    
     public Task<Result<Test, ErrorList>> GetById(
         TestId id,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken = default);
     
     public Guid DeleteTest(Test test);
     public IEnumerable<Guid> DeleteTasks(IEnumerable<Task> tasks);
-    public IEnumerable<Guid> DeleteSolvingHistories(IEnumerable<SolvingHistory> solvingHistories);
+
+    public Task<Result<SavedTest, Error>> GetSavedTest(
+        TestId testId,
+        Guid userId,
+        CancellationToken cancellationToken = default);
+    public Guid DeleteSavedTest(SavedTest savedTest);
+
+    public Task<IEnumerable<Task>> GetTasks(
+        IEnumerable<Guid> taskIds,
+        CancellationToken cancellationToken = default,
+        Guid? userId = null);
+    
+    public Task<Result<SolvingHistory, Error>> GetSolvingHistoryById(
+        SolvingHistoryId id,
+        CancellationToken cancellationToken = default);
 }

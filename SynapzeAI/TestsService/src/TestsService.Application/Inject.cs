@@ -1,4 +1,3 @@
-using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using TestsService.Application.Abstractions;
 
@@ -16,7 +15,7 @@ public static class Inject
                 typeof(IQueryHandler<,>)))
             .AsSelfWithInterfaces()
             .WithLifetime(ServiceLifetime.Scoped));
-        
-        return services.AddValidatorsFromAssembly(assembly);
+
+        return services;
     }
 }

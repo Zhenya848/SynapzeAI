@@ -1,7 +1,7 @@
 using TestsService.Domain.Shared;
 using TestsService.Presentation;
 
-namespace TestsService.API.Middleware;
+namespace TestService.API.Middleware;
 
 public class ExceptionMiddleware
 {

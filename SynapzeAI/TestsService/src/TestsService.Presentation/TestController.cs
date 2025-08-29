@@ -1,21 +1,20 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using TestsService.Application.Models.Dtos;
+using TestsService.Application.SavedTests.Commands.Create;
+using TestsService.Application.SavedTests.Commands.Delete;
+using TestsService.Application.SavedTests.Queries.Get;
 using TestsService.Application.SolvingHistories.Commands.Create;
-using TestsService.Application.SolvingHistories.Commands.ExplainSolvingAITest;
+using TestsService.Application.SolvingHistories.Commands.UpdateAIMessages;
 using TestsService.Application.SolvingHistories.Querise;
-using TestsService.Application.Tasks.Commands.UpdateStatistic;
-using TestsService.Application.Tasks.Commands.UploadPhotos;
+using TestsService.Application.TaskStatistics.Commands.Update;
 using TestsService.Application.Tests.Commands.Create;
-using TestsService.Application.Tests.Commands.CreateWithAI;
 using TestsService.Application.Tests.Commands.Delete;
 using TestsService.Application.Tests.Commands.GetTest;
 using TestsService.Application.Tests.Commands.GetTests;
 using TestsService.Application.Tests.Commands.Update;
 using TestsService.Application.Tests.Queries;
-using TestsService.Domain.Shared.ValueObjects.Dtos;
-using TestsService.Domain.ValueObjects;
+using TestsService.Domain.Shared;
 using TestsService.Presentation.Authorization;
 using TestsService.Presentation.Requests;
 
@@ -25,17 +24,19 @@ namespace TestsService.Presentation;
 [Route("api/[controller]")]
 public class TestController : ControllerBase
 {
-    [HttpPost("{userId:guid}")]
-    //[Permission("test.create")]
+    [HttpPost]
+    [Authorize]
     public async Task<IActionResult> CreateTest(
-        [FromRoute] Guid userId,
         [FromServices] CreateTestHandler handler,
         [FromBody] CreateTestRequest request,
         CancellationToken cancellationToken = default)
     {
+        var userId = User.GetUserIdRequired();
+        var userName = User.GetUserNameRequired();
+        
         var command = new CreateTestCommand(
             userId,
-            request.UniqueUserName,
+            userName,
             request.TestName,
             request.Theme,
             request.IsPublished,
@@ -50,46 +51,22 @@ public class TestController : ControllerBase
         
         return Ok(Envelope.Ok(result.Value));
     }
-
-    [HttpPost("{userId:guid}/withAI")]
-    public async Task<IActionResult> CreateTestWithAI(
-        [FromRoute] Guid userId,
-        [FromServices] CreateTestWithAIHandler handler,
-        [FromBody] CreateTestWithAIRequest request,
-        CancellationToken cancellationToken = default)
-    {
-        var command = new CreateTestWithAICommand(
-            userId, 
-            request.UniqueUserName,
-            request.Theme, 
-            request.IsTimeLimited,
-            request.PercentOfOpenTasks, 
-            request.TasksCount, 
-            request.Difficulty,
-            request.Seconds,
-            request.Minutes);
-        
-        var result = await handler.Handle(command, cancellationToken);
-
-        if (result.IsFailure)
-            return result.Error.ToResponse();
-        
-        return Ok(Envelope.Ok(result.Value));
-    }
     
-    [HttpPut("{userId:guid}/{testId:guid}")]
-    //[Permission("test.update")]
+    [HttpPut("{testId:guid}")]
+    [Authorize]
     public async Task<IActionResult> UpdateTest(
-        [FromRoute] Guid userId,
         [FromRoute] Guid testId,
         [FromServices] UpdateTestHandler handler,
         [FromBody] UpdateTestRequest request,
         CancellationToken cancellationToken = default)
     {
+        var userId = User.GetUserIdRequired();
+        var userName = User.GetUserNameRequired();
+        
         var command = new UpdateTestCommand(
             userId,
             testId,
-            request.UniqueUserName,
+            userName,
             request.TestName,
             request.Theme,
             request.IsPublished,
@@ -107,14 +84,15 @@ public class TestController : ControllerBase
         return Ok(Envelope.Ok(result.Value));
     }
 
-    [HttpDelete("{userId:guid}/{testId:guid}")]
-    //[Permission("test.delete")]
+    [HttpDelete("{testId:guid}")]
+    [Authorize]
     public async Task<IActionResult> DeleteTest(
         [FromRoute] Guid testId,
-        [FromRoute] Guid userId,
         [FromServices] DeleteTestHandler handler,
         CancellationToken cancellationToken = default)
     {
+        var userId = User.GetUserIdRequired();
+        
         var command = new DeleteTestCommand(userId, testId);
         
         var result = await handler.Handle(command, cancellationToken);
@@ -126,16 +104,20 @@ public class TestController : ControllerBase
     }
 
     [HttpPut("{testId:guid}/history")]
+    [Authorize]
     public async Task<IActionResult> AddSolvingHistory(
         [FromRoute] Guid testId,
         [FromBody] AddSolvingHistoryRequest request,
         [FromServices] AddSolvingHistoryHandler handler,
         CancellationToken cancellationToken = default)
     {
+        var userName = User.GetUserNameRequired();
+        var userEmail = User.GetUserEmailRequired();
+        
         var command = new AddSolvingHistoryCommand(
-            testId, 
-            request.UniqueUserName,
-            request.UserEmail,
+            testId,
+            userName,
+            userEmail,
             request.TaskHistories, 
             request.SolvingDate,
             request.SolvingTimeSeconds);
@@ -149,6 +131,7 @@ public class TestController : ControllerBase
     }
 
     [HttpPost("{testId:guid}/history")]
+    [Authorize]
     public async Task<IActionResult> GetSolvingHistoriesByPagination(
         [FromRoute] Guid testId,
         [FromServices] GetSolvingHistoriesByPaginationHandler handler,
@@ -160,82 +143,67 @@ public class TestController : ControllerBase
             request.PageSize,
             testId,
             request.SearchUserName,
-            request.SearchUserEmail);
+            request.SearchUserEmail,
+            request.OrderBy);
         
         var result = await handler.Handle(command, cancellationToken);
 
         return Ok(Envelope.Ok(result));
     }
 
-    [HttpPut("{testId:guid}/history/explain/{solvingHistoryId:guid}")]
-    public async Task<IActionResult> ExplainSolvingTest(
-        [FromRoute] Guid testId,
+    [HttpPut("history/update/{solvingHistoryId:guid}")]
+    [Authorize]
+    public async Task<IActionResult> UpdateAIMessagesForTasks(
         [FromRoute] Guid solvingHistoryId,
-        [FromServices] ExplainSolvingTestHandler handler,
+        [FromBody] UpdateAIMessagesForTasksRequest request,
+        [FromServices] UpdateAIMessagesForTasksHandler handler,
         CancellationToken cancellationToken = default)
     {
-        var command = new ExplainSolvingTestCommand(testId, solvingHistoryId);
+        var command = new UpdateAIMessagesForTasksCommand(
+            solvingHistoryId, request.AIMessagesForTasks);
         
         var result = await handler.Handle(command, cancellationToken);
-        
+
         if (result.IsFailure)
             return result.Error.ToResponse();
         
-        return Ok(Envelope.Ok(result.Value));
+        return Ok();
+    }
+
+    [HttpPut("tasksStatistic")]
+    [Authorize]
+    public async Task<IActionResult> UpdateTasksStatistics(
+        [FromBody] UpdateTasksStatisticsRequest request,
+        [FromServices] UpdateTasksStatisticsHandler handler,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = User.GetUserIdRequired();
+        
+        var command = new UpdateTasksStatisticsCommand(userId, request.Tasks);
+        
+        var result = await handler.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return result.Error.ToResponse();
+
+        return Ok();
     }
     
-    [HttpPost("{testId:guid}/task/photos")]
-    //[Permission("tasks.upload_photos")]
-    public async Task<IActionResult> UploadPhotosToTasks(
-        [FromRoute] Guid testId,
-        [FromForm] IEnumerable<Guid> taskIds,
-        [FromForm] IFormFileCollection files,
-        [FromServices] UploadFilesToTasksHandler handler,
-        CancellationToken cancellationToken = default)
-    {
-        await using FormFileProcessor formFileProcessor = new FormFileProcessor();
-        List<UploadFileDto> fileDtos = formFileProcessor.StartProcess(files);
-        
-        var command = new UploadFilesToTasksCommand(testId, taskIds, fileDtos);
-        
-        var result = await handler.Handle(command, cancellationToken);
-        
-        if (result.IsFailure)
-            return result.Error.ToResponse();
-        
-        return Ok(Envelope.Ok(result.Value));
-    }
-
-    [HttpPut("{testId:guid}/task")]
-    public async Task<IActionResult> UpdateTasksStatistic(
-        [FromRoute] Guid testId,
-        [FromBody] UpdateTasksStatisticRequest request,
-        [FromServices] UpdateTasksStatisticHandler handler,
-        CancellationToken cancellationToken = default)
-    {
-        var command = new UpdateTasksStatisticCommand(testId, request.Tasks);
-        
-        var result = await handler.Handle(command, cancellationToken);
-
-        if (result.IsFailure)
-            return result.Error.ToResponse();
-
-        return Ok(Envelope.Ok(null));
-    }
-    
-    [HttpGet("{userId:guid}/tests")]
-    [Permission("test.create")] 
+    [HttpGet("tests")]
+    [Authorize]
     public async Task<ActionResult> GetTestsById(
-        [FromRoute] Guid userId,
         [FromServices] GetTestsHandler handler,
         CancellationToken cancellationToken = default)
     {
+        var userId = User.GetUserIdRequired();
+        
         var result = await handler.Handle(userId, cancellationToken);
         
         return Ok(Envelope.Ok(result));
     }
     
     [HttpGet("{testId:guid}/test")]
+    [Authorize]
     public async Task<ActionResult> GetTestById(
         [FromRoute] Guid testId,
         [FromServices] GetTestHandler handler,
@@ -250,22 +218,83 @@ public class TestController : ControllerBase
     }
 
     [HttpPost("tests")]
-    //[Permission("tests.get")]
     public async Task<ActionResult> GetTestsByPagination(
         [FromBody] GetTestsWithPaginationRequest request,
         [FromServices] GetTestsWithPaginationHandler handler,
         CancellationToken cancellationToken = default)
     {
+        var userId = User.GetUserId();
+        
         var query = new GetTestsWithPaginationQuery(
             request.Page, 
             request.PageSize,
             request.SearchTestName,
             request.SearchTestTheme,
             request.SearchUserName,
-            request.OrderBy);
+            request.OrderBy,
+            userId);
         
         var result = await handler.Handle(query, cancellationToken);
         
         return Ok(Envelope.Ok(result));
+    }
+
+    [HttpPost("{testId:guid}/saved")]
+    [Authorize]
+    public async Task<IActionResult> CreateSavedTest(
+        [FromRoute] Guid testId,
+        [FromServices] CreateSavedTestHandler handler,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = User.GetUserIdRequired();
+        var command = new CreateSavedTestCommand(userId, testId);
+        
+        var result = await handler.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return result.Error.ToResponse();
+        
+        return Ok(Envelope.Ok(result.Value));
+    }
+
+    [HttpPost("tests/saved")]
+    [Authorize]
+    public async Task<IActionResult> GetSavedTestsByPagination(
+        [FromBody] GetSavedTestsWithPaginationRequest request,
+        [FromServices] GetSavedTestsWithPaginationHandler handler,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = User.GetUserIdRequired();
+
+        var command = new GetSavedTestsWithPaginationQuery(
+            userId,
+            request.Page,
+            request.PageSize,
+            request.SearchTestName,
+            request.SearchTestTheme,
+            request.SearchUserName,
+            request.OrderBy);
+        
+        var result = await handler.Handle(command, cancellationToken);
+        
+        return Ok(Envelope.Ok(result));
+    }
+
+    [HttpDelete("{testId:guid}/saved")]
+    [Authorize]
+    public async Task<IActionResult> DeleteSavedTest(
+        [FromRoute] Guid testId,
+        [FromServices] DeleteSavedTestHandler handler,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = User.GetUserIdRequired();
+        var command = new DeleteSavedTestCommand(userId, testId);
+        
+        var result = await handler.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return result.Error.ToResponse();
+        
+        return Ok(Envelope.Ok(result.Value));
     }
 }

@@ -27,7 +27,7 @@ public class UpdateUserHandler : ICommandHandler<UpdateUserCommand, Result<Guid,
             return (ErrorList)Errors.User.NotFound();
         
         if (string.IsNullOrWhiteSpace(command.Username))
-            return (ErrorList)Errors.General.ValueIsRequired("Username");
+            return (ErrorList)Errors.General.ValueIsRequired("имя пользователя");
         
         userResult.UpdateUsername(command.Username);
 

@@ -8,4 +8,5 @@ public record GetTestsWithPaginationQuery(
     string? SearchTestName = null,
     string? SearchTestTheme = null,
     string? SearchUserName = null,
-    string? OrderBy = null);
+    string? OrderBy = null,
+    Guid? UserId = null);

@@ -34,21 +34,12 @@ public class TestRepository : ITestRepository
         return test.Id;
     }
 
-    public Guid Save(Test test)
-    {
-        _context.Tests.Attach(test);
-        _logger.LogInformation("Updated test {test} with id {id}", test.TestName, test.Id.Value);
-        
-        return test.Id;
-    }
-
     public async Task<Result<Test, ErrorList>> GetById(
         TestId id,
         CancellationToken cancellationToken)
     {
         var tests = _context.Tests
-            .Include(t => t.Tasks)
-            .Include(sh => sh.SolvingHistories);
+            .Include(t => t.Tasks);
         
         var testResult = await tests
             .FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
@@ -79,18 +70,56 @@ public class TestRepository : ITestRepository
         return taskIds;
     }
 
-    public IEnumerable<Guid> DeleteSolvingHistories(IEnumerable<SolvingHistory> solvingHistories)
+    public async Task<Result<SavedTest, Error>> GetSavedTest(
+        TestId testId, 
+        Guid userId, 
+        CancellationToken cancellationToken = default)
     {
-        _context.SolvingHistories.RemoveRange(solvingHistories);
+        var result = await _context.SavedTests
+            .FirstOrDefaultAsync(st => st.TestId == testId && st.UserId == userId, cancellationToken);
+
+        if (result is null)
+            return Errors.General.NotFound();
         
-        string solvingHistoriesNames = string.Join(", ", solvingHistories.Select(s => s.Id));
-        var solvingHistoriesIds = solvingHistories.Select(s => s.Id.Value);
-        
+        return result;
+    }
+
+    public Guid DeleteSavedTest(SavedTest savedTest)
+    {
+        _context.SavedTests.Remove(savedTest);
         _logger.LogInformation(
-            "Deleted solving histories {solvingHistories} with ids {id}", 
-            solvingHistoriesNames, 
-            string.Join(", ", solvingHistoriesIds));
+            "Removed saved test {test} with user id {id}", 
+            savedTest.TestId.Value, 
+            savedTest.UserId);
         
-        return solvingHistoriesIds;
+        return savedTest.Id;
+    }
+
+    public async Task<IEnumerable<Task>> GetTasks(
+        IEnumerable<Guid> taskIds,
+        CancellationToken cancellationToken = default,
+        Guid? userId = null)
+    {
+        var resultQuery = _context.Tasks
+            .Where(i => taskIds.Contains(i.Id))
+            .Include(ts => ts.TaskStatistics.Where(ui => ui.UserId == userId));
+        
+        var result = await resultQuery.ToListAsync(cancellationToken);
+        
+        return result;
+    }
+
+    public async Task<Result<SolvingHistory, Error>> GetSolvingHistoryById(
+        SolvingHistoryId id, 
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _context.SolvingHistories
+            .Include(th => th.TaskHistories)
+            .FirstOrDefaultAsync(sh => sh.Id == id, cancellationToken);
+        
+        if (result == null)
+            return Errors.General.NotFound(id.Value);
+        
+        return result;
     }
 }

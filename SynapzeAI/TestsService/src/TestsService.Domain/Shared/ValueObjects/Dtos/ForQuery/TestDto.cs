@@ -11,11 +11,14 @@ public record TestDto
     
     public string TestName { get; set; }
     public string Theme { get; set; }
+    
     public bool IsPublished { get; set; }
+    
+    [NotMapped]
+    public bool IsSaved { get; set; }
 
     public LimitTimeDto? LimitTime { get; set; }
     
-    
-    [NotMapped]
-    public TaskDto[] Tasks { get; set; }
+    public IEnumerable<TaskDto> Tasks { get; set; }
+    public IEnumerable<SavedTestDto> SavedTests { get; set; }
 }

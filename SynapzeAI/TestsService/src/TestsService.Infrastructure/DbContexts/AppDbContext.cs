@@ -11,6 +11,9 @@ public class AppDbContext(IConfiguration configuration) : DbContext
     public DbSet<Test> Tests => Set<Test>();
     public DbSet<Task> Tasks => Set<Task>();
     public DbSet<SolvingHistory> SolvingHistories => Set<SolvingHistory>();
+    public DbSet<TaskStatistic> TaskStatistics => Set<TaskStatistic>();
+    public DbSet<TaskHistory> TaskHistories => Set<TaskHistory>();
+    public DbSet<SavedTest> SavedTests => Set<SavedTest>();
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

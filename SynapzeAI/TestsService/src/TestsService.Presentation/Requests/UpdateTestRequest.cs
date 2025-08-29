@@ -3,7 +3,6 @@ using TestsService.Application.Models.Dtos;
 namespace TestsService.Presentation.Requests;
 
 public record UpdateTestRequest(
-    string UniqueUserName,
     string TestName,
     string Theme,
     bool IsPublished,

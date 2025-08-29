@@ -39,9 +39,7 @@ public class AddSolvingHistoryHandler : ICommandHandler<AddSolvingHistoryCommand
                 th.UserAnswer,
                 th.RightAnswer,
                 th.Answers,
-                th.MessageAI,
-                th.ImagePath,
-                th.AudioPath))
+                th.MessageAI))
             .ToList();
 
         if (taskHistoriesResult.Any(th => th.IsFailure))
@@ -69,6 +67,7 @@ public class AddSolvingHistoryHandler : ICommandHandler<AddSolvingHistoryCommand
             return (ErrorList)solvingHistoriesResult.Error;
         
         test.AddSolvingHistory(solvingHistoriesResult.Value);
+        
         await _unitOfWork.SaveChanges(cancellationToken);
 
         return (Guid)solvingHistoriesResult.Value.Id;

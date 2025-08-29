@@ -1,17 +1,9 @@
 using System.Linq.Expressions;
-using System.Text;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using TestsService.Application.Abstractions;
 using TestsService.Application.Extensions;
-using TestsService.Application.Models.Dtos;
-using TestsService.Application.Providers;
 using TestsService.Application.Repositories;
-using TestsService.Domain.Shared;
-using TestsService.Domain.Shared.ValueObjects;
 using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace TestsService.Application.Tests.Queries;
 
@@ -51,52 +43,67 @@ public class GetTestsWithPaginationHandler : IQueryHandler<GetTestsWithPaginatio
 
         if (string.IsNullOrEmpty(query.SearchUserName) == false)
         {
-            var userTests = await testsQuery
+            var userTestsQuery = testsQuery
                 .Where(t => (t.IsPublished && t.UniqueUserName.ToLower().Contains(query.SearchUserName.ToLower())) 
-                            || (t.IsPublished == false && t.UniqueUserName.ToLower() == query.SearchUserName.ToLower()))
-                .GetItemsWithPagination(query.Page, query.PageSize)
-                .ToListAsync(cancellationToken);
+                    || (t.IsPublished == false && t.UniqueUserName.ToLower() == query.SearchUserName.ToLower()));
             
-            await SetTasks(userTests, cancellationToken);
+            var userTestsCount = await userTestsQuery.CountAsync(cancellationToken);
+            
+            var userTests = await userTestsQuery
+                .GetItemsWithPagination(query.Page, query.PageSize)
+                .Include(t => t.Tasks.OrderBy(sn => sn.SerialNumber))
+                .ThenInclude(ts => ts.TaskStatistics.Where(ui => ui.UserId == query.UserId))
+                .ToListAsync(cancellationToken);
+
+            if (query.UserId is not null)
+            {
+                userTests.ForEach(test =>
+                {
+                    test.IsSaved = test.SavedTests.Any();
+
+                    foreach (var task in test.Tasks)
+                        task.TaskStatistic = task.TaskStatistics.FirstOrDefault();
+                });
+            }
     
             return new PagedList<TestDto>()
             {
                 Items = userTests,
-                TotalCount = userTests.Count,
+                TotalCount = userTestsCount,
                 Page = query.Page,
                 PageSize = query.PageSize,
             };
         }
         
         testsQuery = testsQuery
-            .Where(t => t.IsPublished)
-            .GetItemsWithPagination(query.Page, query.PageSize);
+            .Where(t => t.IsPublished);
 
-        var tests = await testsQuery.ToListAsync(cancellationToken);
+        var testsCount = await testsQuery.CountAsync(cancellationToken);
         
-        await SetTasks(tests, cancellationToken);
+        var tests = await testsQuery
+            .GetItemsWithPagination(query.Page, query.PageSize)
+            .Include(st => st.SavedTests.Where(ui => ui.UserId == query.UserId))
+            .Include(t => t.Tasks.OrderBy(sn => sn.SerialNumber))
+            .ThenInclude(ts => ts.TaskStatistics.Where(ui => ui.UserId == query.UserId))
+            .ToListAsync(cancellationToken);
 
-        var result = new PagedList<TestDto>()
+        if (query.UserId is not null)
+        {
+            tests.ForEach(test =>
+            {
+                test.IsSaved = test.SavedTests.Any();
+
+                foreach (var task in test.Tasks)
+                    task.TaskStatistic = task.TaskStatistics.FirstOrDefault();
+            });
+        }
+        
+        return new PagedList<TestDto>()
         {
             Items = tests,
-            TotalCount = tests.Count,
+            TotalCount = testsCount,
             Page = query.Page,
-            PageSize = query.PageSize,
+            PageSize = query.PageSize
         };
-        
-        return result;
-    }
-
-    private async Task SetTasks(List<TestDto> tests, CancellationToken cancellationToken)
-    {
-        var testIds = tests.Select(i => i.Id);
-        
-        var tasks = await _readDbContext.Tasks
-            .Where(t => testIds.Contains(t.TestId))
-            .ToListAsync(cancellationToken);
-        
-        tests.ForEach(test => test.Tasks = tasks
-            .Where(t => t.TestId == test.Id)
-            .ToArray());
     }
 }

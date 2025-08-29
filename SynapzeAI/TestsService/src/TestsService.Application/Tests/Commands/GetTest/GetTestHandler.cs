@@ -21,17 +21,11 @@ public class GetTestHandler : ICommandHandler<Guid, Result<TestDto, ErrorList>>
         CancellationToken cancellationToken = default)
     {
         var testResult = await _readDbContext.Tests
+            .Include(t => t.Tasks.OrderBy(sn => sn.SerialNumber))
             .FirstOrDefaultAsync(i => i.Id == testId, cancellationToken);
         
         if (testResult == null)
             return (ErrorList)Errors.General.NotFound(testId);
-        
-        var tasks = await _readDbContext.Tasks
-            .Where(t => t.TestId == testId)
-            .OrderBy(t => t.SerialNumber)
-            .ToListAsync(cancellationToken);
-        
-        testResult.Tasks = tasks.ToArray();
         
         return testResult;
     }

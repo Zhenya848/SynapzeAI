@@ -5,4 +5,5 @@ public record GetSolvingHistoriesByPaginationQuery(
     int PageSize,
     Guid TestId,
     string? SearchUserName = null,
-    string? SearchUserEmail = null);
+    string? SearchUserEmail = null,
+    string? OrderBy =  null);

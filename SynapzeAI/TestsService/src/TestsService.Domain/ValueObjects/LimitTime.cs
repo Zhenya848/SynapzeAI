@@ -17,9 +17,11 @@ public record LimitTime
     public static Result<LimitTime, Error> Create(int seconds, int minutes)
     {
         long allSeconds = seconds + minutes * 60;
-        
+
         if (allSeconds < 10)
-            return Errors.General.ValueIsInvalid("Limit time must be at least 10.");
+            return Error.Validation(
+                "limit_time.is.invalid",
+                "Значение времени должно превышать 10 секунд");
         
         int minutesResult = (int)(allSeconds / 60);
         int secondsResult = (int)(allSeconds % 60);

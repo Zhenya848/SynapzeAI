@@ -12,10 +12,10 @@ public record TaskId
     
     public static TaskId Create(Guid id) => new (id);
 
-    public static implicit operator Guid(TaskId testId)
+    public static implicit operator Guid(TaskId id)
     {
-        ArgumentNullException.ThrowIfNull(testId);
+        ArgumentNullException.ThrowIfNull(id);
         
-        return testId.Value;
+        return id.Value;
     }
 }

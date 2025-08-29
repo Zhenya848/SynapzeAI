@@ -4,4 +4,7 @@ namespace TestsService.Application.Models.Dtos;
 
 public record UpdateTaskStatisticDto(
     Guid TaskId,
-    TaskStatisticDto Statistic);
+    int ErrorsCount,
+    int RightAnswersCount,
+    DateTime LastReviewTime,
+    float AvgTimeSolvingSec);

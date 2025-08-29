@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using UserService.Domain.Shared;
 
 namespace UserService.Domain.User;
 
@@ -17,9 +18,17 @@ public class User : IdentityUser<Guid>
         
     }
 
-    public static User Create(string username, string uniqueUserName, string email, Role role)
+    private static User Create(string username, string uniqueUserName, string email, Role role)
     {
-        return new User { UserName = username, UniqueUserName = uniqueUserName, _roles = [role], Email = email };
+        var user = new User
+        {
+            UserName = username,
+            UniqueUserName = uniqueUserName,
+            _roles = [role], 
+            Email = email
+        };
+
+        return user;
     }
     
     public void UpdateUsername(string username)
@@ -28,19 +37,20 @@ public class User : IdentityUser<Guid>
 
         var startCodeIndex = UniqueUserName.IndexOf('_');
         
-        UniqueUserName = username + UniqueUserName.Substring(startCodeIndex,  UniqueUserName.Length - startCodeIndex);
+        UniqueUserName = username + UniqueUserName
+            .Substring(startCodeIndex,  UniqueUserName.Length - startCodeIndex);
     }
     
     public static User CreateParticipant(
         string user,
-        string uniqueUserName,
         string email,
-        Role role)
+        Role role,
+        long usersCount)
     {
         if (role.Name != ParticipantAccount.PARTICIPANT)
             throw new ApplicationException($"Role {role.Name} does not exist");
         
-        return Create(user, uniqueUserName, email, role);
+        return Create(user, GenerateUniqueUserName(user, usersCount), email, role);
     }
     
     public static User CreateAdmin(
@@ -52,5 +62,20 @@ public class User : IdentityUser<Guid>
             throw new ApplicationException($"Role {role.Name} does not exist");
         
         return Create(user, "ADMIN", email, role);
+    }
+    
+    private static string GenerateUniqueUserName(string username, long usersCount)
+    {
+        var chars = Enumerable.Range('a', 26).Select(c => (char)c)
+            .Concat(Enumerable.Range('A', 26).Select(c => (char)c))
+            .Concat(Enumerable.Range('0', 10).Select(c => (char)c))
+            .ToArray();
+
+        username += "_";
+
+        for (var i = 0; i < Constants.USER_UNIQUE_CODE_LENGTH; i++)
+            username += chars[(usersCount / (int)Math.Pow(chars.Length, i)) % chars.Length];
+
+        return username;
     }
 }

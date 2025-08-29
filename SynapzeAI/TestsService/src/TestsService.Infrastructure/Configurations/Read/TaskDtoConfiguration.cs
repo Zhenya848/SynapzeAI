@@ -19,17 +19,8 @@ public class TaskDtoConfiguration : IEntityTypeConfiguration<TaskDto>
         builder.Property(tn => tn.TaskName);
         builder.Property(tm => tm.TaskMessage);
         builder.Property(ra => ra.RightAnswer).IsRequired(false);
-
-        builder.Property(imp => imp.ImagePath).IsRequired(false);
-        builder.Property(ap => ap.AudioPath).IsRequired(false);
         
-        builder.OwnsOne(ts => ts.TaskStatistic, tsb =>
-        {
-            tsb.Property(ec => ec.ErrorsCount);
-            tsb.Property(rac => rac.RightAnswersCount);
-            tsb.Property(lrt => lrt.LastReviewTime);
-            tsb.Property(ats => ats.AvgTimeSolvingSec);
-        });
+        builder.HasMany(ts => ts.TaskStatistics).WithOne().HasForeignKey(i => i.TaskId).OnDelete(DeleteBehavior.Cascade);
         
         builder.Property(a => a.Answers).HasConversion(
                 value => JsonSerializer.Serialize(value, JsonSerializerOptions.Default),
@@ -37,7 +28,5 @@ public class TaskDtoConfiguration : IEntityTypeConfiguration<TaskDto>
             .HasColumnType("jsonb")
             .HasColumnName("answers")
             .IsRequired(false);
-        
-        builder.Navigation(ts => ts.TaskStatistic).IsRequired(false);
     }
 }

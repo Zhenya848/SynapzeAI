@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using TestsService.Application.Abstractions;
 using TestsService.Application.Extensions;
@@ -36,15 +37,34 @@ public class GetSolvingHistoriesByPaginationHandler :
                 .Where(u => u.UniqueUserName.ToLower().Contains(query.SearchUserName.ToLower()));
         }
         
-        solvingHistoriesQuery = solvingHistoriesQuery
-            .GetItemsWithPagination(query.Page, query.PageSize);
+        if (string.IsNullOrEmpty(query.OrderBy) == false)
+        {
+            Expression<Func<SolvingHistoryDto, object>> selector = query.OrderBy?.ToLower() switch
+            {
+                "время решения" => solvingHistory => solvingHistory.SolvingDate,
+
+                _ => solvingHistory => 
+                    solvingHistory.TaskHistories
+                        .Count(th => th.RightAnswer != null && th.UserAnswer.ToLower() == th.RightAnswer.ToLower())
+            };
+
+            if (query.OrderBy.ToLower() == "по успешности прохождения (сверху вниз)")
+                solvingHistoriesQuery = solvingHistoriesQuery.OrderBy(selector);
+            else
+                solvingHistoriesQuery = solvingHistoriesQuery.OrderByDescending(selector);
+        }
         
-        var solvingHistories = await solvingHistoriesQuery.ToListAsync(cancellationToken);
+        var totalCount = await solvingHistoriesQuery.CountAsync(cancellationToken);
+        
+        var solvingHistories = await solvingHistoriesQuery
+            .GetItemsWithPagination(query.Page, query.PageSize)
+            .Include(th => th.TaskHistories.OrderBy(sn => sn.SerialNumber))
+            .ToListAsync(cancellationToken);
 
         return new PagedList<SolvingHistoryDto>()
         {
             Items = solvingHistories,
-            TotalCount = solvingHistories.Count,
+            TotalCount = totalCount,
             Page = query.Page,
             PageSize = query.PageSize
         };

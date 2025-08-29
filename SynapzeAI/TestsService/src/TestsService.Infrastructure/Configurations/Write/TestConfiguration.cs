@@ -34,5 +34,6 @@ public class TestConfiguration : IEntityTypeConfiguration<Test>
         
         builder.HasMany(t => t.Tasks).WithOne().HasForeignKey("test_id").OnDelete(DeleteBehavior.Cascade);
         builder.HasMany(sh => sh.SolvingHistories).WithOne().HasForeignKey("test_id").OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(st => st.SavedTests).WithOne().HasForeignKey(i => i.TestId).OnDelete(DeleteBehavior.Cascade);
     }
 }
