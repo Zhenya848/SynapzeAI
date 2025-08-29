@@ -1,5 +1,3 @@
-using TestsService.Domain.Shared.ValueObjects;
-
 namespace TestsService.Presentation.Requests;
 
 public record GetTestsWithPaginationRequest(

@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 
 public record TaskDto
@@ -10,10 +12,10 @@ public record TaskDto
     public string TaskMessage { get; set; }
     public string? RightAnswer { get; set; }
     
-    public string? ImagePath { get; set; }
-    public string? AudioPath { get; set; }
-    
+    [NotMapped]
     public TaskStatisticDto? TaskStatistic { get; set; }
+    
+    public IEnumerable<TaskStatisticDto> TaskStatistics { get; set; }
     
     public string[]?  Answers { get; set; }
 }

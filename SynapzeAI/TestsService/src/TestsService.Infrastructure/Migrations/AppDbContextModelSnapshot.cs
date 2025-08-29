@@ -22,6 +22,29 @@ namespace TestsService.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("TestsService.Domain.SavedTest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("TestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("test_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_saved_tests");
+
+                    b.HasIndex("TestId")
+                        .HasDatabaseName("ix_saved_tests_test_id");
+
+                    b.ToTable("saved_tests", (string)null);
+                });
+
             modelBuilder.Entity("TestsService.Domain.SolvingHistory", b =>
                 {
                     b.Property<Guid>("Id")
@@ -35,11 +58,6 @@ namespace TestsService.Infrastructure.Migrations
                     b.Property<int>("SolvingTimeSeconds")
                         .HasColumnType("integer")
                         .HasColumnName("solving_time_seconds");
-
-                    b.Property<string>("TaskHistories")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("task_histories");
 
                     b.Property<string>("UniqueUserName")
                         .IsRequired()
@@ -74,17 +92,9 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("answers");
 
-                    b.Property<string>("AudioPath")
-                        .HasColumnType("text")
-                        .HasColumnName("audio_path");
-
-                    b.Property<string>("ImagePath")
-                        .HasColumnType("text")
-                        .HasColumnName("image_path");
-
                     b.Property<string>("RightAnswer")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("right_answer");
 
                     b.Property<int>("SerialNumber")
@@ -99,8 +109,8 @@ namespace TestsService.Infrastructure.Migrations
 
                     b.Property<string>("TaskName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("task_name");
 
                     b.Property<Guid?>("test_id")
@@ -116,6 +126,99 @@ namespace TestsService.Infrastructure.Migrations
                     b.ToTable("tasks", (string)null);
                 });
 
+            modelBuilder.Entity("TestsService.Domain.TaskHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Answers")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("answers");
+
+                    b.Property<string>("MessageAI")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("message_ai");
+
+                    b.Property<string>("RightAnswer")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("right_answer");
+
+                    b.Property<int>("SerialNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("serial_number");
+
+                    b.Property<string>("TaskMessage")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("task_message");
+
+                    b.Property<string>("TaskName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("task_name");
+
+                    b.Property<string>("UserAnswer")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("user_answer");
+
+                    b.Property<Guid?>("solving_history_id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("solving_history_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_task_histories");
+
+                    b.HasIndex("solving_history_id")
+                        .HasDatabaseName("ix_task_histories_solving_history_id");
+
+                    b.ToTable("task_histories", (string)null);
+                });
+
+            modelBuilder.Entity("TestsService.Domain.TaskStatistic", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<float>("AvgTimeSolvingSec")
+                        .HasColumnType("real")
+                        .HasColumnName("avg_time_solving_sec");
+
+                    b.Property<int>("ErrorsCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("errors_count");
+
+                    b.Property<DateTime>("LastReviewTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_review_time");
+
+                    b.Property<int>("RightAnswersCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("right_answers_count");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid?>("task_id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("task_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_task_statistics");
+
+                    b.HasIndex("task_id")
+                        .HasDatabaseName("ix_task_statistics_task_id");
+
+                    b.ToTable("task_statistics", (string)null);
+                });
+
             modelBuilder.Entity("TestsService.Domain.Test", b =>
                 {
                     b.Property<Guid>("Id")
@@ -128,14 +231,14 @@ namespace TestsService.Infrastructure.Migrations
 
                     b.Property<string>("TestName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("test_name");
 
                     b.Property<string>("Theme")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("theme");
 
                     b.Property<string>("UniqueUserName")
@@ -151,6 +254,16 @@ namespace TestsService.Infrastructure.Migrations
                         .HasName("pk_tests");
 
                     b.ToTable("tests", (string)null);
+                });
+
+            modelBuilder.Entity("TestsService.Domain.SavedTest", b =>
+                {
+                    b.HasOne("TestsService.Domain.Test", null)
+                        .WithMany("SavedTests")
+                        .HasForeignKey("TestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_saved_tests_tests_test_id");
                 });
 
             modelBuilder.Entity("TestsService.Domain.SolvingHistory", b =>
@@ -169,39 +282,24 @@ namespace TestsService.Infrastructure.Migrations
                         .HasForeignKey("test_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("fk_tasks_tests_test_id");
+                });
 
-                    b.OwnsOne("TestsService.Domain.ValueObjects.TaskStatistic", "TaskStatistic", b1 =>
-                        {
-                            b1.Property<Guid>("TaskId")
-                                .HasColumnType("uuid")
-                                .HasColumnName("id");
+            modelBuilder.Entity("TestsService.Domain.TaskHistory", b =>
+                {
+                    b.HasOne("TestsService.Domain.SolvingHistory", null)
+                        .WithMany("TaskHistories")
+                        .HasForeignKey("solving_history_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_task_histories_solving_histories_solving_history_id");
+                });
 
-                            b1.Property<float>("AvgTimeSolvingSec")
-                                .HasColumnType("real")
-                                .HasColumnName("task_statistic_avg_time_solving_sec");
-
-                            b1.Property<int>("ErrorsCount")
-                                .HasColumnType("integer")
-                                .HasColumnName("task_statistic_errors_count");
-
-                            b1.Property<DateTime>("LastReviewTime")
-                                .HasColumnType("timestamp with time zone")
-                                .HasColumnName("task_statistic_last_review_time");
-
-                            b1.Property<int>("RightAnswersCount")
-                                .HasColumnType("integer")
-                                .HasColumnName("task_statistic_right_answers_count");
-
-                            b1.HasKey("TaskId");
-
-                            b1.ToTable("tasks");
-
-                            b1.WithOwner()
-                                .HasForeignKey("TaskId")
-                                .HasConstraintName("fk_tasks_tasks_id");
-                        });
-
-                    b.Navigation("TaskStatistic");
+            modelBuilder.Entity("TestsService.Domain.TaskStatistic", b =>
+                {
+                    b.HasOne("TestsService.Domain.Task", null)
+                        .WithMany("TaskStatistics")
+                        .HasForeignKey("task_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_task_statistics_tasks_task_id");
                 });
 
             modelBuilder.Entity("TestsService.Domain.Test", b =>
@@ -232,8 +330,20 @@ namespace TestsService.Infrastructure.Migrations
                     b.Navigation("LimitTime");
                 });
 
+            modelBuilder.Entity("TestsService.Domain.SolvingHistory", b =>
+                {
+                    b.Navigation("TaskHistories");
+                });
+
+            modelBuilder.Entity("TestsService.Domain.Task", b =>
+                {
+                    b.Navigation("TaskStatistics");
+                });
+
             modelBuilder.Entity("TestsService.Domain.Test", b =>
                 {
+                    b.Navigation("SavedTests");
+
                     b.Navigation("SolvingHistories");
 
                     b.Navigation("Tasks");

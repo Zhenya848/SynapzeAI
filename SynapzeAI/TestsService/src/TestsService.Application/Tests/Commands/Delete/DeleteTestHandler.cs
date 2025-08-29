@@ -32,7 +32,7 @@ public class DeleteTestHandler : ICommandHandler<DeleteTestCommand, Result<Guid,
         var test = testResult.Value;
         
         if (test.UserId != command.UserId)
-            return (ErrorList)Error.Conflict("user_id.not.match", "User id does not match test id");
+            return (ErrorList)Error.Conflict("user_id.not.match", "Id пользователя не сходится с Id викторины");
 
         _testRepository.DeleteTest(test);
         await _unitOfWork.SaveChanges(cancellationToken);

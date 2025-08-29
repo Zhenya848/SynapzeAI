@@ -27,5 +27,8 @@ public class TestDtoConfiguration : IEntityTypeConfiguration<TestDto>
         });
         
         builder.Navigation(lt => lt.LimitTime).IsRequired(false);
+        
+        builder.HasMany(t => t.Tasks).WithOne().HasForeignKey(i => i.TestId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(st => st.SavedTests).WithOne().HasForeignKey(i => i.TestId).OnDelete(DeleteBehavior.Cascade);
     }
 }

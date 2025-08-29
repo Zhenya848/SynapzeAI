@@ -21,11 +21,8 @@ public class SolvingHistoryConfiguration : IEntityTypeConfiguration<SolvingHisto
         builder.Property(un => un.UniqueUserName).IsRequired();
         builder.Property(un => un.UserEmail).IsRequired();
         
-        builder.Property(sh => sh.TaskHistories)
-            .HasConversion(
-                v => JsonSerializer.Serialize(v, JsonSerializerOptions.Default),
-                v => JsonSerializer.Deserialize<List<TaskHistory>>(v, JsonSerializerOptions.Default)!)
-            .HasColumnType("jsonb");
+        builder.HasMany(th => th.TaskHistories).WithOne().HasForeignKey("solving_history_id")
+            .OnDelete(DeleteBehavior.Cascade);
         
         builder.Property(sd => sd.SolvingDate).IsRequired();
         builder.Property(sts => sts.SolvingTimeSeconds).IsRequired();

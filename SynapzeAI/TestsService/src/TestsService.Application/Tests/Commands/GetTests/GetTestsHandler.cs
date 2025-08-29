@@ -19,19 +19,20 @@ public class GetTestsHandler : IQueryHandler<Guid, IEnumerable<TestDto>>
         CancellationToken cancellationToken = default)
     {
         var testsQuery = _readDbContext.Tests
+            .Include(st => st.SavedTests.Where(ui => ui.UserId == userId))
+            .Include(t => t.Tasks.OrderBy(sn => sn.SerialNumber))
+            .ThenInclude(ts => ts.TaskStatistics.Where(ui => ui.UserId == userId))
             .Where(ui => ui.UserId == userId);
 
         var tests = await testsQuery.ToListAsync(cancellationToken);
-        var testIds = tests.Select(i => i.Id);
         
-        var tasks = await _readDbContext.Tasks
-            .Where(t => testIds.Contains(t.TestId))
-            .ToListAsync(cancellationToken);
-        
-        tests.ForEach(test => test.Tasks = tasks
-            .Where(t => t.TestId == test.Id)
-            .OrderBy(t => t.SerialNumber)
-            .ToArray());
+        tests.ForEach(test =>
+        {
+            test.IsSaved = test.SavedTests.Any();
+
+            foreach (var task in test.Tasks)
+                task.TaskStatistic = task.TaskStatistics.FirstOrDefault();
+        });
         
         return tests;
     }

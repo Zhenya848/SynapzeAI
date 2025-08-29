@@ -24,6 +24,9 @@ public class Test : Shared.Entity<TestId>
     
     private List<SolvingHistory> _solvingHistories = new List<SolvingHistory>();
     public IReadOnlyList<SolvingHistory> SolvingHistories => _solvingHistories;
+    
+    private List<SavedTest> _savedTests = new List<SavedTest>();
+    public IReadOnlyList<SavedTest> SavedTests => _savedTests;
 
     private Test(TestId id) : base(id)
     {
@@ -62,55 +65,56 @@ public class Test : Shared.Entity<TestId>
         IEnumerable<Task>? tasks = null)
     {
         if (string.IsNullOrWhiteSpace(uniqueUserName))
-            return Errors.General.ValueIsRequired(nameof(UniqueUserName));
+            return Errors.General.ValueIsRequired("имя пользователя");
         
         if (string.IsNullOrWhiteSpace(testName))
-            return Errors.General.ValueIsRequired(nameof(TestName));
+            return Errors.General.ValueIsRequired("название викторины");
         
         if (string.IsNullOrWhiteSpace(theme))
-            return Errors.General.ValueIsRequired(nameof(Theme));
+            return Errors.General.ValueIsRequired("тема викторины");
         
         return new Test(id, userId, uniqueUserName, testName, theme, isPublished, limitTime, tasks);
     }
 
     public void AddTasks(IEnumerable<Task> tasks)
     {
-        tasks.ToList().ForEach(t =>
+        int startNumber = _tasks.Count + 1;
+        
+        foreach (var task in tasks)
         {
-            t.SetSerialNumber(_tasks.Count + 1);
-            _tasks.Add(t);
-        });
+            task.SetSerialNumber(startNumber++);
+            _tasks.Add(task);
+        }
     }
 
     public void UpdateTasks(IEnumerable<Task> tasks)
     {
-        var taskIds = tasks.Select(t => t.Id);
+        var tasksById = tasks.ToDictionary(t => t.Id);
 
-        foreach (var task in _tasks.Where(t => taskIds.Contains(t.Id)))
+        foreach (var task in _tasks)
         {
-            var newTask = tasks.First(i => i.Id == task.Id);
-
-            task.UpdateInfo(
-                newTask.TaskName,
-                newTask.TaskMessage,
-                newTask.RightAnswer,
-                newTask.Answers);
+            if (tasksById.TryGetValue(task.Id, out var newTask))
+            {
+                task.UpdateInfo(
+                    newTask.TaskName,
+                    newTask.TaskMessage,
+                    newTask.RightAnswer,
+                    newTask.Answers);
+            }
         }
     }
 
-    public List<Task> GetTasksByIds(IEnumerable<Guid> TaskIds)
+    public List<Task> GetTasksByIds(IEnumerable<Guid> taskIds)
     {
-        var result = new List<Task>();
-
-        foreach (var taskId in TaskIds)
-        {
-            var task = _tasks.FirstOrDefault(i => i.Id == taskId);
-            
-            if (task != null)
-                result.Add(task);
-        }
+        if (taskIds == null || !taskIds.Any())
+            return new List<Task>();
+    
+        var taskIdsSet = new HashSet<Guid>(taskIds);
         
-        return result;
+        return _tasks
+            .Where(t => taskIdsSet.Contains(t.Id))
+            .OrderBy(sn => sn.SerialNumber)
+            .ToList();
     }
     
     public UnitResult<Error> UpdateInfo(
@@ -121,13 +125,13 @@ public class Test : Shared.Entity<TestId>
         LimitTime? limitTime)
     {
         if (string.IsNullOrWhiteSpace(uniqueUserName))
-            return Errors.General.ValueIsRequired(nameof(UniqueUserName));
+            return Errors.General.ValueIsRequired("имя пользователя");
         
         if (string.IsNullOrWhiteSpace(testName))
-            return Errors.General.ValueIsRequired(nameof(TestName));
+            return Errors.General.ValueIsRequired("название викторины");
         
         if (string.IsNullOrWhiteSpace(theme))
-            return Errors.General.ValueIsRequired(nameof(Theme));
+            return Errors.General.ValueIsRequired("тема викторины");
         
         TestName = testName;
         Theme = theme;
@@ -139,15 +143,7 @@ public class Test : Shared.Entity<TestId>
     
     public void AddSolvingHistory(SolvingHistory solvingHistory) =>
         _solvingHistories.Add(solvingHistory);
-
-    public void UpdateSolvingHistory(SolvingHistory solvingHistory)
-    {
-        _solvingHistories[_solvingHistories.FindIndex(s => s.Id == solvingHistory.Id)]
-            .UpdateInfo(
-                solvingHistory.UniqueUserName,
-                solvingHistory.UserEmail,
-                solvingHistory.TaskHistories,
-                solvingHistory.SolvingDate,
-                solvingHistory.SolvingTimeSeconds);
-    }
+    
+    public void AddSavedTest(SavedTest savedTest) =>
+        _savedTests.Add(savedTest);
 }

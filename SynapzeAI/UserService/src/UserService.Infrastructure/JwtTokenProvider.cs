@@ -38,7 +38,8 @@ public class JwtTokenProvider : ITokenProvider
         {
             new Claim(CustomClaims.Sub, user.Id.ToString()),
             new Claim(CustomClaims.Jti, jti.ToString()),
-            new Claim(CustomClaims.Email, user.Email ?? "")
+            new Claim(CustomClaims.Email, user.Email ?? ""),
+            new Claim(CustomClaims.Name, user.UniqueUserName)
         };
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));

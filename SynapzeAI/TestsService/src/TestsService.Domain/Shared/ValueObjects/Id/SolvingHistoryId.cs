@@ -12,10 +12,10 @@ public record SolvingHistoryId
     
     public static SolvingHistoryId Create(Guid id) => new (id);
 
-    public static implicit operator Guid(SolvingHistoryId testId)
+    public static implicit operator Guid(SolvingHistoryId id)
     {
-        ArgumentNullException.ThrowIfNull(testId);
+        ArgumentNullException.ThrowIfNull(id);
         
-        return testId.Value;
+        return id.Value;
     }
 }

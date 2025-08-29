@@ -34,10 +34,10 @@ public class CreateUserHandler : ICommandHandler<CreateUserCommand, UnitResult<E
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(command.Username))
-            return (ErrorList)Errors.General.ValueIsRequired("Username");
+            return (ErrorList)Errors.General.ValueIsRequired("имя пользователя");
         
         if (EmailValidator.IsVaild(command.Email) == false)
-            return (ErrorList)Errors.General.ValueIsInvalid("Email");
+            return (ErrorList)Errors.General.ValueIsInvalid("почта");
         
         var userExist = await _userManager.FindByEmailAsync(command.Email);
 
@@ -49,9 +49,7 @@ public class CreateUserHandler : ICommandHandler<CreateUserCommand, UnitResult<E
         
         var usersCount = _userManager.Users.Count();
         
-        var uniqueUserName = GenerateUniqueUserName(command.Username, usersCount);
-        
-        var user = User.CreateParticipant(command.Username, uniqueUserName, command.Email, role);
+        var user = User.CreateParticipant(command.Username, command.Email, role, usersCount);
         
         var participantAccount = ParticipantAccount.CreateParticipant(command.Username, user);
 
@@ -66,20 +64,5 @@ public class CreateUserHandler : ICommandHandler<CreateUserCommand, UnitResult<E
         _logger.LogInformation("User created: {userName} a new account with password.", user.UserName);
         
         return Result.Success<ErrorList>();
-    }
-
-    private string GenerateUniqueUserName(string username, long usersCount)
-    {
-        var chars = Enumerable.Range('a', 26).Select(c => (char)c)
-            .Concat(Enumerable.Range('A', 26).Select(c => (char)c))
-            .Concat(Enumerable.Range('0', 10).Select(c => (char)c))
-            .ToArray();
-
-        username += "_";
-
-        for (var i = 0; i < Constants.USER_UNIQUE_CODE_LENGTH; i++)
-            username += chars[(usersCount / (int)Math.Pow(chars.Length, i)) % chars.Length];
-        
-        return username;
     }
 }

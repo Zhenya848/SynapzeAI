@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Application.Commands.CreateUser;
@@ -30,7 +31,7 @@ public class AccountController : ControllerBase
         if (result.IsFailure)
             return result.Error.ToResponse();
 
-        return Ok(Envelope.Ok(null));
+        return Ok();
     }
     
     [HttpPost("login")]
@@ -56,7 +57,7 @@ public class AccountController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         if (HttpContext.Request.Cookies.TryGetValue("refreshToken", out var refreshToken) == false)
-            return BadRequest("Refresh token was missing!");
+            return Unauthorized();
 
         if (Guid.TryParse(refreshToken, out var refreshTokenGuid) == false)
             return Errors.Token.InvalidToken().ToResponse();
@@ -93,6 +94,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPut("users/{userId:guid}")]
+    [Authorize]
     public async Task<IActionResult> UpdateUser(
         [FromRoute] Guid userId,
         [FromBody] UpdateUserRequest request,

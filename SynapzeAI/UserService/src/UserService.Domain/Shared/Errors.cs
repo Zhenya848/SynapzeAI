@@ -2,37 +2,34 @@ namespace UserService.Domain.Shared;
 
 public static class Errors
     {
-        public static class General
+        public class General
         {
             public static Error ValueIsInvalid(string? name = null) =>
-                Error.Validation("value.is.invalid", $"{(name != null ? name : "value")} is invalid");
+                Error.Validation("value.is.invalid", $"Значение для: {(name != null ? name : "value")} невалидно");
 
             public static Error NotFound(Guid? id = null) =>
-                Error.NotFound("record.not.found", $"record not found{(id != null ? " for id: " + id : "")}");
+                Error.NotFound("record.not.found", $"объект с id: {(id != null ? " for id: " + id : "")} не найден");
 
             public static Error Failure(string? name = null) =>
                 Error.Failure("failure", $"{(name != null ? name : "value")} is failure");
 
-            public static Error Conflict(string? name = null) =>
-                Error.Conflict("conflict", $"{(name != null ? name : "value")} is conflict");
-
             public static Error ValueIsRequired(string? name = null) =>
-                Error.Conflict("value.is.required", $"{(name != null ? name : "value")} is required");
+                Error.Conflict("value.is.required", $"Ожидается значение для: {(name != null ? name : "value")}");
         }
         
         public static class User
         {
             public static Error AlreadyExist() =>
-                Error.Validation("user.already.exist", "user with this email already exist!");
+                Error.Validation("user.already.exist", "пользователь с таким почтовым адресом уже существует");
 
             public static Error NotFound(string email) => 
-                Error.NotFound("user.notfound", $"user with email {email} not found");
+                Error.NotFound("user.notfound", $"пользователь с почтовым адресом {email} не найден");
             
             public static Error NotFound() => 
-                Error.NotFound("user.notfound", $"user not found");
+                Error.NotFound("user.notfound", "пользователь не найден");
             
             public static Error WrongCredentials() =>
-                Error.Validation("user.wrong.credentials", "user with wrong credentials");
+                Error.Validation("user.wrong.credentials", "неверные пользовательские данные");
         }
         
         public static class RefreshSessions

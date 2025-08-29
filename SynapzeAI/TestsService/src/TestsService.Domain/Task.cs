@@ -9,36 +9,32 @@ namespace TestsService.Domain;
 public class Task : Shared.Entity<TaskId>
 {
     public int SerialNumber { get; private set; }
+    
     public string TaskName { get; private set; }
     public string TaskMessage { get; private set; }
     public string? RightAnswer { get; private set; }
     
-    public string? ImagePath { get; private set; }
-    public string? AudioPath { get; private set; }
     
-    public TaskStatistic? TaskStatistic { get; private set; }
+    private List<TaskStatistic> _taskStatistics = new List<TaskStatistic>();
+    public IReadOnlyList<TaskStatistic> TaskStatistics =>  _taskStatistics;
     
     public List<string>? Answers { get; private set; }
 
-    protected Task(TaskId id) : base(id)
+    private Task(TaskId id) : base(id)
     {
         
     }
     
-    protected Task(
+    private Task(
         TaskId id,
         string taskName, 
         string taskMessage,
         string? rightAnswer = null,
-        IEnumerable<string>? answers = null,
-        string? imagePath = null,
-        string? audioPath = null) : base(id)
+        IEnumerable<string>? answers = null) : base(id)
     {
         TaskName = taskName;
         TaskMessage = taskMessage;
         RightAnswer = rightAnswer;
-        ImagePath = imagePath;
-        AudioPath = audioPath;
         Answers = answers?.ToList();
     }
 
@@ -47,30 +43,28 @@ public class Task : Shared.Entity<TaskId>
         string taskName, 
         string taskMessage,
         string? rightAnswer = null,
-        IEnumerable<string>? answers = null,
-        string? imagePath = null,
-        string? audioPath = null)
+        IEnumerable<string>? answers = null)
     {
         if (string.IsNullOrWhiteSpace(taskName))
-            return Errors.General.ValueIsRequired(nameof(taskName));
+            return Errors.General.ValueIsRequired("название задачи");
         
         if  (string.IsNullOrWhiteSpace(taskMessage))
-            return Errors.General.ValueIsRequired(nameof(taskMessage));
+            return Errors.General.ValueIsRequired("сообщение задачи");
         
-        return new Task(id, taskName, taskMessage, rightAnswer, answers, imagePath, audioPath);
+        return new Task(id, taskName, taskMessage, rightAnswer, answers);
     }
 
-    public UnitResult<Error> UpdateInfo(
+    internal UnitResult<Error> UpdateInfo(
         string taskName,
         string taskMessage,
         string? rightAnswer = null,
         IEnumerable<string>? answers = null)
     {
         if (string.IsNullOrWhiteSpace(taskName))
-            return Errors.General.ValueIsRequired(nameof(taskName));
+            return Errors.General.ValueIsRequired("название задачи");
         
         if  (string.IsNullOrWhiteSpace(taskMessage))
-            return Errors.General.ValueIsRequired(nameof(taskMessage));
+            return Errors.General.ValueIsRequired("сообщение задачи");
         
         TaskName = taskName;
         TaskMessage = taskMessage;
@@ -79,22 +73,14 @@ public class Task : Shared.Entity<TaskId>
 
         return Result.Success<Error>();
     }
-
-    public void UpdateImagePath(string imagePath) =>
-        ImagePath = string.IsNullOrWhiteSpace(imagePath) ? ImagePath : imagePath;
     
-    public void UpdateAudioPath(string audioPath) =>
-        AudioPath = string.IsNullOrWhiteSpace(audioPath) ? AudioPath : audioPath;
-
-    public void UpdateStatistic(TaskStatistic statistic)
-    {
-        TaskStatistic = statistic;
-    }
+    public void AddTaskStatistic(TaskStatistic statistic) =>
+        _taskStatistics.Add(statistic);
 
     internal UnitResult<Error> SetSerialNumber(int serialNumber)
     {
         if (serialNumber < 1)
-            return Errors.General.ValueIsInvalid(nameof(serialNumber));
+            return Errors.General.ValueIsInvalid("серийный номер задачи");
         
         SerialNumber = serialNumber;
         

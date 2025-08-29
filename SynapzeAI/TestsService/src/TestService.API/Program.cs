@@ -1,5 +1,5 @@
 using Microsoft.OpenApi.Models;
-using TestsService.API.Middleware;
+using TestService.API.Middleware;
 using TestsService.Application;
 using TestsService.Infrastructure;
 using TestsService.Presentation;
@@ -65,6 +65,9 @@ app.UseCors(config =>
         .AllowAnyHeader()
         .AllowAnyMethod();
 });
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseHttpsRedirection();
 app.MapControllers();

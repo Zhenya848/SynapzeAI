@@ -1,12 +1,10 @@
 using CSharpFunctionalExtensions;
 using TestsService.Application.Abstractions;
-using TestsService.Application.Messaging;
 using TestsService.Application.Repositories;
 using TestsService.Domain.Shared;
 using TestsService.Domain.Shared.ValueObjects.Id;
 using TestsService.Domain.ValueObjects;
 using Task = TestsService.Domain.Task;
-using FileInfo = TestsService.Domain.Shared.ValueObjects.FileInfo;
 
 namespace TestsService.Application.Tests.Commands.Update;
 
@@ -14,15 +12,12 @@ public class UpdateTestHandler : ICommandHandler<UpdateTestCommand, Result<Guid,
 {
     private readonly ITestRepository _testRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IMessageQueue<IEnumerable<FileInfo>> _messageQueue;
     public UpdateTestHandler(
         IUnitOfWork unitOfWork,
-        ITestRepository testRepository,
-        IMessageQueue<IEnumerable<FileInfo>> messageQueue)
+        ITestRepository testRepository)
     {
         _testRepository = testRepository;
         _unitOfWork = unitOfWork;
-        _messageQueue = messageQueue;
     }
     
     public async Task<Result<Guid, ErrorList>> Handle(
@@ -42,9 +37,10 @@ public class UpdateTestHandler : ICommandHandler<UpdateTestCommand, Result<Guid,
         
         LimitTime? limitTime = null;
 
-        if (command.Seconds != null && command.Minutes != null)
+        if (command.Seconds is not null || command.Minutes is not null)
         {
-            var limitTimeResult = LimitTime.Create(command.Seconds.Value, command.Minutes.Value);
+            var limitTimeResult = LimitTime
+                .Create(command.Seconds ?? 0, command.Minutes ?? 0);
         
             if (limitTimeResult.IsFailure)
                 return (ErrorList)limitTimeResult.Error;
@@ -52,8 +48,12 @@ public class UpdateTestHandler : ICommandHandler<UpdateTestCommand, Result<Guid,
             limitTime = limitTimeResult.Value;
         }
 
-        var updateResult = test
-            .UpdateInfo(command.UniqueUserName, command.TestName, command.Theme, command.IsPublished, limitTime);
+        var updateResult = test.UpdateInfo(
+            command.UniqueUserName, 
+            command.TestName, 
+            command.Theme, 
+            command.IsPublished, 
+            limitTime);
         
         if (updateResult.IsFailure)
             return (ErrorList)updateResult.Error;
@@ -104,15 +104,10 @@ public class UpdateTestHandler : ICommandHandler<UpdateTestCommand, Result<Guid,
         {
             var tasks = test
                 .GetTasksByIds(command.TaskIdsToDelete);
-
-            var files = tasks
-                .Select(t => new FileInfo("photos", t.ImagePath));
-        
-            await _messageQueue.WriteAsync(files, cancellationToken);
+            
             _testRepository.DeleteTasks(tasks);
         }
         
-        _testRepository.Save(test);
         await _unitOfWork.SaveChanges(cancellationToken);
 
         return (Guid)test.Id;

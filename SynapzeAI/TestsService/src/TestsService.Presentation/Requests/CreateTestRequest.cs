@@ -5,7 +5,6 @@ using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 namespace TestsService.Presentation.Requests;
 
 public record CreateTestRequest(
-    string UniqueUserName,
     string TestName,
     string Theme,
     bool IsPublished,

@@ -20,11 +20,7 @@ public class SolvingHistoryDtoConfiguration : IEntityTypeConfiguration<SolvingHi
         builder.Property(un => un.UniqueUserName);
         builder.Property(un => un.UserEmail);
         
-        builder.Property(sh => sh.TaskHistories)
-            .HasConversion(
-                v => JsonSerializer.Serialize(v, JsonSerializerOptions.Default),
-                v => JsonSerializer.Deserialize<TaskHistoryDto[]>(v, JsonSerializerOptions.Default)!)
-            .HasColumnType("jsonb");
+        builder.HasMany(th => th.TaskHistories).WithOne().HasForeignKey(i => i.SolvingHistoryId);
         
         builder.Property(sd => sd.SolvingDate);
         builder.Property(sts => sts.SolvingTimeSeconds);

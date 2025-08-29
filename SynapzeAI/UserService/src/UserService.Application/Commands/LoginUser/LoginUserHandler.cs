@@ -29,7 +29,7 @@ public class LoginUserHandler : ICommandHandler<LoginUserCommand, Result<LoginRe
         var user = await _userManager.FindByEmailAsync(userCommand.Email);
         
         if (user == null)
-            return (ErrorList)Errors.User.NotFound(userCommand.Email);
+            return (ErrorList)Errors.User.WrongCredentials();
         
         var passwordConfirmed = await _userManager.CheckPasswordAsync(user, userCommand.Password);
 
@@ -37,7 +37,8 @@ public class LoginUserHandler : ICommandHandler<LoginUserCommand, Result<LoginRe
             return (ErrorList)Errors.User.WrongCredentials();
 
         var accessToken = _tokenProvider.GenerateAccessToken(user);
-        var refreshToken = await _tokenProvider.GenerateRefreshToken(user, accessToken.Jti, cancellationToken);
+        var refreshToken = await _tokenProvider
+            .GenerateRefreshToken(user, accessToken.Jti, cancellationToken);
         
         _logger.LogInformation("Login successfully");
 
