@@ -68,6 +68,9 @@ public class AccountController : ControllerBase
             return result.Error.ToResponse();
         
         HttpContext.Response.Cookies.Append("refreshToken", result.Value.RefreshToken.ToString());
+        HttpContext.Response.Cookies.Append("a", "awdsdsdwad");
+        HttpContext.Response.Cookies.Append("b", "awdsdsdwawd");
+        HttpContext.Response.Cookies.Append("c", "awffg");
         
         return Ok(Envelope.Ok(result.Value));
     }

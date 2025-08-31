@@ -104,15 +104,14 @@ public class TestController : ControllerBase
     }
 
     [HttpPut("{testId:guid}/history")]
-    [Authorize]
     public async Task<IActionResult> AddSolvingHistory(
         [FromRoute] Guid testId,
         [FromBody] AddSolvingHistoryRequest request,
         [FromServices] AddSolvingHistoryHandler handler,
         CancellationToken cancellationToken = default)
     {
-        var userName = User.GetUserNameRequired();
-        var userEmail = User.GetUserEmailRequired();
+        var userName = User.GetUserName() ?? "none";
+        var userEmail = User.GetUserEmail() ?? "none";
         
         var command = new AddSolvingHistoryCommand(
             testId,
@@ -203,7 +202,6 @@ public class TestController : ControllerBase
     }
     
     [HttpGet("{testId:guid}/test")]
-    [Authorize]
     public async Task<ActionResult> GetTestById(
         [FromRoute] Guid testId,
         [FromServices] GetTestHandler handler,
