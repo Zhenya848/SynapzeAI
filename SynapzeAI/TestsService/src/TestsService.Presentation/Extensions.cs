@@ -80,7 +80,7 @@ public static class Extensions
     
     public static string? GetUserName(this ClaimsPrincipal user)
     {
-        return user.FindFirst(ClaimTypes.Name)?.Value;
+        return user.FindFirst(CustomClaims.Name)?.Value;
     }
 
     public static bool HasRole(this ClaimsPrincipal user, string role)

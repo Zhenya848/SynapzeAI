@@ -25,16 +25,13 @@ public class GetSavedTestsWithPaginationHandler
             .Include(st => st.SavedTests.Where(ui => ui.UserId == query.UserId))
             .Include(t => t.Tasks)
             .ThenInclude(ts => ts.TaskStatistics.Where(ui => ui.UserId == query.UserId))
-            .Where(t => t.UserId == query.UserId);
-        
-        var resultQuery = tests
             .Where(st => st.SavedTests.Any(ui => ui.UserId == query.UserId));
         
         if (string.IsNullOrEmpty(query.SearchTestName) == false)
-            resultQuery = resultQuery.Where(t => t.TestName.Contains(query.SearchTestName));
+            tests = tests.Where(t => t.TestName.Contains(query.SearchTestName));
         
         if (string.IsNullOrEmpty(query.SearchTestTheme) == false)
-            resultQuery = resultQuery.Where(t => t.Theme.Contains(query.SearchTestTheme));
+            tests = tests.Where(t => t.Theme.Contains(query.SearchTestTheme));
 
         if (string.IsNullOrEmpty(query.OrderBy) == false)
         {
@@ -46,18 +43,18 @@ public class GetSavedTestsWithPaginationHandler
                 _ => test => test.TestName
             };
 
-            resultQuery = resultQuery.OrderBy(selector);
+            tests =tests.OrderBy(selector);
         }
 
         if (string.IsNullOrEmpty(query.SearchUserName) == false)
         {
-            resultQuery = resultQuery
+            tests = tests
                 .Where(u => u.UniqueUserName.ToLower().Contains(query.SearchUserName.ToLower()));
         }
         
-        var totalCount = await resultQuery.CountAsync(cancellationToken);
+        var totalCount = await tests.CountAsync(cancellationToken);
 
-        var result = await resultQuery
+        var result = await tests
             .GetItemsWithPagination(query.Page, query.PageSize)
             .ToListAsync(cancellationToken);
         
