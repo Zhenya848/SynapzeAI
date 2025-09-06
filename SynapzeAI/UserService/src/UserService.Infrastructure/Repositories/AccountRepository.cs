@@ -1,6 +1,7 @@
 using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
 using UserService.Application.Repositories;
+using UserService.Domain;
 using UserService.Domain.Shared;
 using UserService.Domain.User;
 
@@ -56,5 +57,45 @@ public class AccountRepository : IAccountRepository
             return Errors.User.NotFound();
         
         return user;
+    }
+
+    public async Task<Result<User, Error>> FindUserByTelegram(
+        string telegram, 
+        CancellationToken cancellationToken = default)
+    {
+        var userResult = await _accountsDbContext.Users
+            .FirstOrDefaultAsync(t => t.Telegram == telegram, cancellationToken);
+        
+        if (userResult == null)
+            return Errors.User.NotFound();
+        
+        return userResult;
+    }
+
+    public Guid CreateVerification(Verification verification)
+    {
+        var addResult = _accountsDbContext.Verifications.Add(verification);
+        
+        return verification.Id;
+    }
+
+    public Guid DeleteVerification(Verification verification)
+    {
+        var deleteResult = _accountsDbContext.Verifications.Remove(verification);
+        
+        return verification.Id;
+    }
+
+    public async Task<Result<Verification, Error>> GetVerificationByUserId(
+        Guid userId, CancellationToken 
+            cancellationToken = default)
+    {
+        var verificationResult = await _accountsDbContext.Verifications
+            .FirstOrDefaultAsync(v => v.UserId == userId, cancellationToken);
+
+        if (verificationResult is null)
+            return Errors.General.NotFound();
+        
+        return verificationResult;
     }
 }

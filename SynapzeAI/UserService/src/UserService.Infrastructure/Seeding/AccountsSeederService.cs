@@ -45,14 +45,14 @@ public class AccountsSeederService(
 
         if (adminUser == null)
         {
-            adminUser = User.CreateAdmin(adminOptions.FirstName, adminOptions.Email, adminRole);
+            adminUser = User.CreateAdmin(adminOptions.FirstName, adminOptions.Telegram, adminRole);
             await userManager.CreateAsync(adminUser, adminOptions.Password);
             
             logger.LogInformation("Created user admin successfully");
         }
         
         var adminExist = await accountsDbContext.AdminAccounts
-            .AnyAsync(e => e.User.Email == adminOptions.Email);
+            .AnyAsync(t => t.User.Telegram == adminOptions.Telegram);
 
         if (adminExist == false)
         {

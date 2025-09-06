@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using UserService.Domain;
 using UserService.Domain.Shared;
 using UserService.Domain.User;
 
@@ -16,5 +17,15 @@ public interface IAccountRepository
     
     public Task<Result<User, Error>> GetInfoAboutUser(
         Guid userId,
+        CancellationToken cancellationToken = default);
+    
+    public Task<Result<User, Error>> FindUserByTelegram(
+        string telegram,
+        CancellationToken cancellationToken = default);
+    
+    public Guid CreateVerification(Verification verification);
+    public Guid DeleteVerification(Verification verification);
+    public Task<Result<Verification, Error>> GetVerificationByUserId(
+        Guid userId, 
         CancellationToken cancellationToken = default);
 }

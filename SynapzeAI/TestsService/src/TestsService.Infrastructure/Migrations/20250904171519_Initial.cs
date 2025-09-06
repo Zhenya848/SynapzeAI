@@ -54,7 +54,7 @@ namespace TestsService.Infrastructure.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     unique_user_name = table.Column<string>(type: "text", nullable: false),
-                    user_email = table.Column<string>(type: "text", nullable: false),
+                    user_telegram = table.Column<string>(type: "text", nullable: false),
                     solving_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     solving_time_seconds = table.Column<int>(type: "integer", nullable: false),
                     test_id = table.Column<Guid>(type: "uuid", nullable: true)

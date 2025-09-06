@@ -58,7 +58,7 @@ public class AddSolvingHistoryHandler : ICommandHandler<AddSolvingHistoryCommand
         var solvingHistoriesResult = SolvingHistory
             .Create(
                 command.UniqueUserName, 
-                command.UserEmail, 
+                command.UserTelegram, 
                 taskHistories, 
                 command.SolvingDate, 
                 command.SolvingTimeSeconds);

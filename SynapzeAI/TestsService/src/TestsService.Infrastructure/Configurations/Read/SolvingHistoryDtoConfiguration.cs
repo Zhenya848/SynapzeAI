@@ -18,7 +18,7 @@ public class SolvingHistoryDtoConfiguration : IEntityTypeConfiguration<SolvingHi
         builder.Property(ti => ti.TestId);
         
         builder.Property(un => un.UniqueUserName);
-        builder.Property(un => un.UserEmail);
+        builder.Property(un => un.UserTelegram);
         
         builder.HasMany(th => th.TaskHistories).WithOne().HasForeignKey(i => i.SolvingHistoryId);
         

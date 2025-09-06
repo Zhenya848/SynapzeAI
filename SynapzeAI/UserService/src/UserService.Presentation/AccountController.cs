@@ -6,6 +6,7 @@ using UserService.Application.Commands.LoginUser;
 using UserService.Application.Commands.LogoutUser;
 using UserService.Application.Commands.RefreshTokens;
 using UserService.Application.Commands.UpdateUser;
+using UserService.Application.Commands.Verify;
 using UserService.Domain.Shared;
 using UserService.Presentation.Requests;
 
@@ -23,7 +24,7 @@ public class AccountController : ControllerBase
     {
         var command = new CreateUserCommand(
             request.Username,
-            request.Email,
+            request.Telegram,
             request.Password);
         
         var result = await handler.Handle(command, cancellationToken);
@@ -40,7 +41,7 @@ public class AccountController : ControllerBase
         [FromServices] LoginUserHandler handler,
         CancellationToken cancellationToken = default)
     {
-        var command = new LoginUserCommand(request.Email, request.Password);
+        var command = new LoginUserCommand(request.Telegram, request.Password);
         var result = await handler.Handle(command, cancellationToken);
 
         if (result.IsFailure)
@@ -112,5 +113,21 @@ public class AccountController : ControllerBase
             return result.Error.ToResponse();
         
         return Ok(Envelope.Ok(result.Value));
+    }
+
+    [HttpPost("users/verify")]
+    public async Task<IActionResult> VerifyUser(
+        [FromBody] VerifyUserRequest request,
+        [FromServices] VerifyUserHandler handler,
+        CancellationToken cancellationToken = default)
+    {
+        var command = new VerifyUserCommand(request.Telegram, request.Code);
+        
+        var result = await handler.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return result.Error.ToResponse();
+        
+        return Ok();
     }
 }

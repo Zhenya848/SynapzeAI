@@ -8,7 +8,7 @@ namespace TestsService.Domain;
 public class SolvingHistory : Shared.Entity<SolvingHistoryId>
 {
     public string UniqueUserName { get; private set; }
-    public string UserEmail { get; private set; }
+    public string UserTelegram { get; private set; }
     
     private List<TaskHistory> _taskHistories = new List<TaskHistory>();
     public IReadOnlyList<TaskHistory> TaskHistories => _taskHistories;
@@ -24,13 +24,13 @@ public class SolvingHistory : Shared.Entity<SolvingHistoryId>
     private SolvingHistory(
         SolvingHistoryId id,
         string uniqueUserName,
-        string userEmail,
+        string userTelegram,
         IEnumerable<TaskHistory> taskHistories,
         DateTime solvingDate,
         int solvingTimeSeconds) : base(id)
     {
         UniqueUserName = uniqueUserName;
-        UserEmail = userEmail;
+        UserTelegram = userTelegram;
         _taskHistories = taskHistories.ToList();
         SolvingDate = solvingDate;
         SolvingTimeSeconds = solvingTimeSeconds;
@@ -38,7 +38,7 @@ public class SolvingHistory : Shared.Entity<SolvingHistoryId>
 
     public static Result<SolvingHistory, Error> Create(
         string uniqueUserName,
-        string userEmail,
+        string userTelegram,
         IEnumerable<TaskHistory> taskHistories,
         DateTime solvingDate,
         int solvingTimeSeconds)
@@ -46,8 +46,8 @@ public class SolvingHistory : Shared.Entity<SolvingHistoryId>
         if (string.IsNullOrWhiteSpace(uniqueUserName))
             return Errors.General.ValueIsRequired("имя пользователя");
         
-        if (string.IsNullOrWhiteSpace(userEmail))
-            return Errors.General.ValueIsRequired("почтовый адрес");
+        if (string.IsNullOrWhiteSpace(userTelegram))
+            return Errors.General.ValueIsRequired("telegram");
         
         if (solvingTimeSeconds <= 0)
             return Errors.General.ValueIsRequired(nameof(solvingDate));
@@ -58,7 +58,7 @@ public class SolvingHistory : Shared.Entity<SolvingHistoryId>
         return new SolvingHistory(
             SolvingHistoryId.AddNewId(),
             uniqueUserName, 
-            userEmail, 
+            userTelegram, 
             taskHistories, 
             solvingDate, 
             solvingTimeSeconds);

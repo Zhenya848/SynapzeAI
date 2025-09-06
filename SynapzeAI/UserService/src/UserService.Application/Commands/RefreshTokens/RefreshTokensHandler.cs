@@ -49,7 +49,7 @@ public class RefreshTokensHandler : ICommandHandler<Guid, Result<LoginResponse, 
         var userData = new UserInfo()
         {
             Id = oldRefreshSession.Value.User.Id,
-            Email = oldRefreshSession.Value.User.Email!,
+            Telegram = oldRefreshSession.Value.User.Telegram,
             UniqueUserName = oldRefreshSession.Value.User.UniqueUserName,
             UserName = oldRefreshSession.Value.User.UserName!
         };

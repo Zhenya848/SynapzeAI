@@ -22,8 +22,8 @@ public static class Errors
             public static Error AlreadyExist() =>
                 Error.Validation("user.already.exist", "пользователь с таким почтовым адресом уже существует");
 
-            public static Error NotFound(string email) => 
-                Error.NotFound("user.notfound", $"пользователь с почтовым адресом {email} не найден");
+            public static Error NotFound(string telegram) => 
+                Error.NotFound("user.notfound", $"пользователь с telegram {telegram} не найден");
             
             public static Error NotFound() => 
                 Error.NotFound("user.notfound", "пользователь не найден");
