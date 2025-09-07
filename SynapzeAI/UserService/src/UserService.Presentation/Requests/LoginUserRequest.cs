@@ -1,3 +1,3 @@
 namespace UserService.Presentation.Requests;
 
-public record LoginUserRequest(string Email, string Password);
+public record LoginUserRequest(string Telegram, string Password);

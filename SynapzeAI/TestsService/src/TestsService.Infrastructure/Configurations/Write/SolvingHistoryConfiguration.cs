@@ -19,7 +19,7 @@ public class SolvingHistoryConfiguration : IEntityTypeConfiguration<SolvingHisto
         builder.HasKey(i => i.Id);
         
         builder.Property(un => un.UniqueUserName).IsRequired();
-        builder.Property(un => un.UserEmail).IsRequired();
+        builder.Property(un => un.UserTelegram).IsRequired();
         
         builder.HasMany(th => th.TaskHistories).WithOne().HasForeignKey("solving_history_id")
             .OnDelete(DeleteBehavior.Cascade);

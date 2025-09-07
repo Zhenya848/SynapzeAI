@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using UserService.Domain;
 using UserService.Domain.Shared;
 using UserService.Domain.User;
 
@@ -16,6 +17,7 @@ public class AccountsDbContext(IConfiguration configuration) : IdentityDbContext
     
     public DbSet<AdminAccount> AdminAccounts => Set<AdminAccount>();
     public DbSet<ParticipantAccount> ParticipantAccounts => Set<ParticipantAccount>();
+    public DbSet<Verification> Verifications => Set<Verification>();
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

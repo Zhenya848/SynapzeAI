@@ -6,7 +6,7 @@ namespace TestsService.Application.SolvingHistories.Commands.Create;
 public record AddSolvingHistoryCommand(
     Guid TestId,
     string UniqueUserName,
-    string UserEmail,
+    string UserTelegram,
     TaskHistoryDto[] TaskHistories, 
     DateTime SolvingDate,
     int SolvingTimeSeconds);

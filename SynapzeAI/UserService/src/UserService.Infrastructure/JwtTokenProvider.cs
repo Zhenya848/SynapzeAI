@@ -38,7 +38,7 @@ public class JwtTokenProvider : ITokenProvider
         {
             new Claim(CustomClaims.Sub, user.Id.ToString()),
             new Claim(CustomClaims.Jti, jti.ToString()),
-            new Claim(CustomClaims.Email, user.Email ?? ""),
+            new Claim(CustomClaims.Telegram, user.Telegram),
             new Claim(CustomClaims.Name, user.UniqueUserName)
         };
 

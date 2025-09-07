@@ -12,7 +12,7 @@ using TestsService.Infrastructure.DbContexts;
 namespace TestsService.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250828092823_Initial")]
+    [Migration("20250904171519_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -67,10 +67,10 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("unique_user_name");
 
-                    b.Property<string>("UserEmail")
+                    b.Property<string>("UserTelegram")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("user_email");
+                        .HasColumnName("user_telegram");
 
                     b.Property<Guid?>("test_id")
                         .HasColumnType("uuid")

@@ -64,10 +64,10 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("unique_user_name");
 
-                    b.Property<string>("UserEmail")
+                    b.Property<string>("UserTelegram")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("user_email");
+                        .HasColumnName("user_telegram");
 
                     b.Property<Guid?>("test_id")
                         .HasColumnType("uuid")

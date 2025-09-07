@@ -25,10 +25,10 @@ public class GetSolvingHistoriesByPaginationHandler :
         var solvingHistoriesQuery = _readDbContext.SolvingHistories
             .Where(ti => ti.TestId == query.TestId);
 
-        if (string.IsNullOrEmpty(query.SearchUserEmail) == false)
+        if (string.IsNullOrEmpty(query.SearchUserTelegram) == false)
         {
             solvingHistoriesQuery = solvingHistoriesQuery
-                .Where(u => u.UserEmail.ToLower().Contains(query.SearchUserEmail.ToLower()));
+                .Where(u => u.UserTelegram.ToLower().Contains(query.SearchUserTelegram.ToLower()));
         }
         
         if (string.IsNullOrEmpty(query.SearchUserName) == false)

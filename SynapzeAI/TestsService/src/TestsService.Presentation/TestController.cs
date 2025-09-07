@@ -1,6 +1,9 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using TestsService.Application.SavedTests.Commands.Create;
 using TestsService.Application.SavedTests.Commands.Delete;
 using TestsService.Application.SavedTests.Queries.Get;
@@ -16,6 +19,7 @@ using TestsService.Application.Tests.Commands.Update;
 using TestsService.Application.Tests.Queries;
 using TestsService.Domain.Shared;
 using TestsService.Presentation.Authorization;
+using TestsService.Presentation.Extensions;
 using TestsService.Presentation.Requests;
 
 namespace TestsService.Presentation;
@@ -111,12 +115,12 @@ public class TestController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var userName = User.GetUserName() ?? "none";
-        var userEmail = User.GetUserEmail() ?? "none";
+        var userTelegram = User.GetUserTelegram() ?? "none";
         
         var command = new AddSolvingHistoryCommand(
             testId,
             userName,
-            userEmail,
+            userTelegram,
             request.TaskHistories, 
             request.SolvingDate,
             request.SolvingTimeSeconds);
@@ -142,7 +146,7 @@ public class TestController : ControllerBase
             request.PageSize,
             testId,
             request.SearchUserName,
-            request.SearchUserEmail,
+            request.SearchUserTelegram,
             request.OrderBy);
         
         var result = await handler.Handle(command, cancellationToken);

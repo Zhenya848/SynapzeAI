@@ -1,0 +1,17 @@
+[
+  {
+    "productId": "10_generations",
+    "price": 199,
+    "pack": 10
+  },
+  {
+    "productId": "30_generations",
+    "price": 499,
+    "pack": 30
+  },
+  {
+    "productId": "50_generations",
+    "price": 600,
+    "pack": 50
+  }
+]
