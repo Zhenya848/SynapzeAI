@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PaymentService.Models;
+using PaymentService.Outbox;
 
 namespace PaymentService.DbContexts;
 
@@ -7,6 +8,7 @@ public class AppDbContext(IConfiguration configuration) : DbContext
 {
     public DbSet<PaymentSession>  PaymentSessions => Set<PaymentSession>();
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

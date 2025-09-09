@@ -1,3 +1,4 @@
+using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Identity;
 using UserService.Domain.Shared;
 
@@ -14,6 +15,8 @@ public class User : IdentityUser<Guid>
     
     public ParticipantAccount? ParticipantAccount { get; }
     public AdminAccount? AdminAccount { get; }
+    
+    public int Balance { get; private set; }
 
     private User()
     {
@@ -83,4 +86,14 @@ public class User : IdentityUser<Guid>
     
     public void VerifyUser() => 
         IsVerified = true;
+    
+    public UnitResult<Error> SetBalance(int balance)
+    {
+        if (balance < 0)
+            return Errors.General.ValueIsInvalid(nameof(balance));
+        
+        Balance = balance;
+
+        return Result.Success<Error>();
+    }
 }

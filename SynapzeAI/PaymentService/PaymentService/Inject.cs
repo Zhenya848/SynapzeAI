@@ -4,7 +4,9 @@ using PaymentService.Abstractions;
 using PaymentService.Contracts.Messaging;
 using PaymentService.DbContexts;
 using PaymentService.Options;
+using PaymentService.Outbox;
 using PaymentService.Seeding;
+using Quartz;
 
 namespace PaymentService;
 
@@ -22,6 +24,8 @@ public static class Inject
         services.AddHttpContextAccessor();
         
         services.AddScoped<AppDbContext>();
+        services.AddScoped<ProcessOutboxMessagesService>();
+        
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.Configure<YandexKassaOptions>(
@@ -62,6 +66,17 @@ public static class Inject
             
             services.AddControllers();
         });
+
+        services.AddQuartz(c =>
+        {
+            var jobKey = new JobKey(nameof(ProcessOutboxMessagesJob));
+
+            c.AddJob<ProcessOutboxMessagesJob>(jobKey)
+                .AddTrigger(t => t.ForJob(jobKey)
+                    .WithSimpleSchedule(s => s.WithIntervalInSeconds(3).RepeatForever()));
+        });
+
+        services.AddQuartzHostedService(o => { o.WaitForJobsToComplete = true; });
         
         return services;
     }

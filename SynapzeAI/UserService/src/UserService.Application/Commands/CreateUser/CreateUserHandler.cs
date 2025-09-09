@@ -85,10 +85,6 @@ public class CreateUserHandler : ICommandHandler<CreateUserCommand, UnitResult<E
             _accountRepository.CreateVerification(verificationResult.Value);
             
             await _unitOfWork.SaveChanges(cancellationToken);
-
-            if (result.Succeeded == false)
-                return (ErrorList)result.Errors
-                    .Select(e => Error.Failure(e.Code, e.Description)).ToList();    
             
             var sendResult = await _messageProvider.SendCode(verificationCode, command.Telegram);
 

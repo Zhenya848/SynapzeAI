@@ -22,7 +22,7 @@ public class CreatePayment
     {
         public void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapPost("payments/create", Handler);
+            app.MapPost("api/Payments/create", Handler);
         }
     }
 
