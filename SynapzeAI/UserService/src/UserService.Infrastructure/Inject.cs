@@ -105,7 +105,7 @@ public static class Inject
                 {
                     ep.PrefetchCount = 16;
                     ep.UseMessageRetry(r => r.Interval(2, 100));
-                    ep.Consumer<UserBoughtTheProductEventConsumer>();
+                    ep.Consumer<UserBoughtTheProductEventConsumer>(context);
                 });
             });
         });

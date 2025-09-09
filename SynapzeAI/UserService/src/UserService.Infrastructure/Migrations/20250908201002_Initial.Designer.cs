@@ -13,7 +13,7 @@ using UserService.Infrastructure;
 namespace UserService.Infrastructure.Migrations
 {
     [DbContext(typeof(AccountsDbContext))]
-    [Migration("20250903212132_Initial")]
+    [Migration("20250908201002_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -352,6 +352,10 @@ namespace UserService.Infrastructure.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer")
                         .HasColumnName("access_failed_count");
+
+                    b.Property<int>("Balance")
+                        .HasColumnType("integer")
+                        .HasColumnName("balance");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()

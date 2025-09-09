@@ -1,14 +1,18 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using PaymentService.Abstractions;
 using PaymentService.Contracts.Messaging;
 using PaymentService.DbContexts;
 using PaymentService.Extensions;
 using PaymentService.Models;
 using PaymentService.Models.Shared;
+using PaymentService.Models.Shared.ValueObjects.Id;
 using PaymentService.Models.YandexKassa;
 using PaymentService.Options;
+using PaymentService.Outbox;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace PaymentService.Features;
 
@@ -18,7 +22,7 @@ public class CatchPurchaseNotification
     {
         public void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapPost("payments/notification", Handler);
+            app.MapPost("api/Payments/notification", Handler);
         }
 
         private static async Task<IResult> Handler(
@@ -52,16 +56,22 @@ public class CatchPurchaseNotification
             
             if (amount != paymentSession.Product.Price)
                 return Error.Conflict("amount.not.match", "Сумма заказа и цена продукта не сходятся").ToResponse();
+
+            var userBoughtEvent = new UserBoughtTheProductEvent()
+            {
+                UserId = paymentSession.UserId,
+                Pack = paymentSession.Product.Pack
+            };
+
+            var outboxMessage = new OutboxMessage(
+                OutboxMessageId.AddNewId(),
+                userBoughtEvent.GetType().FullName!,
+                JsonSerializer.Serialize(userBoughtEvent),
+                DateTime.UtcNow);
             
-            await publishEndpoint.Publish(
-                new UserBoughtTheProductEvent()
-                {
-                    UserId = paymentSession.UserId, 
-                    Pack = paymentSession.Product.Pack
-                },
-                cancellationToken);
-            
+            dbContext.OutboxMessages.Add(outboxMessage);
             dbContext.PaymentSessions.Remove(paymentSession);
+            
             await unitOfWork.SaveChanges(cancellationToken);
             
             return Results.Ok();
