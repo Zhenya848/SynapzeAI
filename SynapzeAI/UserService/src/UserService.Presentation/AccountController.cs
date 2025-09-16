@@ -12,6 +12,7 @@ using UserService.Application.Commands.RefreshTokens;
 using UserService.Application.Commands.UpdateUser;
 using UserService.Application.Commands.Verify;
 using UserService.Domain.Shared;
+using UserService.Presentation.Authorization;
 using UserService.Presentation.Requests;
 
 namespace UserService.Presentation;
@@ -102,21 +103,14 @@ public class AccountController : ControllerBase
     }
 
     [HttpPut("users/{userId:guid}")]
-    [Permission("user.update")]
+    [ServiceAuthorize]
     public async Task<IActionResult> UpdateUser(
         [FromRoute] Guid userId,
-        [FromBody] UpdateUserRequest request,
         [FromServices] UpdateUserHandler handler,
         CancellationToken cancellationToken = default)
     {
-        var command = new UpdateUserCommand(userId, request.Username);
-        
-        var result = await handler.Handle(command, cancellationToken);
 
-        if (result.IsFailure)
-            return result.Error.ToResponse();
-        
-        return Ok(Envelope.Ok(result.Value));
+        return Ok();
     }
 
     [HttpPost("users/verify")]

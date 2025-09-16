@@ -1,20 +1,22 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace TestsService.Presentation.Authorization;
+namespace UserService.Presentation.Authorization;
 
-public class PermissionPolicyProvider : IAuthorizationPolicyProvider
+public class ServiceAuthorizePolicyProvider : IAuthorizationPolicyProvider
 {
-    public Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
+    public Task<AuthorizationPolicy?> GetPolicyAsync()
     {
-        if (string.IsNullOrWhiteSpace(policyName))
-            return Task.FromResult<AuthorizationPolicy?>(null);
-        
-        var policy = new AuthorizationPolicyBuilder()
+        var policy = new AuthorizationPolicyBuilder(SecretKeyDefaults.AuthenticationScheme)
             .RequireAuthenticatedUser()
-            .AddRequirements(new PermissionAttribute(policyName))
+            .AddRequirements(new ServiceAuthorizeAttribute())
             .Build();
         
         return Task.FromResult<AuthorizationPolicy?>(policy);
+    }
+
+    public Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
+    {
+        throw new NotImplementedException();
     }
 
     public Task<AuthorizationPolicy> GetDefaultPolicyAsync() =>

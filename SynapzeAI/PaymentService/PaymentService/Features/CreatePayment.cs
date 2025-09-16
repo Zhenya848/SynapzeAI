@@ -40,19 +40,19 @@ public class CreatePayment
         var userId = httpContextAccessor.HttpContext?.User.GetUserIdRequired();
         
         if (userId is null)
-            return ApiExtensions.ToResponse(Errors.General.ValueIsRequired(nameof(userId)));
+            return ApiExtensions.ToIResultResponse(Errors.General.ValueIsRequired(nameof(userId)));
         
         var product = await dbContext.Products
             .FirstOrDefaultAsync(i => i.Id == request.ProductId, cancellationToken);
 
         if (product is null)
-            return ApiExtensions.ToResponse(Error.NotFound("product.not.found", $"product {request.ProductId} not found"));
+            return ApiExtensions.ToIResultResponse(Error.NotFound("product.not.found", $"product {request.ProductId} not found"));
         
         var paymentSessionResult = PaymentSession
             .Create(PaymentSessionId.AddNewId(), userId.Value, product.Id);
         
         if (paymentSessionResult.IsFailure)
-            return ApiExtensions.ToResponse(paymentSessionResult.Error);
+            return ApiExtensions.ToIResultResponse(paymentSessionResult.Error);
         
         var paymentSession = paymentSessionResult.Value;
         
@@ -99,7 +99,7 @@ public class CreatePayment
             logger.LogError("Ошибка при создании платежа: " + ex.Message);
             transaction.Rollback();
 
-            return ApiExtensions.ToResponse(Error.Failure("payment.is.failure", "Произошла ошибка при создании платежа"));
+            return ApiExtensions.ToIResultResponse(Error.Failure("payment.is.failure", "Произошла ошибка при создании платежа"));
         }
     }
 }

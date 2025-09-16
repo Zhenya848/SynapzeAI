@@ -20,6 +20,8 @@ public static class Inject
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddHttpClient();
+        
         services.AddScoped<IReadDbContext, ReadDbContext>();
         
         services.AddScoped<AppDbContext>();
