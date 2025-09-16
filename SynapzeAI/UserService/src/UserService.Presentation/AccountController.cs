@@ -1,3 +1,7 @@
+using Core;
+using Framework;
+using Framework.Authorization;
+using Framework.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -98,7 +102,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPut("users/{userId:guid}")]
-    [Authorize]
+    [Permission("user.update")]
     public async Task<IActionResult> UpdateUser(
         [FromRoute] Guid userId,
         [FromBody] UpdateUserRequest request,

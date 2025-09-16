@@ -1,3 +1,4 @@
+using Core;
 using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
 using TestsService.Application.Abstractions;

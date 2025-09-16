@@ -23,4 +23,8 @@
       <ProjectReference Include="..\TestsService.Presentation\TestsService.Presentation.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="etc\" />
+    </ItemGroup>
+
 </Project>

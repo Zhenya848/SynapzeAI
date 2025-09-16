@@ -1,13 +1,16 @@
+using System.Security.Cryptography;
+using Framework.Authorization;
+using Framework.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using TestsService.Application.Abstractions;
 using TestsService.Application.Repositories;
+using TestsService.Domain.Shared;
 using TestsService.Infrastructure.DbContexts;
-using TestsService.Infrastructure.Options;
 using TestsService.Infrastructure.Repositories;
-using TestsService.Presentation;
-using TestsService.Presentation.Options;
+using TestsService.Presentation.Authorization;
 
 namespace TestsService.Infrastructure;
 
@@ -22,11 +25,9 @@ public static class Inject
         services.AddScoped<AppDbContext>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ITestRepository, TestRepository>();
-
-        services.Configure<YandexKassaOptions>(
-            configuration.GetSection(YandexKassaOptions.YANDEX));
-
-        services.AddOptions<YandexKassaOptions>();
+        
+        var authOptions = configuration.GetSection(AuthOptions.Auth).Get<AuthOptions>()
+                          ?? throw new ApplicationException("Auth options not found");
         
         services.AddAuthentication(options =>
         {
@@ -36,11 +37,21 @@ public static class Inject
         })
         .AddJwtBearer(options =>
         {
-            var jwtOptions = configuration.GetSection(JwtOptions.JWT).Get<JwtOptions>()
-                             ?? throw new ApplicationException("Missing JWT configuration");
-
+            var rsa = RSA.Create();
+        
+            byte[] publicKeyBytes = File.ReadAllBytes(authOptions.PublicKeyPath);
+            rsa.ImportRSAPublicKey(publicKeyBytes, out _);
+            
+            var key = new RsaSecurityKey(rsa);
+            
             options.TokenValidationParameters = TokenValidationParametersFactory
-                .CreateWithLifeTime(jwtOptions);
+                .CreateWithLifeTime(key);
+        })
+        .AddScheme<SecretKeyAuthenticationOptions, SecretKeyAuthenticationHandler>(
+            SecretKeyDefaults.AuthenticationScheme, 
+            options =>
+        {
+            options.ExpectedKey = authOptions.SecretKey;
         });
         
         return services;

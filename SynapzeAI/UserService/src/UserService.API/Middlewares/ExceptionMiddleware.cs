@@ -1,4 +1,6 @@
-﻿using UserService.Domain.Shared;
+﻿using Core;
+using Framework;
+using UserService.Domain.Shared;
 using UserService.Presentation;
 
 namespace UserService.API.Middlewares

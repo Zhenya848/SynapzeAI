@@ -1,3 +1,4 @@
+using Core;
 using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
 using UserService.Application.Repositories;
@@ -54,7 +55,7 @@ public class AccountRepository : IAccountRepository
             .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
         
         if (user == null)
-            return Errors.User.NotFound();
+            return Errors.General.NotFound();
         
         return user;
     }
@@ -67,7 +68,7 @@ public class AccountRepository : IAccountRepository
             .FirstOrDefaultAsync(t => t.Telegram == telegram, cancellationToken);
         
         if (userResult == null)
-            return Errors.User.NotFound();
+            return Errors.General.NotFound();
         
         return userResult;
     }

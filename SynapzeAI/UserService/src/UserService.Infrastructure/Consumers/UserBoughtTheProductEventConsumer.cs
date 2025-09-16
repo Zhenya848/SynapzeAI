@@ -1,6 +1,6 @@
+using Core.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using PaymentService.Contracts.Messaging;
 using UserService.Application.Commands.SetBalanceToUser;
 
 namespace UserService.Infrastructure.Consumers;

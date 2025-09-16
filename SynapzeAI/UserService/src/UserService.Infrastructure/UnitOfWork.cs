@@ -1,6 +1,6 @@
 ﻿using System.Data;
+using Application.Abstractions;
 using Microsoft.EntityFrameworkCore.Storage;
-using UserService.Application.Abstractions;
 
 namespace UserService.Infrastructure
 {

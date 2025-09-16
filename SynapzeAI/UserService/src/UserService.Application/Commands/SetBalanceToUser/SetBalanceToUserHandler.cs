@@ -1,6 +1,7 @@
+using Application.Abstractions;
+using Core;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Identity;
-using UserService.Application.Abstractions;
 using UserService.Domain.Shared;
 using UserService.Domain.User;
 
@@ -23,7 +24,7 @@ public class SetBalanceToUserHandler : ICommandHandler<SetBalanceToUserCommand, 
             .FindByIdAsync(command.UserId.ToString());
 
         if (user is null)
-            return (ErrorList)Errors.User.NotFound();
+            return (ErrorList)Errors.General.NotFound();
 
         var setBalanceResult = user.SetBalance(user.Balance + command.Pack);
         await _userManager.UpdateAsync(user);

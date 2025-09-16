@@ -1,6 +1,7 @@
+using Application.Abstractions;
+using Core;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Identity;
-using UserService.Application.Abstractions;
 using UserService.Application.Repositories;
 using UserService.Domain.Shared;
 using UserService.Domain.User;

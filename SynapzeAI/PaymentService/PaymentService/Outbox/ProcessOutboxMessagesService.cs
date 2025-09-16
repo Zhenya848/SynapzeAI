@@ -51,7 +51,7 @@ public class ProcessOutboxMessagesService
             })
             .Build();
         
-        var tasks = messages.Select(m => ProcessMessageAsync(m, pipeline,  cancellationToken));
+        var tasks = messages.Select(m => ProcessMessageAsync(m, pipeline, cancellationToken));
         await Task.WhenAll(tasks);
 
         try
@@ -71,7 +71,7 @@ public class ProcessOutboxMessagesService
     {
         try
         {
-            var type = Type.GetType($"{message.Type}, {typeof(ProcessOutboxMessagesService).Assembly}")
+            var type = Type.GetType($"{message.Type}, Core")
                 ?? throw new Exception($"Could not find type {message.Type}");
             
             var deserializedMessage = JsonSerializer.Deserialize(message.Payload, type)
@@ -87,7 +87,6 @@ public class ProcessOutboxMessagesService
         catch (Exception ex)
         {
             message.Error = ex.Message;
-            message.ProcessedOn = DateTime.UtcNow;
             
             _logger.LogError(ex, "Error processing message {message}", message);
         }

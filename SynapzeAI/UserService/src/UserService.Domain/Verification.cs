@@ -1,10 +1,11 @@
 using CSharpFunctionalExtensions;
 using UserService.Domain.Shared;
 using DomainUser = UserService.Domain.User.User;
+using Core;
 
 namespace UserService.Domain;
 
-public class Verification : Shared.Entity<Guid>
+public class Verification : Core.Entity<Guid>
 {
     public Guid UserId { get; private set; }
     public DomainUser User { get; init; }

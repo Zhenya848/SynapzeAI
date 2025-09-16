@@ -12,12 +12,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.5" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <Protobuf Include="Grpc\Protos\*.proto" GrpcServices="Server" />
     </ItemGroup>
 
     <ItemGroup>
-      <Protobuf Include="Grpc\Protos\*.proto" GrpcServices="Server" />
+      <PackageReference Include="Framework" Version="1.0.3" />
     </ItemGroup>
 
 </Project>

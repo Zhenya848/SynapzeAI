@@ -4,6 +4,7 @@ using UserService.API.Middlewares;
 using UserService.Application;
 using UserService.Infrastructure;
 using UserService.Infrastructure.Seeding;
+using UserService.Presentation;
 
 DotNetEnv.Env.Load();
 
@@ -19,11 +20,37 @@ builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "MyTestService", Version = "v1" });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Description = "JWT Authorization header {token}",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[]{ }
+        }
+    });
+});
 
 builder.Services
-    .AddFromApplication()
-    .AddFromInfrastructure(builder.Configuration);
+    .AddFromInfrastructure(builder.Configuration)
+    .AddFromApplication();
 
 var app = builder.Build();
 

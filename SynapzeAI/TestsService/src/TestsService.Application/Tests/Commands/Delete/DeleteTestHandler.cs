@@ -1,3 +1,4 @@
+using Core;
 using CSharpFunctionalExtensions;
 using TestsService.Application.Abstractions;
 using TestsService.Application.Repositories;
@@ -32,7 +33,7 @@ public class DeleteTestHandler : ICommandHandler<DeleteTestCommand, Result<Guid,
         var test = testResult.Value;
         
         if (test.UserId != command.UserId)
-            return (ErrorList)Error.Conflict("user_id.not.match", "Id пользователя не сходится с Id викторины");
+            return (ErrorList)Error.Conflict("user_id.not.match", "Id пользователя не сходится с Id создателя викторины");
 
         _testRepository.DeleteTest(test);
         await _unitOfWork.SaveChanges(cancellationToken);

@@ -1,3 +1,5 @@
+using Application.Abstractions;
+using Core;
 using CSharpFunctionalExtensions;
 using UserService.Application.Abstractions;
 using UserService.Application.Repositories;
@@ -35,7 +37,7 @@ public class RefreshTokensHandler : ICommandHandler<Guid, Result<LoginResponse, 
             return (ErrorList)oldRefreshSession.Error;
 
         if (oldRefreshSession.Value.ExpiresIn < DateTime.UtcNow)
-            return (ErrorList)Errors.RefreshSessions.ExpiredToken();
+            return (ErrorList)Errors.General.Failure("Token");
         
         _accountRepository.Delete(oldRefreshSession.Value);
         await _unitOfWork.SaveChanges(cancellationToken);

@@ -1,5 +1,6 @@
+using Application.Abstractions;
+using Core;
 using CSharpFunctionalExtensions;
-using UserService.Application.Abstractions;
 using UserService.Application.Repositories;
 using UserService.Domain.Shared;
 

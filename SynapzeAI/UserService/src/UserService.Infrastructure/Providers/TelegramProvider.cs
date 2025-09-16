@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using Core;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -62,7 +63,7 @@ public class TelegramProvider : IMessageProvider
             var chatId = await GetChatIdByUsernameAsync(userMessageName);
             
             if (!chatId.HasValue)
-                return Errors.General.Failure();
+                return Error.Failure("find.chat.failure", "Failed to find chat");
             
             var message = $"🔐 **Код подтверждения**\n\n" +
                           $"`{code}`\n\n" +
@@ -82,7 +83,7 @@ public class TelegramProvider : IMessageProvider
         catch (Exception ex)
         {
             _logger.LogError(ex, "Ошибка отправки кода пользователю {Username}", userMessageName);
-            return Errors.General.Failure();
+            return Error.Failure("send.code.failure", "Failed to send code");
         }
     }
 }

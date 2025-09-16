@@ -1,8 +1,12 @@
+using Application.Abstractions;
+using Framework.Authorization;
+using Framework.Options;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Telegram.Bot;
 using UserService.Application;
 using UserService.Application.Abstractions;
@@ -12,10 +16,10 @@ using UserService.Domain.User;
 using UserService.Infrastructure.Consumers;
 using UserService.Infrastructure.Options;
 using UserService.Infrastructure.Providers;
+using UserService.Infrastructure.Providers.Authorization;
 using UserService.Infrastructure.Repositories;
 using UserService.Infrastructure.Seeding;
-using UserService.Presentation;
-using UserService.Presentation.Options;
+using UserService.Presentation.Authorization;
 
 namespace UserService.Infrastructure;
 
@@ -32,10 +36,7 @@ public static class Inject
             return new TelegramBotClient(telegramOptions?.Token 
                                          ?? throw new ArgumentNullException("Telegram token is null"));
         });
-        
-        services.Configure<JwtOptions>(
-            config.GetSection(JwtOptions.JWT));
-        
+
         services.Configure<AdminOptions>(
             config.GetSection(AdminOptions.ADMIN));
 
@@ -44,11 +45,14 @@ public static class Inject
 
         services.Configure<TelegramBotOptions>(
             config.GetSection(TelegramBotOptions.BotOptions));
-
-        services.AddOptions<JwtOptions>();
+        
+        services.Configure<AuthOptions>(
+            config.GetSection(AuthOptions.Auth));
+        
         services.AddOptions<AdminOptions>();
         services.AddOptions<RefreshSession>();
         services.AddOptions<TelegramBotOptions>();
+        services.AddOptions<AuthOptions>();
         
         services
             .AddIdentity<User, Role>(options =>
@@ -71,6 +75,16 @@ public static class Inject
 
         services.AddScoped<IMessageProvider, TelegramProvider>();
         
+        var authOptions = config.GetSection(AuthOptions.Auth).Get<AuthOptions>()
+                          ?? throw new ApplicationException("Auth options not found");
+    
+        var rsaKeyProvider = new RsaKeyProvider(authOptions);
+        services.AddSingleton<IKeyProvider>(rsaKeyProvider);
+        
+        services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+        services.AddSingleton<IAuthorizationHandler, SecretKeyRequirementHandler>();
+        services.AddSingleton<IAuthorizationHandler, PermissionRequirementHandler>();
+        
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -79,11 +93,17 @@ public static class Inject
         })
         .AddJwtBearer(options =>
         {
-            var jwtOptions = config.GetSection(JwtOptions.JWT).Get<JwtOptions>()
-                             ?? throw new ApplicationException("Missing JWT configuration");
+            var rsaKey = rsaKeyProvider.GetPublicRsa();
+            var key = new RsaSecurityKey(rsaKey);
 
             options.TokenValidationParameters = TokenValidationParametersFactory
-                .CreateWithLifeTime(jwtOptions);
+                .CreateWithLifeTime(key);
+        })
+        .AddScheme<SecretKeyAuthenticationOptions, SecretKeyAuthenticationHandler>(
+            SecretKeyDefaults.AuthenticationScheme, 
+            options =>
+        {
+            options.ExpectedKey = authOptions.SecretKey;
         });
         
         services.AddScoped<UserBoughtTheProductEventConsumer>();

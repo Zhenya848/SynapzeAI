@@ -1,10 +1,11 @@
+using Core;
 using CSharpFunctionalExtensions;
 using TestsService.Domain.Shared;
 using TestsService.Domain.Shared.ValueObjects.Id;
 
 namespace TestsService.Domain;
 
-public class TaskStatistic : Shared.Entity<TaskStatisticId>
+public class TaskStatistic : Core.Entity<TaskStatisticId>
 {
     public Guid UserId { get; private set; }
     

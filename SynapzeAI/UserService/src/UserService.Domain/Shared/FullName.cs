@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+﻿using Core;
+using CSharpFunctionalExtensions;
 
 namespace UserService.Domain.Shared
 {

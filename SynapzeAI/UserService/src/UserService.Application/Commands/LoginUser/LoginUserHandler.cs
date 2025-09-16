@@ -1,11 +1,11 @@
+using Application.Abstractions;
+using Core;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using UserService.Application.Abstractions;
 using UserService.Application.Repositories;
-using UserService.Application.Responses;
 using UserService.Application.Responses.Login;
-using UserService.Domain.Shared;
 using UserService.Domain.User;
 
 namespace UserService.Application.Commands.LoginUser;
@@ -44,7 +44,7 @@ public class LoginUserHandler : ICommandHandler<LoginUserCommand, Result<LoginRe
         var passwordConfirmed = await _userManager.CheckPasswordAsync(user, userCommand.Password);
 
         if (passwordConfirmed == false)
-            return (ErrorList)Errors.User.WrongCredentials();
+            return (ErrorList)Error.Validation("wrong.credentials", "Wrong user credentials");
 
         var accessToken = _tokenProvider.GenerateAccessToken(user);
         var refreshToken = await _tokenProvider

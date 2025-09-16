@@ -1,11 +1,10 @@
-﻿using System.Data;
+using System.Data;
 
-namespace PaymentService.Abstractions
+namespace PaymentService.Abstractions;
+
+public interface IUnitOfWork
 {
-    public interface IUnitOfWork
-    {
-        Task<IDbTransaction> BeginTransaction(CancellationToken cancellationToken = default);
+    Task<IDbTransaction> BeginTransaction(CancellationToken cancellationToken = default);
 
-        Task SaveChanges(CancellationToken cancellationToken = default);
-    }
+    Task SaveChanges(CancellationToken cancellationToken = default);
 }

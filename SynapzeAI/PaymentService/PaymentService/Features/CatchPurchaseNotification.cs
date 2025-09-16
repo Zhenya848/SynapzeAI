@@ -1,9 +1,10 @@
+using Core;
+using Core.Events;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using PaymentService.Abstractions;
-using PaymentService.Contracts.Messaging;
 using PaymentService.DbContexts;
 using PaymentService.Extensions;
 using PaymentService.Models;

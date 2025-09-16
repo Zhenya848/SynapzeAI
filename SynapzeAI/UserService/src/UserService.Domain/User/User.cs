@@ -1,3 +1,4 @@
+using Core;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Identity;
 using UserService.Domain.Shared;

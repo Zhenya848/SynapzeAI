@@ -1,3 +1,6 @@
+using Core;
+using Framework.Authorization;
+using Framework.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,27 +15,11 @@ public class PermissionRequirementHandler(IServiceScopeFactory scopeFactory)
         AuthorizationHandlerContext context, 
         PermissionAttribute requirement)
     {
-        var userIdString = context.User.Claims
-            .FirstOrDefault(c => c.Type == CustomClaims.Sub)?.Value;
+        var userId = context.User.GetUserId();
         
-        Guid userId;
-
-        if (userIdString is null || Guid.TryParse(userIdString, out userId) == false)
-        {
-            
-            
-            context.Fail();
+        if (userId is null)
             return;
-        }
-        
+
         context.Succeed(requirement);
-        
-        /*var scope = scopeFactory.CreateScope();
-        var accountContract = scope.ServiceProvider.GetRequiredService<IAccountsContract>();
-        
-        var permissions = await accountContract.GetUserPermissionCodes(userId);
-        
-        if (permissions.Contains(requirement.Code))
-            context.Succeed(requirement);*/
     }
 }

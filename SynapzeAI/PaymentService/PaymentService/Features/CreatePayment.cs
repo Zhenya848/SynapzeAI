@@ -1,16 +1,17 @@
+using Core;
+using Framework;
+using Framework.Extensions;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using PaymentService.Abstractions;
-using PaymentService.Contracts.Messaging;
 using PaymentService.DbContexts;
-using PaymentService.Extensions;
 using PaymentService.Models;
-using PaymentService.Models.Shared;
 using PaymentService.Models.Shared.ValueObjects.Id;
 using PaymentService.Options;
 using Yandex.Checkout.V3;
-using Error = PaymentService.Models.Shared.Error;
+using ApiExtensions = PaymentService.Extensions.ApiExtensions;
+using Error = Core.Error;
 
 namespace PaymentService.Features;
 
@@ -39,19 +40,19 @@ public class CreatePayment
         var userId = httpContextAccessor.HttpContext?.User.GetUserIdRequired();
         
         if (userId is null)
-            return Errors.General.ValueIsRequired(nameof(userId)).ToResponse();
+            return ApiExtensions.ToResponse(Errors.General.ValueIsRequired(nameof(userId)));
         
         var product = await dbContext.Products
             .FirstOrDefaultAsync(i => i.Id == request.ProductId, cancellationToken);
 
         if (product is null)
-            return Error.NotFound("product.not.found", $"product {request.ProductId} not found").ToResponse();
+            return ApiExtensions.ToResponse(Error.NotFound("product.not.found", $"product {request.ProductId} not found"));
         
         var paymentSessionResult = PaymentSession
             .Create(PaymentSessionId.AddNewId(), userId.Value, product.Id);
         
         if (paymentSessionResult.IsFailure)
-            return paymentSessionResult.Error.ToResponse();
+            return ApiExtensions.ToResponse(paymentSessionResult.Error);
         
         var paymentSession = paymentSessionResult.Value;
         
@@ -98,7 +99,7 @@ public class CreatePayment
             logger.LogError("Ошибка при создании платежа: " + ex.Message);
             transaction.Rollback();
 
-            return Error.Failure("payment.is.failure", "Произошла ошибка при создании платежа").ToResponse();
+            return ApiExtensions.ToResponse(Error.Failure("payment.is.failure", "Произошла ошибка при создании платежа"));
         }
     }
 }

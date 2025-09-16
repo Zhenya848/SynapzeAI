@@ -1,5 +1,4 @@
 using MassTransit;
-using PaymentService.Contracts.Messaging;
 using PaymentService.Models;
 
 namespace PaymentService;

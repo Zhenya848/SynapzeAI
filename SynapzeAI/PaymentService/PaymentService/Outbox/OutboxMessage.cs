@@ -1,3 +1,4 @@
+using Core;
 using PaymentService.Models.Shared;
 using PaymentService.Models.Shared.ValueObjects.Id;
 
