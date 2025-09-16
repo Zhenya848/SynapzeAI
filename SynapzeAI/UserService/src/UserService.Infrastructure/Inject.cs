@@ -1,6 +1,5 @@
 using Application.Abstractions;
 using Framework.Authorization;
-using Framework.Options;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -81,9 +80,8 @@ public static class Inject
         var rsaKeyProvider = new RsaKeyProvider(authOptions);
         services.AddSingleton<IKeyProvider>(rsaKeyProvider);
         
-        services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+        services.AddSingleton<IAuthorizationPolicyProvider, ServiceAuthorizePolicyProvider>();
         services.AddSingleton<IAuthorizationHandler, SecretKeyRequirementHandler>();
-        services.AddSingleton<IAuthorizationHandler, PermissionRequirementHandler>();
         
         services.AddAuthentication(options =>
         {

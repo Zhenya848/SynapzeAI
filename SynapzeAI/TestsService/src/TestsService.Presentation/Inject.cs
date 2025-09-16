@@ -11,7 +11,7 @@ public static class Inject
         this IServiceCollection services)
     {
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
-        services.AddSingleton<IAuthorizationHandler, PermissionRequirementHandler>();
+        services.AddSingleton<IAuthorizationHandler, BalanceRequirementHandler>();
         services.AddSingleton<IAuthorizationHandler, SecretKeyRequirementHandler>();
         
         return services;

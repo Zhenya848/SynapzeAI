@@ -7,7 +7,7 @@ namespace PaymentService.Extensions;
 
 public static class ApiExtensions
 {
-    public static IResult ToResponse(this Error error)
+    public static IResult ToIResultResponse(this Error error)
     {
         var envelope = Envelope.Error(error);
         
@@ -18,7 +18,7 @@ public static class ApiExtensions
         );
     }
 
-    public static IResult ToResponse(this ErrorList errors)
+    public static IResult ToIResultResponse(this ErrorList errors)
     {
         if (errors.Any() == false)
             return Results.BadRequest();

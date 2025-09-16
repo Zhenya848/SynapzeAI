@@ -1,4 +1,4 @@
-namespace PaymentService.Contracts.Messaging;
+namespace UserService.Infrastructure.Responses;
 
 public class UserBoughtTheProductEvent
 {

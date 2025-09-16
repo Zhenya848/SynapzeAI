@@ -1,16 +1,20 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Core;
 using CSharpFunctionalExtensions;
+using Framework.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using UserService.Application;
+using UserService.Application.Abstractions;
 using UserService.Application.Models;
 using UserService.Domain.Shared;
 using UserService.Domain.User;
 using UserService.Infrastructure.Options;
 using UserService.Presentation;
 using UserService.Presentation.Options;
+using CustomClaims = UserService.Domain.User.CustomClaims;
 
 namespace UserService.Infrastructure;
 
@@ -76,19 +80,5 @@ public class JwtTokenProvider : ITokenProvider
         await _accountsDbContext.SaveChangesAsync(cancellationToken);
 
         return refreshSession.RefreshToken;
-    }
-
-    public async Task<Result<IReadOnlyList<Claim>, ErrorList>> GetUserClaims(string jwtToken)
-    {
-        var jwtHandler = new JwtSecurityTokenHandler();
-        
-        var validationParameters = TokenValidationParametersFactory.CreateWithoutLifeTime(_jwtOptions);
-
-        var validationResult = await jwtHandler.ValidateTokenAsync(jwtToken, validationParameters);
-
-        if (validationResult.IsValid == false)
-            return (ErrorList)Errors.Token.InvalidToken();
-
-        return validationResult.ClaimsIdentity.Claims.ToList();
     }
 }
