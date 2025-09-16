@@ -1,3 +1,4 @@
+using Core;
 using CSharpFunctionalExtensions;
 using TestsService.Domain.Shared;
 

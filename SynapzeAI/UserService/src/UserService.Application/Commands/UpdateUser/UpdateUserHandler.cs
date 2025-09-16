@@ -1,8 +1,7 @@
+using Application.Abstractions;
+using Core;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Identity;
-using UserService.Application.Abstractions;
-using UserService.Domain;
-using UserService.Domain.Shared;
 using UserService.Domain.User;
 
 namespace UserService.Application.Commands.UpdateUser;
@@ -24,7 +23,7 @@ public class UpdateUserHandler : ICommandHandler<UpdateUserCommand, Result<Guid,
             .FindByIdAsync(command.UserId.ToString());
         
         if (userResult is null)
-            return (ErrorList)Errors.User.NotFound();
+            return (ErrorList)Errors.General.NotFound();
         
         if (string.IsNullOrWhiteSpace(command.Username))
             return (ErrorList)Errors.General.ValueIsRequired("имя пользователя");

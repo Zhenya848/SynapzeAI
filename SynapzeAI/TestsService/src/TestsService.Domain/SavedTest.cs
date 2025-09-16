@@ -1,3 +1,4 @@
+using Core;
 using TestsService.Domain.Shared;
 using TestsService.Domain.Shared.ValueObjects.Id;
 

@@ -1,3 +1,4 @@
+using Core;
 using CSharpFunctionalExtensions;
 using TestsService.Domain.Shared;
 using TestsService.Domain.Shared.ValueObjects.Id;
@@ -5,7 +6,7 @@ using TestsService.Domain.ValueObjects;
 
 namespace TestsService.Domain;
 
-public class SolvingHistory : Shared.Entity<SolvingHistoryId>
+public class SolvingHistory : Core.Entity<SolvingHistoryId>
 {
     public string UniqueUserName { get; private set; }
     public string UserTelegram { get; private set; }

@@ -1,10 +1,11 @@
+using Core;
 using CSharpFunctionalExtensions;
 using TestsService.Domain.Shared;
 using TestsService.Domain.Shared.ValueObjects.Id;
 
 namespace TestsService.Domain;
 
-public class TaskHistory : Shared.Entity<TaskHistoryId>
+public class TaskHistory : Core.Entity<TaskHistoryId>
 {
     public int SerialNumber { get; init; }
     

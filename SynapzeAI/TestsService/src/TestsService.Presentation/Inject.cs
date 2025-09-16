@@ -1,5 +1,5 @@
+using Framework.Authorization;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TestsService.Presentation.Authorization;
 
@@ -12,6 +12,7 @@ public static class Inject
     {
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
         services.AddSingleton<IAuthorizationHandler, PermissionRequirementHandler>();
+        services.AddSingleton<IAuthorizationHandler, SecretKeyRequirementHandler>();
         
         return services;
     }

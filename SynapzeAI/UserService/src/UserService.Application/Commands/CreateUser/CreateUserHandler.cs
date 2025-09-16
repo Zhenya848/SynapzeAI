@@ -1,8 +1,8 @@
+using Application.Abstractions;
+using Core;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using UserService.Application.Abstractions;
-using UserService.Application.Commands.LoginUser;
 using UserService.Application.Providers;
 using UserService.Application.Repositories;
 using UserService.Domain;
@@ -50,7 +50,7 @@ public class CreateUserHandler : ICommandHandler<CreateUserCommand, UnitResult<E
             .FindUserByTelegram(command.Telegram, cancellationToken);
 
         if (userExist.IsSuccess)
-            return (ErrorList)Errors.User.AlreadyExist();
+            return (ErrorList)Error.Failure("user.already exist", "User with that name already exist");
         
         var role = await _roleManager.FindByNameAsync(AccountRoles.PARTICIPANT)
                    ?? throw new ApplicationException($"Role {AccountRoles.PARTICIPANT} does not exist");

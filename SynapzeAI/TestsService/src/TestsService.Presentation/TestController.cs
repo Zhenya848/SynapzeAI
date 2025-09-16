@@ -1,4 +1,6 @@
 using System.Text.Json;
+using Framework.Authorization;
+using Framework.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,9 +19,6 @@ using TestsService.Application.Tests.Commands.GetTest;
 using TestsService.Application.Tests.Commands.GetTests;
 using TestsService.Application.Tests.Commands.Update;
 using TestsService.Application.Tests.Queries;
-using TestsService.Domain.Shared;
-using TestsService.Presentation.Authorization;
-using TestsService.Presentation.Extensions;
 using TestsService.Presentation.Requests;
 
 namespace TestsService.Presentation;
@@ -29,7 +28,7 @@ namespace TestsService.Presentation;
 public class TestController : ControllerBase
 {
     [HttpPost]
-    [Authorize]
+    [Permission("test.create")]
     public async Task<IActionResult> CreateTest(
         [FromServices] CreateTestHandler handler,
         [FromBody] CreateTestRequest request,

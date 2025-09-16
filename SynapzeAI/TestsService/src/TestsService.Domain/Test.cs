@@ -1,3 +1,4 @@
+using Core;
 using CSharpFunctionalExtensions;
 using TestsService.Domain.Shared;
 using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
@@ -6,7 +7,7 @@ using TestsService.Domain.ValueObjects;
 
 namespace TestsService.Domain;
 
-public class Test : Shared.Entity<TestId>
+public class Test : Core.Entity<TestId>
 {
     public Guid UserId { get; private set; }
     
@@ -106,7 +107,7 @@ public class Test : Shared.Entity<TestId>
 
     public List<Task> GetTasksByIds(IEnumerable<Guid> taskIds)
     {
-        if (taskIds == null || !taskIds.Any())
+        if (taskIds.Any() == false)
             return new List<Task>();
     
         var taskIdsSet = new HashSet<Guid>(taskIds);

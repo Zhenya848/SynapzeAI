@@ -1,8 +1,11 @@
+using System.Security.Cryptography;
+using Framework.Authorization;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using PaymentService.Abstractions;
-using PaymentService.Contracts.Messaging;
 using PaymentService.DbContexts;
+using PaymentService.Models.Shared;
 using PaymentService.Options;
 using PaymentService.Outbox;
 using PaymentService.Seeding;
@@ -35,20 +38,33 @@ public static class Inject
         
         services.AddScoped<ProductsSeeder>();
         
+        var authOptions = configuration.GetSection(AuthOptions.Auth).Get<AuthOptions>()
+                          ?? throw new ApplicationException("Auth options not found");
+        
         services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                var jwtOptions = configuration.GetSection(JwtOptions.JWT).Get<JwtOptions>()
-                                 ?? throw new ApplicationException("Missing JWT configuration");
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            var rsa = RSA.Create();
+        
+            byte[] publicKeyBytes = File.ReadAllBytes(authOptions.PublicKeyPath);
+            rsa.ImportRSAPublicKey(publicKeyBytes, out _);
+            
+            var key = new RsaSecurityKey(rsa);
 
-                options.TokenValidationParameters = TokenValidationParametersFactory
-                    .CreateWithLifeTime(jwtOptions);
-            });
+            options.TokenValidationParameters = TokenValidationParametersFactory
+                .CreateWithLifeTime(key);
+        })
+        .AddScheme<SecretKeyAuthenticationOptions, SecretKeyAuthenticationHandler>(
+            SecretKeyDefaults.AuthenticationScheme, 
+            options =>
+        {
+            options.ExpectedKey = authOptions.SecretKey;
+        });
 
         services.AddMassTransit(configure =>
         {

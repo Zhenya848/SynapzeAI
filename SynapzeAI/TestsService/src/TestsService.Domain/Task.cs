@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using Core;
 using CSharpFunctionalExtensions;
 using TestsService.Domain.Shared;
 using TestsService.Domain.Shared.ValueObjects.Id;
@@ -6,7 +7,7 @@ using TestsService.Domain.ValueObjects;
 
 namespace TestsService.Domain;
 
-public class Task : Shared.Entity<TaskId>
+public class Task : Core.Entity<TaskId>
 {
     public int SerialNumber { get; private set; }
     

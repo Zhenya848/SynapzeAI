@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using TestsService.Application.Abstractions;
-using TestsService.Application.Extensions;
 using TestsService.Application.Repositories;
 using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 

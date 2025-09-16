@@ -1,3 +1,4 @@
+using Core;
 using CSharpFunctionalExtensions;
 using UserService.Domain;
 using UserService.Domain.Shared;
