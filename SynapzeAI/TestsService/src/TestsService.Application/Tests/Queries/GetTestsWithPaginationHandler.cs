@@ -47,23 +47,7 @@ public class GetTestsWithPaginationHandler : IQueryHandler<GetTestsWithPaginatio
                     || (t.IsPublished == false && t.UniqueUserName.ToLower() == query.SearchUserName.ToLower()));
             
             var userTestsCount = await userTestsQuery.CountAsync(cancellationToken);
-            
-            var userTests = await userTestsQuery
-                .GetItemsWithPagination(query.Page, query.PageSize)
-                .Include(t => t.Tasks.OrderBy(sn => sn.SerialNumber))
-                .ThenInclude(ts => ts.TaskStatistics.Where(ui => ui.UserId == query.UserId))
-                .ToListAsync(cancellationToken);
-
-            if (query.UserId is not null)
-            {
-                userTests.ForEach(test =>
-                {
-                    test.IsSaved = test.SavedTests.Any();
-
-                    foreach (var task in test.Tasks)
-                        task.TaskStatistic = task.TaskStatistics.FirstOrDefault();
-                });
-            }
+            var userTests = await GetTestListByQuery(userTestsQuery, query, cancellationToken);
     
             return new PagedList<TestDto>()
             {
@@ -78,15 +62,30 @@ public class GetTestsWithPaginationHandler : IQueryHandler<GetTestsWithPaginatio
             .Where(t => t.IsPublished);
 
         var testsCount = await testsQuery.CountAsync(cancellationToken);
+        var tests = await GetTestListByQuery(testsQuery, query, cancellationToken);
         
-        var tests = await testsQuery
-            .GetItemsWithPagination(query.Page, query.PageSize)
-            .Include(st => st.SavedTests.Where(ui => ui.UserId == query.UserId))
+        return new PagedList<TestDto>()
+        {
+            Items = tests,
+            TotalCount = testsCount,
+            Page = query.Page,
+            PageSize = query.PageSize
+        };
+    }
+
+    private async Task<List<TestDto>> GetTestListByQuery(
+        IQueryable<TestDto> query,
+        GetTestsWithPaginationQuery queryParams,
+        CancellationToken cancellationToken = default)
+    {
+        var tests = await query
+            .GetItemsWithPagination(queryParams.Page, queryParams.PageSize)
+            .Include(st => st.SavedTests.Where(ui => ui.UserId == queryParams.UserId))
             .Include(t => t.Tasks.OrderBy(sn => sn.SerialNumber))
-            .ThenInclude(ts => ts.TaskStatistics.Where(ui => ui.UserId == query.UserId))
+            .ThenInclude(ts => ts.TaskStatistics.Where(ui => ui.UserId == queryParams.UserId))
             .ToListAsync(cancellationToken);
 
-        if (query.UserId is not null)
+        if (queryParams.UserId is not null)
         {
             tests.ForEach(test =>
             {
@@ -97,12 +96,6 @@ public class GetTestsWithPaginationHandler : IQueryHandler<GetTestsWithPaginatio
             });
         }
         
-        return new PagedList<TestDto>()
-        {
-            Items = tests,
-            TotalCount = testsCount,
-            Page = query.Page,
-            PageSize = query.PageSize
-        };
+        return tests;
     }
 }

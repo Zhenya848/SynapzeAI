@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using UserService.Application.Abstractions;
 using UserService.Infrastructure.Options;
+using UserService.Presentation.Options;
 
 namespace UserService.Infrastructure.Providers.Authorization;
 

@@ -23,7 +23,7 @@ public class UpdateUserHandler : ICommandHandler<UpdateUserCommand, Result<Guid,
             .FindByIdAsync(command.UserId.ToString());
         
         if (userResult is null)
-            return (ErrorList)Errors.General.NotFound();
+            return (ErrorList)Errors.User.NotFound(command.UserId.ToString());
         
         if (string.IsNullOrWhiteSpace(command.Username))
             return (ErrorList)Errors.General.ValueIsRequired("имя пользователя");

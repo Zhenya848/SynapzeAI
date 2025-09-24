@@ -50,7 +50,7 @@ public class CreateUserHandler : ICommandHandler<CreateUserCommand, UnitResult<E
             .FindUserByTelegram(command.Telegram, cancellationToken);
 
         if (userExist.IsSuccess)
-            return (ErrorList)Error.Failure("user.already exist", "User with that name already exist");
+            return (ErrorList)Errors.User.AlreadyExist();
         
         var role = await _roleManager.FindByNameAsync(AccountRoles.PARTICIPANT)
                    ?? throw new ApplicationException($"Role {AccountRoles.PARTICIPANT} does not exist");
@@ -59,7 +59,7 @@ public class CreateUserHandler : ICommandHandler<CreateUserCommand, UnitResult<E
         
         var user = User.CreateParticipant(command.Username, command.Telegram, role, usersCount);
         
-        var participantAccount = ParticipantAccount.CreateParticipant(command.Username, user);
+        var participantAccount = ParticipantAccount.CreateParticipant(user);
 
         var verificationCode = GenerateVerificationCode().ToString();
         
@@ -92,19 +92,19 @@ public class CreateUserHandler : ICommandHandler<CreateUserCommand, UnitResult<E
             {
                 transaction.Rollback();
                 
-                return (ErrorList)sendResult.Error;   
+                return (ErrorList)Errors.General.Failure();   
             }
             
             transaction.Commit();
         
-            _logger.LogInformation("User created: {userName} a new account with password.", user.UserName);
+            _logger.LogInformation("User created: {userName} a new account with password.", user.Name);
         }
         catch (Exception ex)
         {
             transaction.Rollback();
             _logger.LogError(ex, "Error creating user in transaction");
             
-            return (ErrorList)Error.Failure("user.creation_failed", ex.Message);
+            return (ErrorList)Errors.General.Failure();
         }
         
         return Result.Success<ErrorList>();

@@ -24,7 +24,7 @@ public class SetBalanceToUserHandler : ICommandHandler<SetBalanceToUserCommand, 
             .FindByIdAsync(command.UserId.ToString());
 
         if (user is null)
-            return (ErrorList)Errors.General.NotFound();
+            return (ErrorList)Errors.User.NotFound(command.UserId.ToString());
 
         var setBalanceResult = user.SetBalance(user.Balance + command.Pack);
         await _userManager.UpdateAsync(user);

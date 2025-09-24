@@ -37,7 +37,7 @@ public class RefreshTokensHandler : ICommandHandler<Guid, Result<LoginResponse, 
             return (ErrorList)oldRefreshSession.Error;
 
         if (oldRefreshSession.Value.ExpiresIn < DateTime.UtcNow)
-            return (ErrorList)Errors.General.Failure("Token");
+            return (ErrorList)Errors.Token.InvalidToken();
         
         _accountRepository.Delete(oldRefreshSession.Value);
         await _unitOfWork.SaveChanges(cancellationToken);
@@ -52,8 +52,9 @@ public class RefreshTokensHandler : ICommandHandler<Guid, Result<LoginResponse, 
         {
             Id = oldRefreshSession.Value.User.Id,
             Telegram = oldRefreshSession.Value.User.Telegram,
-            UniqueUserName = oldRefreshSession.Value.User.UniqueUserName,
-            UserName = oldRefreshSession.Value.User.UserName!
+            UniqueUserName = oldRefreshSession.Value.User.UserName!,
+            UserName = oldRefreshSession.Value.User.Name,
+            Balance = oldRefreshSession.Value.User.Balance
         };
         
         return new LoginResponse(accessToken.AccessToken, newRefreshToken, userData);

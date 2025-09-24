@@ -18,7 +18,7 @@ using UserService.Infrastructure.Providers;
 using UserService.Infrastructure.Providers.Authorization;
 using UserService.Infrastructure.Repositories;
 using UserService.Infrastructure.Seeding;
-using UserService.Presentation.Authorization;
+using UserService.Presentation.Options;
 
 namespace UserService.Infrastructure;
 
@@ -45,13 +45,9 @@ public static class Inject
         services.Configure<TelegramBotOptions>(
             config.GetSection(TelegramBotOptions.BotOptions));
         
-        services.Configure<AuthOptions>(
-            config.GetSection(AuthOptions.Auth));
-        
         services.AddOptions<AdminOptions>();
         services.AddOptions<RefreshSession>();
         services.AddOptions<TelegramBotOptions>();
-        services.AddOptions<AuthOptions>();
         
         services
             .AddIdentity<User, Role>(options =>
@@ -79,10 +75,7 @@ public static class Inject
     
         var rsaKeyProvider = new RsaKeyProvider(authOptions);
         services.AddSingleton<IKeyProvider>(rsaKeyProvider);
-        
-        services.AddSingleton<IAuthorizationPolicyProvider, ServiceAuthorizePolicyProvider>();
-        services.AddSingleton<IAuthorizationHandler, SecretKeyRequirementHandler>();
-        
+
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -96,12 +89,6 @@ public static class Inject
 
             options.TokenValidationParameters = TokenValidationParametersFactory
                 .CreateWithLifeTime(key);
-        })
-        .AddScheme<SecretKeyAuthenticationOptions, SecretKeyAuthenticationHandler>(
-            SecretKeyDefaults.AuthenticationScheme, 
-            options =>
-        {
-            options.ExpectedKey = authOptions.SecretKey;
         });
         
         services.AddScoped<UserBoughtTheProductEventConsumer>();

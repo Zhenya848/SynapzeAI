@@ -1,4 +1,4 @@
-namespace UserService.Infrastructure.Options;
+namespace UserService.Presentation.Options;
 
 public class AuthOptions
 {

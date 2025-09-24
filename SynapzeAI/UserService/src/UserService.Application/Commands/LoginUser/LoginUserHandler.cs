@@ -7,6 +7,7 @@ using UserService.Application.Abstractions;
 using UserService.Application.Repositories;
 using UserService.Application.Responses.Login;
 using UserService.Domain.User;
+using static System.String;
 
 namespace UserService.Application.Commands.LoginUser;
 
@@ -37,14 +38,24 @@ public class LoginUserHandler : ICommandHandler<LoginUserCommand, Result<LoginRe
             .FindUserByTelegram(userCommand.Telegram, cancellationToken);
 
         if (userResult.IsFailure)
-            return (ErrorList)userResult.Error;
+            return (ErrorList)Errors.User.WrongCredentials();
         
         var user = userResult.Value;
+
+        if (user.IsVerified == false)
+        {
+            var result = await _userManager.DeleteAsync(user);
+            
+            if (result.Succeeded == false)
+                _logger.LogError(Join(Environment.NewLine, result.Errors.Select(e => e.Description)));
+            
+            return (ErrorList)Error.Failure("user.login.failure", "Пользователь без подтверждения. Попробуйте зарегистрироваться заново");
+        }
         
         var passwordConfirmed = await _userManager.CheckPasswordAsync(user, userCommand.Password);
 
         if (passwordConfirmed == false)
-            return (ErrorList)Error.Validation("wrong.credentials", "Wrong user credentials");
+            return (ErrorList)Errors.User.WrongCredentials();
 
         var accessToken = _tokenProvider.GenerateAccessToken(user);
         var refreshToken = await _tokenProvider
@@ -56,8 +67,9 @@ public class LoginUserHandler : ICommandHandler<LoginUserCommand, Result<LoginRe
         {
             Id = user.Id,
             Telegram = user.Telegram,
-            UniqueUserName = user.UniqueUserName,
-            UserName = user.UserName!
+            UniqueUserName = user.UserName!,
+            UserName = user.Name,
+            Balance = user.Balance
         };
         
         return new LoginResponse(accessToken.AccessToken, refreshToken, userData);

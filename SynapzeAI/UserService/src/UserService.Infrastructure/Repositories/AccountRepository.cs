@@ -55,7 +55,7 @@ public class AccountRepository : IAccountRepository
             .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
         
         if (user == null)
-            return Errors.General.NotFound();
+            return Errors.User.NotFound();
         
         return user;
     }
@@ -68,21 +68,21 @@ public class AccountRepository : IAccountRepository
             .FirstOrDefaultAsync(t => t.Telegram == telegram, cancellationToken);
         
         if (userResult == null)
-            return Errors.General.NotFound();
+            return Errors.User.NotFound();
         
         return userResult;
     }
 
     public Guid CreateVerification(Verification verification)
     {
-        var addResult = _accountsDbContext.Verifications.Add(verification);
+        _accountsDbContext.Verifications.Add(verification);
         
         return verification.Id;
     }
 
     public Guid DeleteVerification(Verification verification)
     {
-        var deleteResult = _accountsDbContext.Verifications.Remove(verification);
+        _accountsDbContext.Verifications.Remove(verification);
         
         return verification.Id;
     }

@@ -14,19 +14,24 @@ public class CreateTestHandler : ICommandHandler<CreateTestCommand, Result<Guid,
 {
     private readonly ITestRepository _testRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IGreeterService _greeterService;
 
     public CreateTestHandler(
         IUnitOfWork unitOfWork,
-        ITestRepository testRepository)
+        ITestRepository testRepository,
+        IGreeterService greeterService)
     {
         _testRepository = testRepository;
         _unitOfWork = unitOfWork;
+        _greeterService = greeterService;
     }
     
     public async Task<Result<Guid, ErrorList>> Handle(
         CreateTestCommand command, 
         CancellationToken cancellationToken = default)
     {
+        using var transaction = await _unitOfWork.BeginTransaction(cancellationToken);
+        
         LimitTime? limitTime = null;
 
         if (command.Seconds is not null || command.Minutes is not null)
@@ -68,6 +73,18 @@ public class CreateTestHandler : ICommandHandler<CreateTestCommand, Result<Guid,
         var result = _testRepository.Add(test.Value);
         
         await _unitOfWork.SaveChanges(cancellationToken);
+        
+        var subtractTokenFromBalance = await _greeterService
+            .SubtractTokenFromBalance(command.UserId, cancellationToken);
+
+        if (subtractTokenFromBalance.IsFailure)
+        {
+            transaction.Rollback();
+            
+            return subtractTokenFromBalance.Error;
+        }
+        
+        transaction.Commit();
 
         return result;
     }

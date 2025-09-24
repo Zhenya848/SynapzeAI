@@ -1,6 +1,5 @@
 using System.Security.Cryptography;
 using Framework.Authorization;
-using Framework.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,8 +19,6 @@ public static class Inject
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddHttpClient();
-        
         services.AddScoped<IReadDbContext, ReadDbContext>();
         
         services.AddScoped<AppDbContext>();
@@ -30,31 +27,25 @@ public static class Inject
         
         var authOptions = configuration.GetSection(AuthOptions.Auth).Get<AuthOptions>()
                           ?? throw new ApplicationException("Auth options not found");
-        
+
         services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-        .AddJwtBearer(options =>
-        {
-            var rsa = RSA.Create();
-        
-            byte[] publicKeyBytes = File.ReadAllBytes(authOptions.PublicKeyPath);
-            rsa.ImportRSAPublicKey(publicKeyBytes, out _);
-            
-            var key = new RsaSecurityKey(rsa);
-            
-            options.TokenValidationParameters = TokenValidationParametersFactory
-                .CreateWithLifeTime(key);
-        })
-        .AddScheme<SecretKeyAuthenticationOptions, SecretKeyAuthenticationHandler>(
-            SecretKeyDefaults.AuthenticationScheme, 
-            options =>
-        {
-            options.ExpectedKey = authOptions.SecretKey;
-        });
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                var rsa = RSA.Create();
+
+                byte[] publicKeyBytes = File.ReadAllBytes(authOptions.PublicKeyPath);
+                rsa.ImportRSAPublicKey(publicKeyBytes, out _);
+
+                var key = new RsaSecurityKey(rsa);
+
+                options.TokenValidationParameters = TokenValidationParametersFactory
+                    .CreateWithLifeTime(key);
+            });
         
         return services;
     }

@@ -7,7 +7,7 @@ namespace UserService.Domain.User;
 
 public class User : IdentityUser<Guid>
 {
-    public string UniqueUserName { get; private set; }
+    public string Name { get; private set; }
     public string Telegram { get;  private set; }
     public bool IsVerified { get; private set; } = false;
     
@@ -28,10 +28,11 @@ public class User : IdentityUser<Guid>
     {
         var user = new User
         {
-            UserName = username,
-            UniqueUserName = uniqueUserName,
+            Name = username,
+            UserName = uniqueUserName,
             _roles = [role], 
-            Telegram = telegram
+            Telegram = telegram,
+            Balance = 1
         };
 
         return user;
@@ -39,12 +40,12 @@ public class User : IdentityUser<Guid>
     
     public void UpdateUsername(string username)
     {
-        UserName = username;
+        Name = username;
 
-        var startCodeIndex = UniqueUserName.IndexOf('_');
+        var startCodeIndex = UserName!.IndexOf('_');
         
-        UniqueUserName = username + UniqueUserName
-            .Substring(startCodeIndex,  UniqueUserName.Length - startCodeIndex);
+        UserName = username + UserName
+            .Substring(startCodeIndex, UserName.Length - startCodeIndex);
     }
     
     public static User CreateParticipant(
@@ -91,7 +92,7 @@ public class User : IdentityUser<Guid>
     public UnitResult<Error> SetBalance(int balance)
     {
         if (balance < 0)
-            return Errors.General.ValueIsInvalid(nameof(balance));
+            return Error.Validation("invalid.user.balance", "Balance cannot be negative");
         
         Balance = balance;
 

@@ -6,6 +6,7 @@ using UserService.Application.Abstractions;
 using UserService.Application.Models;
 using UserService.Domain.User;
 using UserService.Infrastructure.Options;
+using UserService.Presentation.Options;
 using CustomClaims = UserService.Domain.User.CustomClaims;
 
 namespace UserService.Infrastructure.Providers.Authorization;
@@ -43,7 +44,7 @@ public class JwtTokenProvider : ITokenProvider
             new Claim(CustomClaims.Sub, user.Id.ToString()),
             new Claim(CustomClaims.Jti, jti.ToString()),
             new Claim(CustomClaims.Telegram, user.Telegram),
-            new Claim(CustomClaims.Name, user.UniqueUserName)
+            new Claim(CustomClaims.Name, user.UserName!)
         };
 
         var token = new JwtSecurityToken(
