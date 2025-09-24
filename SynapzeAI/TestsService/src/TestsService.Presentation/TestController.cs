@@ -1,12 +1,7 @@
-using System.Text.Json;
 using Framework;
-using Framework.Authorization;
 using Framework.Extensions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using TestsService.Application.SavedTests.Commands.Create;
 using TestsService.Application.SavedTests.Commands.Delete;
 using TestsService.Application.SavedTests.Queries.Get;
@@ -29,7 +24,7 @@ namespace TestsService.Presentation;
 public class TestController : ControllerBase
 {
     [HttpPost]
-    [Permission("test.create")]
+    [Authorize]
     public async Task<IActionResult> CreateTest(
         [FromServices] CreateTestHandler handler,
         [FromBody] CreateTestRequest request,

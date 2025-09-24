@@ -58,12 +58,6 @@ public static class Inject
 
             options.TokenValidationParameters = TokenValidationParametersFactory
                 .CreateWithLifeTime(key);
-        })
-        .AddScheme<SecretKeyAuthenticationOptions, SecretKeyAuthenticationHandler>(
-            SecretKeyDefaults.AuthenticationScheme, 
-            options =>
-        {
-            options.ExpectedKey = authOptions.SecretKey;
         });
 
         services.AddMassTransit(configure =>

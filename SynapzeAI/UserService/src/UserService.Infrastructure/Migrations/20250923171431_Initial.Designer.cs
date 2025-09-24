@@ -13,7 +13,7 @@ using UserService.Infrastructure;
 namespace UserService.Infrastructure.Migrations
 {
     [DbContext(typeof(AccountsDbContext))]
-    [Migration("20250908201002_Initial")]
+    [Migration("20250923171431_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -207,12 +207,6 @@ namespace UserService.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("Nickname")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("nickname");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
@@ -383,6 +377,11 @@ namespace UserService.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lockout_end");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)")
@@ -417,11 +416,6 @@ namespace UserService.Infrastructure.Migrations
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("two_factor_enabled");
-
-                    b.Property<string>("UniqueUserName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("unique_user_name");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)

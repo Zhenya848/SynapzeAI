@@ -8,4 +8,7 @@ public record UserInfo()
     public string UniqueUserName { get; set; }
     
     public string Telegram { get; set; }
+    
+    
+    public int Balance { get; set; }
 }

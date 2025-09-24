@@ -15,7 +15,5 @@ public class ParticipantAccountConfiguration : IEntityTypeConfiguration<Particip
         builder.HasOne(u => u.User)
             .WithOne(p => p.ParticipantAccount)
             .HasForeignKey<ParticipantAccount>(i => i.UserId);
-       
-        builder.Property(nn => nn.Nickname).IsRequired().HasMaxLength(Constants.MAX_LOW_TEXT_LENGTH);
     }
 }

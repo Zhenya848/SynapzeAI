@@ -40,8 +40,8 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services
     .AddFromInfrastructure(builder.Configuration)
-    .AddFromApplication()
-    .AddFromPresentation();
+    .AddFromPresentation(builder.Configuration)
+    .AddFromApplication();
     
 var app = builder.Build();
 

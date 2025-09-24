@@ -44,7 +44,7 @@ namespace UserService.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    unique_user_name = table.Column<string>(type: "text", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
                     telegram = table.Column<string>(type: "text", nullable: false),
                     is_verified = table.Column<bool>(type: "boolean", nullable: false),
                     balance = table.Column<int>(type: "integer", nullable: false),
@@ -139,7 +139,6 @@ namespace UserService.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    nickname = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
