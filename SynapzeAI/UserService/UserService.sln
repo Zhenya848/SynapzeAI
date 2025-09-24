@@ -11,11 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Application", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.API", "src\UserService.API\UserService.API.csproj", "{014BA6BA-E31F-440C-BC62-24ABA86ACD35}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F8449F8C-366F-4B70-A516-68A187E383C8}"
-	ProjectSection(SolutionItems) = preProject
-		docker-compose.yml = docker-compose.yml
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Infrastructure", "src\UserService.Infrastructure\UserService.Infrastructure.csproj", "{75B57ABD-9413-4ACE-8E20-6FD5BA6B247B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Presentation", "src\UserService.Presentation\UserService.Presentation.csproj", "{C18CB17C-1B3C-4B71-B712-1E9F163195F0}"
