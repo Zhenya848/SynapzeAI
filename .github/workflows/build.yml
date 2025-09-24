@@ -1,0 +1,45 @@
+name: .NET
+
+env:
+  NUGET_USERNAME: ${{ secrets.NUGET_USERNAME }}
+  NUGET_PASSWORD: ${{ secrets.NUGET_PASSWORD }}
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Authenticate to NuGet feed
+      run: |
+        dotnet nuget add source \
+          --username ${{ env.NUGET_USERNAME }} \
+          --password ${{ env.NUGET_PASSWORD }} \
+          --store-password-in-clear-text \
+          --name github \
+          "https://nuget.pkg.github.com/Zhenya848/index.json"
+
+    - name: Restore dependencies
+      run: |
+        dotnet restore ./SynapzeAI/TestsService/TestsService.sln
+        dotnet restore ./SynapzeAI/UserService/UserService.sln
+        dotnet restore ./SynapzeAI/PaymentService/PaymentService.sln
+
+    - name: Build
+      run: |
+        dotnet build ./SynapzeAI/TestsService/TestsService.sln --configuration Release --no-restore
+        dotnet build ./SynapzeAI/UserService/UserService.sln --configuration Release --no-restore
+        dotnet build ./SynapzeAI/UserService/UserService.sln --configuration Release --no-restore

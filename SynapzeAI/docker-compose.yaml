@@ -1,0 +1,86 @@
+services:
+  postgres_tests_service:
+    container_name: tests_service_db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: tests_service_project
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5436:5432
+    volumes:
+      - postgres_tests_data:/var/lib/postgresql/data
+
+  postgres_user_service:
+    container_name: user_service_db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: user_service_project
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5435:5432
+    volumes:
+      - postgres_user_data:/var/lib/postgresql/data
+
+  postgres_payment_service:
+    container_name: payment_service_db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: payment_service_project
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5437:5432
+    volumes:
+      - postgres_payment_data:/var/lib/postgresql/data
+
+  seq_tests_service:
+    image: datalust/seq:latest
+    container_name: tests_service_logging
+    restart: always
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - 5342:5341
+      - 8082:80
+
+  seq_user_service:
+    image: datalust/seq:latest
+    container_name: user_service_logging
+    restart: always
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - 5341:5341
+      - 8081:80
+
+  seq_payment_service:
+    image: datalust/seq:latest
+    container_name: payment_service_logging
+    restart: always
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - 5343:5341
+      - 8083:80
+
+  rabbitmq:
+    image: rabbitmq:management-alpine
+    container_name: rabbitmq
+    hostname: rabbitmq
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    restart: always
+  
+volumes:
+  postgres_tests_data:
+  postgres_user_data:
+  postgres_payment_data:
+  rabbitmq_data:
