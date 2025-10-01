@@ -3,7 +3,7 @@ using Framework;
 using TestsService.Domain.Shared;
 using TestsService.Presentation;
 
-namespace TestService.API.Middleware;
+namespace TestsService.API.Middleware;
 
 public class ExceptionMiddleware
 {

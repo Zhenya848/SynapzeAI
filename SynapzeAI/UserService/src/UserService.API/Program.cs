@@ -1,7 +1,13 @@
 using System.Net;
+using System.Reflection;
+using Elastic.CommonSchema.Serilog;
+using Elastic.Ingest.Elasticsearch;
+using Elastic.Ingest.Elasticsearch.DataStreams;
+using Elastic.Serilog.Sinks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Serilog.Events;
 using UserService.API.Middlewares;
 using UserService.Application;
 using UserService.Infrastructure;
@@ -13,12 +19,6 @@ DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .WriteTo.Seq(builder.Configuration.GetConnectionString("Seq") ?? throw new ArgumentNullException("Seq"))
-    .CreateLogger();
-
-builder.Services.AddSerilog();
 builder.Services.AddControllers();
 
 builder.WebHost.ConfigureKestrel(options =>

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
-using TestService.API.Middleware;
+using TestsService.API.Middleware;
 using TestsService.Application;
 using TestsService.Infrastructure;
 using TestsService.Presentation;
@@ -58,6 +58,8 @@ if (app.Environment.IsDevelopment())
         c.InjectStylesheet("/swagger-ui/SwaggerDark.css");
     });
 }
+
+app.UseOpenTelemetryPrometheusScrapingEndpoint("/metrics");
 
 app.UseCors(config =>
 {
