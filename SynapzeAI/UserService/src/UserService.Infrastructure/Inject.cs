@@ -1,4 +1,9 @@
+using System.Reflection;
 using Application.Abstractions;
+using Elastic.CommonSchema.Serilog;
+using Elastic.Ingest.Elasticsearch;
+using Elastic.Ingest.Elasticsearch.DataStreams;
+using Elastic.Serilog.Sinks;
 using Framework.Authorization;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -6,6 +11,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Events;
 using Telegram.Bot;
 using UserService.Application;
 using UserService.Application.Abstractions;
@@ -114,6 +121,28 @@ public static class Inject
                 });
             });
         });
+        
+        string indexFormat =
+            $"{Assembly.GetExecutingAssembly().GetName().Name?.ToLower().Replace(".", "-")}-{DateTime.UtcNow:yyyy-MM-dd}";
+
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .WriteTo.Debug()
+            .WriteTo.Elasticsearch(
+                [new Uri(config.GetConnectionString("Elasticsearch") 
+                         ?? throw new ApplicationException("Elasticsearch connection string not found."))],
+                options =>
+                {
+                    options.DataStream = new DataStreamName(indexFormat);
+                    options.TextFormatting = new EcsTextFormatterConfiguration<LogEventEcsDocument>();
+                    options.BootstrapMethod = BootstrapMethod.Silent;
+                })
+            .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
+            .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
+            .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
+            .CreateLogger();
+        
+        services.AddSerilog();
         
         services.AddControllers();
 

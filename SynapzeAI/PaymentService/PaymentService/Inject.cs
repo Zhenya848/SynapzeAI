@@ -1,4 +1,9 @@
+using System.Reflection;
 using System.Security.Cryptography;
+using Elastic.CommonSchema.Serilog;
+using Elastic.Ingest.Elasticsearch;
+using Elastic.Ingest.Elasticsearch.DataStreams;
+using Elastic.Serilog.Sinks;
 using Framework.Authorization;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,6 +15,8 @@ using PaymentService.Options;
 using PaymentService.Outbox;
 using PaymentService.Seeding;
 using Quartz;
+using Serilog;
+using Serilog.Events;
 
 namespace PaymentService;
 
@@ -85,6 +92,26 @@ public static class Inject
                 .AddTrigger(t => t.ForJob(jobKey)
                     .WithSimpleSchedule(s => s.WithIntervalInSeconds(3).RepeatForever()));
         });
+        
+        string indexFormat =
+            $"{Assembly.GetExecutingAssembly().GetName().Name?.ToLower().Replace(".", "-")}-{DateTime.UtcNow:yyyy-MM-dd}";
+
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .WriteTo.Debug()
+            .WriteTo.Elasticsearch(
+                [new Uri(configuration.GetConnectionString("Elasticsearch") 
+                         ?? throw new ApplicationException("Elasticsearch connection string not found."))],
+                options =>
+                {
+                    options.DataStream = new DataStreamName(indexFormat);
+                    options.TextFormatting = new EcsTextFormatterConfiguration<LogEventEcsDocument>();
+                    options.BootstrapMethod = BootstrapMethod.Silent;
+                })
+            .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
+            .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
+            .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
+            .CreateLogger();
 
         services.AddQuartzHostedService(o => { o.WaitForJobsToComplete = true; });
         

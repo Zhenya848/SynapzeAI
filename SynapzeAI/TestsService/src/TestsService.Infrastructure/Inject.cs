@@ -1,15 +1,26 @@
+using System.Reflection;
 using System.Security.Cryptography;
+using Elastic.CommonSchema.Serilog;
+using Elastic.Ingest.Elasticsearch;
+using Elastic.Ingest.Elasticsearch.DataStreams;
+using Elastic.Serilog.Sinks;
 using Framework.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using Serilog;
+using Serilog.Events;
 using TestsService.Application.Abstractions;
 using TestsService.Application.Repositories;
 using TestsService.Domain.Shared;
 using TestsService.Infrastructure.DbContexts;
 using TestsService.Infrastructure.Repositories;
 using TestsService.Presentation.Authorization;
+using File = System.IO.File;
+using Log = Serilog.Log;
 
 namespace TestsService.Infrastructure;
 
@@ -46,6 +57,37 @@ public static class Inject
                 options.TokenValidationParameters = TokenValidationParametersFactory
                     .CreateWithLifeTime(key);
             });
+        
+        string indexFormat =
+            $"{Assembly.GetExecutingAssembly().GetName().Name?.ToLower().Replace(".", "-")}-{DateTime.UtcNow:yyyy-MM-dd}";
+
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .WriteTo.Debug()
+            .WriteTo.Elasticsearch(
+                [new Uri(configuration.GetConnectionString("Elasticsearch") 
+                         ?? throw new ApplicationException("Elasticsearch connection string not found."))],
+                options =>
+                {
+                    options.DataStream = new DataStreamName(indexFormat);
+                    options.TextFormatting = new EcsTextFormatterConfiguration<LogEventEcsDocument>();
+                    options.BootstrapMethod = BootstrapMethod.Silent;
+                })
+            .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
+            .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
+            .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
+            .CreateLogger();
+        
+        services.AddSerilog();
+
+        services.AddOpenTelemetry()
+            .WithMetrics(c => c
+                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("SynapzeAI.API"))
+                .AddMeter("SynapzeAI")
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddRuntimeInstrumentation()
+                .AddPrometheusExporter());
         
         return services;
     }
