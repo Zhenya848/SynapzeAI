@@ -1,3 +1,4 @@
+using System.Text;
 using Core;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Identity;
@@ -51,13 +52,12 @@ public class User : IdentityUser<Guid>
     public static User CreateParticipant(
         string user,
         string telegram,
-        Role role,
-        long usersCount)
+        Role role)
     {
         if (role.Name != ParticipantAccount.PARTICIPANT)
             throw new ApplicationException($"Role {role.Name} does not exist");
         
-        return Create(user, GenerateUniqueUserName(user, usersCount), telegram, role);
+        return Create(user, GenerateUniqueUserName(user), telegram, role);
     }
     
     public static User CreateAdmin(
@@ -71,17 +71,24 @@ public class User : IdentityUser<Guid>
         return Create(user, "ADMIN", telegram, role);
     }
     
-    private static string GenerateUniqueUserName(string username, long usersCount)
+    private static string GenerateUniqueUserName(string username)
     {
+        var ticks = DateTime.Now.Ticks;
+        
         var chars = Enumerable.Range('a', 26).Select(c => (char)c)
             .Concat(Enumerable.Range('A', 26).Select(c => (char)c))
             .Concat(Enumerable.Range('0', 10).Select(c => (char)c))
             .ToArray();
 
-        username += "_";
+        StringBuilder sb = new StringBuilder();
 
-        for (var i = 0; i < Constants.USER_UNIQUE_CODE_LENGTH; i++)
-            username += chars[(usersCount / (int)Math.Pow(chars.Length, i)) % chars.Length];
+        while (ticks > 0)
+        {
+            sb.Append(chars[ticks % chars.Length]);
+            ticks /= chars.Length;
+        }
+        
+        username += $"_{sb}{chars[new Random().Next(0, chars.Length)]}";
 
         return username;
     }

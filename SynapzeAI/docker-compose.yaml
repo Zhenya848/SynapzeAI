@@ -97,6 +97,12 @@ services:
       - prometheus
     restart: always
 
+  userservice-api:
+    image: userservice-api:latest
+    build:
+      context: ./UserService
+      dockerfile: src/UserService.API/Dockerfile
+
   #web_nginx:
     #image: nginx
     #hostname: web_nginx
