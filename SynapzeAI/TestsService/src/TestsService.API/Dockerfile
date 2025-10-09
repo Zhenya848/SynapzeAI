@@ -1,4 +1,5 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
@@ -31,4 +32,5 @@ RUN dotnet publish "TestsService.API.csproj" -c $BUILD_CONFIGURATION -o /app/pub
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
 ENTRYPOINT ["dotnet", "TestsService.API.dll"]
