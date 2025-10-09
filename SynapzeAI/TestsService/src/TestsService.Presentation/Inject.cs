@@ -24,7 +24,7 @@ public static class Inject
         
         services.AddGrpcClient<Greeter.GreeterClient>(options =>
         {
-            options.Address = new Uri("http://localhost:5275");
+            options.Address = new Uri("http://userservice-api:5275");
         })
         .AddInterceptor<ProvideSecretKeyInterceptor>();
         

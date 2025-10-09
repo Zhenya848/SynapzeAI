@@ -1,9 +1,6 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 
-RUN adduser --disabled-password --home /app --uid 10000 appuser
-RUN mkdir -p /app/etc && chown -R appuser:appuser /app/etc
-
-USER appuser
+USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
 
@@ -34,8 +31,6 @@ RUN dotnet publish "./UserService.API.csproj" -c $BUILD_CONFIGURATION -o /app/pu
 
 FROM base AS final
 WORKDIR /app
-
-COPY --from=publish --chown=appuser:appuser /app/publish .
-RUN mkdir -p /app/etc && chmod 755 /app/etc
+COPY --from=publish /app/publish .
 
 ENTRYPOINT ["dotnet", "UserService.API.dll"]

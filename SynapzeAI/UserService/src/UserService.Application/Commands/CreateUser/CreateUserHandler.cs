@@ -55,10 +55,7 @@ public class CreateUserHandler : ICommandHandler<CreateUserCommand, UnitResult<E
         var role = await _roleManager.FindByNameAsync(AccountRoles.PARTICIPANT)
                    ?? throw new ApplicationException($"Role {AccountRoles.PARTICIPANT} does not exist");
         
-        var usersCount = _userManager.Users.Count();
-        
-        var user = User.CreateParticipant(command.Username, command.Telegram, role, usersCount);
-        
+        var user = User.CreateParticipant(command.Username, command.Telegram, role);
         var participantAccount = ParticipantAccount.CreateParticipant(user);
 
         var verificationCode = GenerateVerificationCode().ToString();

@@ -97,6 +97,38 @@ services:
       - prometheus
     restart: always
 
+  testsservice-api:
+    image: testsservice-api:latest
+    build:
+      context: ./TestsService
+      dockerfile: src/TestsService.API/Dockerfile
+      args:
+        
+    volumes:
+      - ./TestsService/src/UserService.API/etc:/app/etc:ro
+
+  userservice-api:
+    image: userservice-api:latest
+    build:
+      context: ./UserService
+      dockerfile: src/UserService.API/Dockerfile
+      args:
+        
+    volumes:
+      - ./UserService/src/UserService.API/etc:/app/etc:ro
+    env_file:
+      - ./UserService/src/UserService.API/.env
+
+  paymentservice-api:
+    image: paymentservice-api:latest
+    build:
+      context: ./PaymentService
+      dockerfile: PaymentService/Dockerfile
+      args:
+        
+    volumes:
+      - ./PaymentService/PaymentService/etc:/app/etc:ro
+
   #web_nginx:
     #image: nginx
     #hostname: web_nginx

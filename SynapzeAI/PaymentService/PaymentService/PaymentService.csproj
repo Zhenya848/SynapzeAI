@@ -13,7 +13,6 @@
         <PackageReference Include="Elastic.Serilog.Sinks" Version="9.0.0" />
         <PackageReference Include="Framework" Version="1.0.4" />
         <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.2" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -30,6 +29,12 @@
         <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
         <PackageReference Include="Yandex.Checkout.V3" Version="4.3.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
     </ItemGroup>
 
 </Project>
