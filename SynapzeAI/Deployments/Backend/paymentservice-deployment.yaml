@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paymentservice-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: paymentservice-api
+  template:
+    metadata:
+      labels:
+        app: paymentservice-api
+    spec:
+      containers:
+      - name: paymentservice-api
+        image: zhenya3148/synapzeai-paymentservice-backend:1.0
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: paymentservice-api-service
+spec:
+  selector:
+    app: paymentservice-api
+  ports:
+  - port: 8080
+    targetPort: 8080

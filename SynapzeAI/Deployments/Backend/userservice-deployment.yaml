@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userservice-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: userservice-api
+  template:
+    metadata:
+      labels:
+        app: userservice-api
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      initContainers:
+      - name: init-etc-dir
+        image: busybox
+        command: ['sh', '-c', 'mkdir -p /app/etc']
+        volumeMounts:
+        - name: etc-volume
+          mountPath: /app/etc
+      containers:
+      - name: userservice-api
+        image: zhenya3148/synapzeai-userservice-backend:1.0
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: etc-volume
+          mountPath: /app/etc
+      volumes:
+      - name: etc-volume
+        emptyDir: {}

@@ -41,6 +41,8 @@ builder.Services.AddServices(builder.Configuration);
 
 var app = builder.Build();
 
+await app.ApplyMigrations();
+
 using var scope = app.Services.CreateScope();
 
 var productsSeeder = scope.ServiceProvider.GetRequiredService<ProductsSeeder>();
