@@ -33,4 +33,6 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
+COPY src/TestsService.API/etc/ /app/etc/
+
 ENTRYPOINT ["dotnet", "TestsService.API.dll"]

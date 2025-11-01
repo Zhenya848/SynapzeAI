@@ -49,6 +49,8 @@ app.UseStaticFiles();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
+await app.ApplyMigrations();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

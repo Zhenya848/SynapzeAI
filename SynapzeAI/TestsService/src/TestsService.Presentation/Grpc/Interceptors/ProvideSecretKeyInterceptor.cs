@@ -1,5 +1,6 @@
 using Grpc.Core;
 using Grpc.Core.Interceptors;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TestsService.Presentation.Authorization;
 

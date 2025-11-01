@@ -23,9 +23,9 @@ builder.Services.AddControllers();
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.Listen(IPAddress.Any, 5276);
+    options.Listen(IPAddress.Any, 8080);
     
-    options.Listen(IPAddress.Any, 5275, listenOptions =>
+    options.Listen(IPAddress.Any, 8081, listenOptions =>
     {
         listenOptions.Protocols = HttpProtocols.Http2;
     });
@@ -69,6 +69,8 @@ builder.Services
 var app = builder.Build();
 
 app.MapGrpcService<GreeterService>();
+
+await app.ApplyMigrations();
 
 var accountsSeeder = app.Services.GetRequiredService<AccountsSeeder>();
 await accountsSeeder.SeedAsync();

@@ -20,6 +20,12 @@ namespace UserService.Presentation;
 [Route("api/[controller]")]
 public class AccountController : ControllerBase
 {
+    [HttpGet]
+    public async Task<IActionResult> Get()
+    {
+        return Ok("ok");
+    }
+    
     [HttpPost("registration")]
     public async Task<IActionResult> Register(
         [FromBody] CreateUserRequest request,

@@ -29,4 +29,6 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
+COPY PaymentService/etc/ /app/etc/
+
 ENTRYPOINT ["dotnet", "PaymentService.dll"]
