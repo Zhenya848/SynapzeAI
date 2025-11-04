@@ -6,7 +6,7 @@ using TestsService.Application.SavedTests.Commands.Create;
 using TestsService.Application.SavedTests.Commands.Delete;
 using TestsService.Application.SavedTests.Queries.Get;
 using TestsService.Application.SolvingHistories.Commands.Create;
-using TestsService.Application.SolvingHistories.Commands.UpdateAIMessages;
+using TestsService.Application.SolvingHistories.Commands.Update;
 using TestsService.Application.SolvingHistories.Querise;
 using TestsService.Application.TaskStatistics.Commands.Update;
 using TestsService.Application.Tests.Commands.Create;
@@ -151,14 +151,14 @@ public class TestController : ControllerBase
 
     [HttpPut("history/update/{solvingHistoryId:guid}")]
     [Authorize]
-    public async Task<IActionResult> UpdateAIMessagesForTasks(
+    public async Task<IActionResult> UpdateSolvingHostory(
         [FromRoute] Guid solvingHistoryId,
-        [FromBody] UpdateAIMessagesForTasksRequest request,
-        [FromServices] UpdateAIMessagesForTasksHandler handler,
+        [FromBody] UpdateSolvingHistoryRequest request,
+        [FromServices] UpdateSolvingHistoryHandler handler,
         CancellationToken cancellationToken = default)
     {
-        var command = new UpdateAIMessagesForTasksCommand(
-            solvingHistoryId, request.AIMessagesForTasks);
+        var command = new UpdateSolvingHistoryCommand(
+            solvingHistoryId, request.Tasks);
         
         var result = await handler.Handle(command, cancellationToken);
 
