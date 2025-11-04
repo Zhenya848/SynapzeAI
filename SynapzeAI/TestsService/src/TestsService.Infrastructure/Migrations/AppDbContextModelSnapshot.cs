@@ -136,7 +136,7 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("answers");
 
-                    b.Property<string>("MessageAI")
+                    b.Property<string>("Message")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("message_ai");

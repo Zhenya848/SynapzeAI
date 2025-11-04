@@ -16,7 +16,17 @@ public class TaskHistory : Core.Entity<TaskHistoryId>
     public List<string>?  Answers { get; init; }
     public string UserAnswer { get; init; }
 
-    public string? MessageAI { get; private set; }
+    public string? Message { get; private set; }
+
+    public int? Points
+    {
+        get => Points;
+        set
+        {
+            Points = value < 0 ? 0 : value;
+            Points = value > 100 ? 100 : value;
+        }
+    }
 
     private TaskHistory(TaskHistoryId id) :  base(id)
     {
@@ -31,7 +41,8 @@ public class TaskHistory : Core.Entity<TaskHistoryId>
         string userAnswer,
         string? rightAnswer,
         List<string>? answers,  
-        string? messageAI) : base(id)
+        string? message,
+        int? points) : base(id)
     {
         SerialNumber = serialNumber;
         TaskName = taskName;
@@ -39,7 +50,8 @@ public class TaskHistory : Core.Entity<TaskHistoryId>
         RightAnswer = rightAnswer;
         Answers = answers;
         UserAnswer = userAnswer;
-        MessageAI = messageAI;
+        Message = message;
+        Points = points;
     }
     
     public static Result<TaskHistory, Error> Create(
@@ -49,7 +61,8 @@ public class TaskHistory : Core.Entity<TaskHistoryId>
         string userAnswer, 
         string? rightAnswer = null,
         IEnumerable<string>? answers = null,
-        string? messageAI = null)
+        string? message = null,
+        int? points = null)
     {
         if (serialNumber < 1)
             return Errors.General.ValueIsInvalid("серийный номер задачи");
@@ -63,6 +76,9 @@ public class TaskHistory : Core.Entity<TaskHistoryId>
         if (string.IsNullOrWhiteSpace(userAnswer))
             return Errors.General.ValueIsRequired("ответ пользователя");
         
+        points = points < 0 ? 0 : points;
+        points = points > 100 ? 100 : points;
+        
         return new TaskHistory(
             TaskHistoryId.AddNewId(),
             serialNumber,
@@ -71,15 +87,16 @@ public class TaskHistory : Core.Entity<TaskHistoryId>
             userAnswer,
             rightAnswer,
             answers?.ToList(),
-            messageAI);
+            message,
+            points);
     }
     
-    public UnitResult<Error> UpdateAIMessage(string? aiMessage)
+    public UnitResult<Error> UpdateMessage(string? message)
     {
-        if (string.IsNullOrWhiteSpace(aiMessage))
-            return Errors.General.ValueIsInvalid("сообщение от AI");
+        if (string.IsNullOrWhiteSpace(message))
+            return Errors.General.ValueIsInvalid("сообщение");
         
-        MessageAI = aiMessage;
+        Message = message;
 
         return Result.Success<Error>();
     }

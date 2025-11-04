@@ -2,24 +2,23 @@ using Core;
 using CSharpFunctionalExtensions;
 using TestsService.Application.Abstractions;
 using TestsService.Application.Repositories;
-using TestsService.Domain.Shared;
 using TestsService.Domain.Shared.ValueObjects.Id;
 
-namespace TestsService.Application.SolvingHistories.Commands.UpdateAIMessages;
+namespace TestsService.Application.SolvingHistories.Commands.Update;
 
-public class UpdateAIMessagesForTasksHandler : ICommandHandler<UpdateAIMessagesForTasksCommand, UnitResult<ErrorList>>
+public class UpdateSolvingHistoryHandler : ICommandHandler<UpdateSolvingHistoryCommand, UnitResult<ErrorList>>
 {
     private readonly ITestRepository _testRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateAIMessagesForTasksHandler(ITestRepository testRepository, IUnitOfWork unitOfWork)
+    public UpdateSolvingHistoryHandler(ITestRepository testRepository, IUnitOfWork unitOfWork)
     {
         _testRepository = testRepository;
         _unitOfWork = unitOfWork;
     }
     
     public async Task<UnitResult<ErrorList>> Handle(
-        UpdateAIMessagesForTasksCommand command, 
+        UpdateSolvingHistoryCommand command, 
         CancellationToken cancellationToken = default)
     {
         
@@ -31,17 +30,19 @@ public class UpdateAIMessagesForTasksHandler : ICommandHandler<UpdateAIMessagesF
         
         var solvingHistory = solvingHistoryResult.Value;
 
-        var taskHistoriesBySerialNumber = solvingHistory.TaskHistories
-            .ToDictionary(sn => sn.SerialNumber);
+        var taskHistoriesById = solvingHistory.TaskHistories
+            .ToDictionary(sn => sn.Id.Value);
         
-        foreach (var aiMessage in command.AIMessagesForTasks)
+        foreach (var task in command.Tasks)
         {
-            if (taskHistoriesBySerialNumber.TryGetValue(aiMessage.TaskSerialNumber, out var taskHistory))
+            if (taskHistoriesById.TryGetValue(task.TaskHistoryId, out var taskHistory))
             {
-                var updateAIMessageResult = taskHistory.UpdateAIMessage(aiMessage.AIMessage);
+                var updateMessageResult = taskHistory.UpdateMessage(task.Message);
 
-                if (updateAIMessageResult.IsFailure)
-                    return (ErrorList)updateAIMessageResult.Error;
+                if (updateMessageResult.IsFailure)
+                    return (ErrorList)updateMessageResult.Error;
+
+                taskHistory.Points = task.Points;
             }
         }
         
