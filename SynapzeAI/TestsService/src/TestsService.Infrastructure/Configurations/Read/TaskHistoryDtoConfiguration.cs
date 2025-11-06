@@ -27,6 +27,7 @@ public class TaskHistoryDtoConfiguration : IEntityTypeConfiguration<TaskHistoryD
             .HasColumnName("answers")
             .IsRequired(false);
         
-        builder.Property(mai => mai.MessageAI).IsRequired(false).HasMaxLength(Constants.MAX_HIGH_TEXT_LENGTH);
+        builder.Property(mai => mai.Message).IsRequired(false).HasMaxLength(Constants.MAX_HIGH_TEXT_LENGTH);
+        builder.Property(p => p.Points).IsRequired(false);
     }
 }

@@ -30,19 +30,19 @@ public class UpdateSolvingHistoryHandler : ICommandHandler<UpdateSolvingHistoryC
         
         var solvingHistory = solvingHistoryResult.Value;
 
-        var taskHistoriesById = solvingHistory.TaskHistories
-            .ToDictionary(sn => sn.Id.Value);
+        var taskHistoriesBySerialNumber = solvingHistory.TaskHistories
+            .ToDictionary(sn => sn.SerialNumber);
         
         foreach (var task in command.Tasks)
         {
-            if (taskHistoriesById.TryGetValue(task.TaskHistoryId, out var taskHistory))
+            if (taskHistoriesBySerialNumber.TryGetValue(task.SerialNumber, out var taskHistory))
             {
                 var updateMessageResult = taskHistory.UpdateMessage(task.Message);
 
                 if (updateMessageResult.IsFailure)
                     return (ErrorList)updateMessageResult.Error;
 
-                taskHistory.Points = task.Points;
+                taskHistory.UpdatePoints(task.Points);
             }
         }
         

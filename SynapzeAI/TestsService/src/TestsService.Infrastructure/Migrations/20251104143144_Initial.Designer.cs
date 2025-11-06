@@ -12,7 +12,7 @@ using TestsService.Infrastructure.DbContexts;
 namespace TestsService.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250904171519_Initial")]
+    [Migration("20251104143144_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -139,10 +139,14 @@ namespace TestsService.Infrastructure.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("answers");
 
-                    b.Property<string>("MessageAI")
+                    b.Property<string>("Message")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)")
-                        .HasColumnName("message_ai");
+                        .HasColumnName("message");
+
+                    b.Property<int?>("Points")
+                        .HasColumnType("integer")
+                        .HasColumnName("points");
 
                     b.Property<string>("RightAnswer")
                         .HasMaxLength(100)

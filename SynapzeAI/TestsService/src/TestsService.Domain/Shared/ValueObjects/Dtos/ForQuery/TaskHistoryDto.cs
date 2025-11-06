@@ -14,5 +14,6 @@ public record TaskHistoryDto
     public string[]?  Answers { get; set; }
     public string UserAnswer { get; set; }
 
-    public string? MessageAI { get; set; }
+    public string? Message { get; set; }
+    public int? Points { get; set; }
 }

@@ -1,6 +1,6 @@
 namespace TestsService.Application.Models.Dtos;
 
 public record UpdateTaskHistoryDto(
-    Guid TaskHistoryId,
+    int SerialNumber,
     string Message,
     int Points);

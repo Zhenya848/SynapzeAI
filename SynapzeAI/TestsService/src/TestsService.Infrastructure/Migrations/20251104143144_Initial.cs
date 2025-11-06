@@ -104,7 +104,8 @@ namespace TestsService.Infrastructure.Migrations
                     right_answer = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     answers = table.Column<string>(type: "jsonb", nullable: true),
                     user_answer = table.Column<string>(type: "text", nullable: false),
-                    message_ai = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    message = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    points = table.Column<int>(type: "integer", nullable: true),
                     solving_history_id = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
