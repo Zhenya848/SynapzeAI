@@ -151,7 +151,7 @@ public class TestController : ControllerBase
 
     [HttpPut("history/update/{solvingHistoryId:guid}")]
     [Authorize]
-    public async Task<IActionResult> UpdateSolvingHostory(
+    public async Task<IActionResult> UpdateSolvingHistory(
         [FromRoute] Guid solvingHistoryId,
         [FromBody] UpdateSolvingHistoryRequest request,
         [FromServices] UpdateSolvingHistoryHandler handler,

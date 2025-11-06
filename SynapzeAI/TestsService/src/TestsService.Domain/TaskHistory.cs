@@ -18,15 +18,7 @@ public class TaskHistory : Core.Entity<TaskHistoryId>
 
     public string? Message { get; private set; }
 
-    public int? Points
-    {
-        get => Points;
-        set
-        {
-            Points = value < 0 ? 0 : value;
-            Points = value > 100 ? 100 : value;
-        }
-    }
+    public int? Points { get; private set; }
 
     private TaskHistory(TaskHistoryId id) :  base(id)
     {
@@ -40,9 +32,7 @@ public class TaskHistory : Core.Entity<TaskHistoryId>
         string taskMessage, 
         string userAnswer,
         string? rightAnswer,
-        List<string>? answers,  
-        string? message,
-        int? points) : base(id)
+        List<string>? answers) : base(id)
     {
         SerialNumber = serialNumber;
         TaskName = taskName;
@@ -50,8 +40,6 @@ public class TaskHistory : Core.Entity<TaskHistoryId>
         RightAnswer = rightAnswer;
         Answers = answers;
         UserAnswer = userAnswer;
-        Message = message;
-        Points = points;
     }
     
     public static Result<TaskHistory, Error> Create(
@@ -60,9 +48,7 @@ public class TaskHistory : Core.Entity<TaskHistoryId>
         string taskMessage, 
         string userAnswer, 
         string? rightAnswer = null,
-        IEnumerable<string>? answers = null,
-        string? message = null,
-        int? points = null)
+        IEnumerable<string>? answers = null)
     {
         if (serialNumber < 1)
             return Errors.General.ValueIsInvalid("серийный номер задачи");
@@ -76,9 +62,6 @@ public class TaskHistory : Core.Entity<TaskHistoryId>
         if (string.IsNullOrWhiteSpace(userAnswer))
             return Errors.General.ValueIsRequired("ответ пользователя");
         
-        points = points < 0 ? 0 : points;
-        points = points > 100 ? 100 : points;
-        
         return new TaskHistory(
             TaskHistoryId.AddNewId(),
             serialNumber,
@@ -86,9 +69,7 @@ public class TaskHistory : Core.Entity<TaskHistoryId>
             taskMessage,
             userAnswer,
             rightAnswer,
-            answers?.ToList(),
-            message,
-            points);
+            answers?.ToList());
     }
     
     public UnitResult<Error> UpdateMessage(string? message)
@@ -99,5 +80,16 @@ public class TaskHistory : Core.Entity<TaskHistoryId>
         Message = message;
 
         return Result.Success<Error>();
+    }
+
+    public void UpdatePoints(int? points)
+    {
+        if (points is not null)
+        {
+            Points = points < 0 ? 0 : points;
+            Points = points > 100 ? 100 : points;
+        }
+        else
+            Points = points;
     }
 }

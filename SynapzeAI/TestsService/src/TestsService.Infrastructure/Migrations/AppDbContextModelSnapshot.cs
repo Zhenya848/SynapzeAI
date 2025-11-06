@@ -139,7 +139,11 @@ namespace TestsService.Infrastructure.Migrations
                     b.Property<string>("Message")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)")
-                        .HasColumnName("message_ai");
+                        .HasColumnName("message");
+
+                    b.Property<int?>("Points")
+                        .HasColumnType("integer")
+                        .HasColumnName("points");
 
                     b.Property<string>("RightAnswer")
                         .HasMaxLength(100)

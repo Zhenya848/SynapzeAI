@@ -39,8 +39,7 @@ public class AddSolvingHistoryHandler : ICommandHandler<AddSolvingHistoryCommand
                 th.TaskMessage,
                 th.UserAnswer,
                 th.RightAnswer,
-                th.Answers,
-                th.MessageAI))
+                th.Answers))
             .ToList();
 
         if (taskHistoriesResult.Any(th => th.IsFailure))

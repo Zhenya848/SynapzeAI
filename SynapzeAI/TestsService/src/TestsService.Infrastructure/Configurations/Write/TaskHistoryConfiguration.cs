@@ -32,5 +32,6 @@ public class TaskHistoryConfiguration : IEntityTypeConfiguration<TaskHistory>
             .IsRequired(false);
         
         builder.Property(mai => mai.Message).IsRequired(false).HasMaxLength(Constants.MAX_HIGH_TEXT_LENGTH);
+        builder.Property(p => p.Points).IsRequired(false);
     }
 }
