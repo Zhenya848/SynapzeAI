@@ -12,8 +12,7 @@
       "tests.get",
       "tasks.create",
       "tasks.delete",
-      "tasks.get",
-      "tasks.upload_photos"
+      "tasks.get"
     ],
 
     "Admin" : [
@@ -29,8 +28,7 @@
       "tests.get",
       "tasks.create",
       "tasks.delete",
-      "tasks.get",
-      "tasks.upload_photos"
+      "tasks.get"
     ]
   },
 
@@ -54,8 +52,7 @@
     "Tasks" : [
       "tasks.create",
       "tasks.delete",
-      "tasks.get",
-      "tasks.upload_photos"
+      "tasks.get"
     ]
   }
 }

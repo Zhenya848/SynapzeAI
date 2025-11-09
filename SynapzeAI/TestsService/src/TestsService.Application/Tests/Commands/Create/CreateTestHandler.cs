@@ -74,7 +74,7 @@ public class CreateTestHandler : ICommandHandler<CreateTestCommand, Result<Guid,
         
         await _unitOfWork.SaveChanges(cancellationToken);
         
-        /*var subtractTokenFromBalance = await _greeterService
+        var subtractTokenFromBalance = await _greeterService
             .SubtractTokenFromBalance(command.UserId, cancellationToken);
 
         if (subtractTokenFromBalance.IsFailure)
@@ -82,7 +82,7 @@ public class CreateTestHandler : ICommandHandler<CreateTestCommand, Result<Guid,
             transaction.Rollback();
             
             return subtractTokenFromBalance.Error;
-        }*/
+        }
         
         transaction.Commit();
 

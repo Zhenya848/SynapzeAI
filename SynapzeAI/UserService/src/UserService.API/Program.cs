@@ -23,7 +23,7 @@ builder.Services.AddControllers();
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.Listen(IPAddress.Any, 5276);
+    options.Listen(IPAddress.Any, 8080);
     
     options.Listen(IPAddress.Any, 8081, listenOptions =>
     {

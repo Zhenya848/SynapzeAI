@@ -483,4 +483,16 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
-SynapzeAI/docker-compose.yaml
+# Docker compose files
+**/docker-compose*
+**/docker-compose.*
+
+# ENV files
+**/env*/
+**/.env*
+**/*.env*
+.env*
+
+# etc
+**/etc/
+**/etc*/
