@@ -5,6 +5,7 @@ using PaymentService.DbContexts;
 using Polly;
 using Polly.Retry;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using PredicateBuilder = Polly.PredicateBuilder;
 
 namespace PaymentService.Outbox;
 

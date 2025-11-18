@@ -56,6 +56,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseOpenTelemetryPrometheusScrapingEndpoint("/metrics");
+
 app.UseCors(config =>
 {
     config.WithOrigins("http://localhost:5173")

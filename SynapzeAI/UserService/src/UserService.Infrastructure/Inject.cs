@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using Serilog;
 using Serilog.Events;
 using Telegram.Bot;
@@ -143,6 +145,15 @@ public static class Inject
             .CreateLogger();
         
         services.AddSerilog();
+        
+        services.AddOpenTelemetry()
+            .WithMetrics(c => c
+                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("SynapzeAI.API"))
+                .AddMeter("SynapzeAI")
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddRuntimeInstrumentation()
+                .AddPrometheusExporter());
         
         services.AddControllers();
 

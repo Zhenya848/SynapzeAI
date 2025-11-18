@@ -8,6 +8,8 @@ using Framework.Authorization;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using PaymentService.Abstractions;
 using PaymentService.DbContexts;
 using PaymentService.Models.Shared;
@@ -112,6 +114,15 @@ public static class Inject
             .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
             .CreateLogger();
+        
+        services.AddOpenTelemetry()
+            .WithMetrics(c => c
+                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("SynapzeAI.API"))
+                .AddMeter("SynapzeAI")
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddRuntimeInstrumentation()
+                .AddPrometheusExporter());
 
         services.AddQuartzHostedService(o => { o.WaitForJobsToComplete = true; });
         
