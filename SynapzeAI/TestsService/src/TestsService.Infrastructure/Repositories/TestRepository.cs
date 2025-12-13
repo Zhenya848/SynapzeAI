@@ -1,13 +1,9 @@
-using System.Text.Json;
 using Core;
 using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TestsService.Application.Repositories;
 using TestsService.Domain;
-using TestsService.Domain.Shared;
-using TestsService.Domain.Shared.ValueObjects;
-using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 using TestsService.Domain.Shared.ValueObjects.Id;
 using TestsService.Infrastructure.DbContexts;
 using Task = TestsService.Domain.Task;
@@ -61,10 +57,12 @@ public class TestRepository : ITestRepository
 
     public IEnumerable<Guid> DeleteTasks(IEnumerable<Task> tasks)
     {
+        tasks = tasks.ToArray();
+        
         _context.Tasks.RemoveRange(tasks);
 
         string taskNames = string.Join(", ", tasks.Select(t => t.TaskName));
-        var taskIds = tasks.Select(t => t.Id.Value);
+        var taskIds = tasks.Select(t => t.Id.Value).ToArray();
         
         _logger.LogInformation("Deleted tasks {tasks} with ids {id}", taskNames, string.Join(", ", taskIds));
         

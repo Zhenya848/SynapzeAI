@@ -1,7 +1,5 @@
 using Core;
 using Framework;
-using TestsService.Domain.Shared;
-using TestsService.Presentation;
 
 namespace TestsService.API.Middleware;
 

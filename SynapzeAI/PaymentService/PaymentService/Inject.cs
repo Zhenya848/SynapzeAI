@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Security.Cryptography;
+using Application.Abstractions;
 using Elastic.CommonSchema.Serilog;
 using Elastic.Ingest.Elasticsearch;
 using Elastic.Ingest.Elasticsearch.DataStreams;
@@ -122,6 +123,7 @@ public static class Inject
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddRuntimeInstrumentation()
+                .AddProcessInstrumentation()
                 .AddPrometheusExporter());
 
         services.AddQuartzHostedService(o => { o.WaitForJobsToComplete = true; });

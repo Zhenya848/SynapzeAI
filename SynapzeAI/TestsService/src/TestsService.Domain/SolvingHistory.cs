@@ -11,7 +11,7 @@ public class SolvingHistory : Core.Entity<SolvingHistoryId>
     public string UniqueUserName { get; private set; }
     public string UserTelegram { get; private set; }
     
-    private List<TaskHistory> _taskHistories = new List<TaskHistory>();
+    private List<TaskHistory> _taskHistories = [];
     public IReadOnlyList<TaskHistory> TaskHistories => _taskHistories;
     
     public DateTime SolvingDate { get; private set; }
@@ -44,8 +44,10 @@ public class SolvingHistory : Core.Entity<SolvingHistoryId>
         DateTime solvingDate,
         int solvingTimeSeconds)
     {
+        taskHistories = taskHistories.ToArray();
+        
         if (string.IsNullOrWhiteSpace(uniqueUserName))
-            return Errors.General.ValueIsRequired("имя пользователя");
+            return Errors.General.ValueIsRequired("user name");
         
         if (string.IsNullOrWhiteSpace(userTelegram))
             return Errors.General.ValueIsRequired("telegram");

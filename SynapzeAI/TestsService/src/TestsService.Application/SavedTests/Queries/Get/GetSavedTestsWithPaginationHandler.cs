@@ -1,8 +1,11 @@
 using System.Linq.Expressions;
+using Application.Abstractions;
+using Application.Pagination;
 using Microsoft.EntityFrameworkCore;
 using TestsService.Application.Abstractions;
 using TestsService.Application.Repositories;
 using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
+using QueriesExtensions = Application.Abstractions.QueriesExtensions;
 
 namespace TestsService.Application.SavedTests.Queries.Get;
 
@@ -53,8 +56,7 @@ public class GetSavedTestsWithPaginationHandler
         
         var totalCount = await tests.CountAsync(cancellationToken);
 
-        var result = await tests
-            .GetItemsWithPagination(query.Page, query.PageSize)
+        var result = await QueriesExtensions.GetItemsWithPagination(tests, query.Page, query.PageSize)
             .ToListAsync(cancellationToken);
         
         result.ForEach(test =>

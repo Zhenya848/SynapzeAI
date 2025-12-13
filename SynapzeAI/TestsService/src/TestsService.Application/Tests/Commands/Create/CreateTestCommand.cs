@@ -1,5 +1,4 @@
 using TestsService.Application.Models.Dtos;
-using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 
 namespace TestsService.Application.Tests.Commands.Create;
 

@@ -1,3 +1,4 @@
+using Application.Abstractions;
 using Core;
 using Framework;
 using Framework.Extensions;
@@ -37,10 +38,10 @@ public class CreatePayment
         AppDbContext dbContext,
         CancellationToken cancellationToken = default)
     {
-        var userId = httpContextAccessor.HttpContext?.User.GetUserIdRequired();
+        var userId = httpContextAccessor.HttpContext?.User.GetUserId();
         
         if (userId is null)
-            return ApiExtensions.ToIResultResponse(Errors.General.ValueIsRequired(nameof(userId)));
+            return Results.Unauthorized();
         
         var product = await dbContext.Products
             .FirstOrDefaultAsync(i => i.Id == request.ProductId, cancellationToken);
@@ -75,7 +76,7 @@ public class CreatePayment
                 Confirmation = new Confirmation
                 {
                     Type = ConfirmationType.Redirect,
-                    ReturnUrl = "http://localhost:5173/tests"
+                    ReturnUrl = "https://synapzeai.ru/tests"
                 },
                 Metadata = new Dictionary<string, string>()
                 {

@@ -1,9 +1,6 @@
 using Core;
 using CSharpFunctionalExtensions;
 using TestsService.Domain;
-using TestsService.Domain.Shared;
-using TestsService.Domain.Shared.ValueObjects;
-using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 using TestsService.Domain.Shared.ValueObjects.Id;
 using Task = TestsService.Domain.Task;
 

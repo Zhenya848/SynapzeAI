@@ -52,9 +52,10 @@ public class RefreshTokensHandler : ICommandHandler<Guid, Result<LoginResponse, 
         {
             Id = oldRefreshSession.Value.User.Id,
             Telegram = oldRefreshSession.Value.User.Telegram,
-            UniqueUserName = oldRefreshSession.Value.User.UserName!,
-            UserName = oldRefreshSession.Value.User.Name,
-            Balance = oldRefreshSession.Value.User.Balance
+            UniqueUserName = oldRefreshSession.Value.User.UniqueName,
+            UserName = oldRefreshSession.Value.User.UserName!,
+            Balance = oldRefreshSession.Value.User.Balance,
+            TrialBalance = oldRefreshSession.Value.User.TrialBalance
         };
         
         return new LoginResponse(accessToken.AccessToken, newRefreshToken, userData);

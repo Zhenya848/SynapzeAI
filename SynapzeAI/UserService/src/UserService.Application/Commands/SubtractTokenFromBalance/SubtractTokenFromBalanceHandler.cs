@@ -3,11 +3,13 @@ using Core;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Identity;
 using UserService.Application.Repositories;
+using UserService.Domain;
 using UserService.Domain.User;
 
 namespace UserService.Application.Commands.SubtractTokenFromBalance;
 
-public class SubtractTokenFromBalanceHandler : ICommandHandler<Guid, UnitResult<Error>>
+public class SubtractTokenFromBalanceHandler 
+    : ICommandHandler<SubtractTokenFromBalanceCommand, Result<BalanceType, Error>>
 {
     private readonly UserManager<User> _userManager;
 
@@ -16,15 +18,26 @@ public class SubtractTokenFromBalanceHandler : ICommandHandler<Guid, UnitResult<
         _userManager = userManager;
     }
 
-    public async Task<UnitResult<Error>> Handle(
-        Guid userId, 
+    public async Task<Result<BalanceType, Error>> Handle(
+        SubtractTokenFromBalanceCommand command, 
         CancellationToken cancellationToken = default)
     {
         var user = await _userManager
-            .FindByIdAsync(userId.ToString());
+            .FindByIdAsync(command.UserId.ToString());
 
         if (user is null)
-            return Errors.User.NotFound(userId.ToString());
+            return Errors.User.NotFound(command.UserId.ToString());
+
+        if (command.IsTrialBalance)
+        {
+            var setTrialBalanceResult = user.SetTrialBalance(user.TrialBalance - 1);
+
+            if (setTrialBalanceResult.IsSuccess)
+            {
+                await _userManager.UpdateAsync(user);
+                return BalanceType.Trial;
+            }
+        }
 
         var result = user.SetBalance(user.Balance - 1);
 
@@ -33,6 +46,6 @@ public class SubtractTokenFromBalanceHandler : ICommandHandler<Guid, UnitResult<
         
         await _userManager.UpdateAsync(user);
 
-        return Result.Success<Error>();
+        return BalanceType.Normal;
     }
 }

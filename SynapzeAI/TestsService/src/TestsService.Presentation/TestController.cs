@@ -6,15 +6,18 @@ using TestsService.Application.SavedTests.Commands.Create;
 using TestsService.Application.SavedTests.Commands.Delete;
 using TestsService.Application.SavedTests.Queries.Get;
 using TestsService.Application.SolvingHistories.Commands.Create;
+using TestsService.Application.SolvingHistories.Commands.ExplainTasks;
 using TestsService.Application.SolvingHistories.Commands.Update;
 using TestsService.Application.SolvingHistories.Querise;
 using TestsService.Application.TaskStatistics.Commands.Update;
 using TestsService.Application.Tests.Commands.Create;
+using TestsService.Application.Tests.Commands.CreateWithAi;
 using TestsService.Application.Tests.Commands.Delete;
 using TestsService.Application.Tests.Commands.GetTest;
 using TestsService.Application.Tests.Commands.GetTests;
 using TestsService.Application.Tests.Commands.Update;
 using TestsService.Application.Tests.Queries;
+using TestsService.Presentation.Extensions;
 using TestsService.Presentation.Requests;
 
 namespace TestsService.Presentation;
@@ -44,6 +47,66 @@ public class TestController : ControllerBase
             request.Tasks);
         
         var result = await handler.Handle(command, cancellationToken);
+        
+        if (result.IsFailure)
+            return result.Error.ToResponse();
+        
+        return Ok(Envelope.Ok(result.Value));
+    }
+
+    [HttpPost("withAi")]
+    [Authorize]
+    public async Task<IActionResult> CreateTestWithAi(
+        [FromServices] CreateTestWithAiHandler handler,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = User.GetUserIdRequired();
+        var userName = User.GetUserNameRequired();
+        
+        var form = await Request.ReadFormAsync(cancellationToken);
+
+        var file = form.Files["File"];
+        string? base64File = null;
+
+        if (file is not null)
+        {
+            var convertResult = await file.ConvertToBase64Async();
+            
+            if (convertResult.IsFailure)
+                return convertResult.Error.ToResponse();
+            
+            base64File = convertResult.Value;
+        }
+        
+        var command = new CreateTestWithAiCommand
+        (
+            userId,
+            userName,
+            form.GetString("TestTheme"),
+            form.GetInt("PercentOfOpenTasks"),
+            form.GetInt("Difficulty"),
+            form.GetInt("TasksCount"),
+            form.GetInt("Seconds"),
+            form.GetInt("Minutes"),
+            base64File
+        );
+        
+        var result = await handler.Handle(command, cancellationToken);
+        
+        if (result.IsFailure)
+            return result.Error.ToResponse();
+        
+        return Ok(Envelope.Ok(result.Value));
+    }
+
+    [HttpPut("{solvingHistoryId:guid}/explain")]
+    [Authorize]
+    public async Task<IActionResult> ExplainTasks(
+        [FromRoute] Guid solvingHistoryId,
+        [FromServices] ExplainTasksHandler handler,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await handler.Handle(solvingHistoryId, cancellationToken);
         
         if (result.IsFailure)
             return result.Error.ToResponse();

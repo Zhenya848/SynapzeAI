@@ -6,12 +6,23 @@ package greet;
 
 service Greeter {
   rpc SubtractTokenFromBalance (SubtractTokenFromBalanceRequest) returns (SubtractTokenFromBalanceResponse);
+  rpc AddTokenToBalance (AddTokenToBalanceRequest) returns (AddTokenToBalanceResponse);
 }
 
 message SubtractTokenFromBalanceRequest {
   string user_id = 1;
+  bool isTrialBalance = 2;
 }
 
 message SubtractTokenFromBalanceResponse {
-  
+  string subtractedFrom = 1;
+}
+
+message AddTokenToBalanceRequest {
+  string user_id = 1;
+  bool isTrialBalance = 2;
+}
+
+message AddTokenToBalanceResponse {
+
 }

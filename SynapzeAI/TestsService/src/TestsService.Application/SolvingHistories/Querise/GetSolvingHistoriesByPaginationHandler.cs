@@ -1,8 +1,11 @@
 using System.Linq.Expressions;
+using Application.Abstractions;
+using Application.Pagination;
 using Microsoft.EntityFrameworkCore;
 using TestsService.Application.Abstractions;
 using TestsService.Application.Repositories;
 using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
+using QueriesExtensions = Application.Abstractions.QueriesExtensions;
 
 namespace TestsService.Application.SolvingHistories.Querise;
 
@@ -47,7 +50,7 @@ public class GetSolvingHistoriesByPaginationHandler :
                         .Count(th => th.RightAnswer != null && th.UserAnswer.ToLower() == th.RightAnswer.ToLower())
             };
 
-            if (query.OrderBy.ToLower() == "по успешности прохождения (сверху вниз)")
+            if (query.OrderBy?.ToLower() == "по успешности прохождения (сверху вниз)")
                 solvingHistoriesQuery = solvingHistoriesQuery.OrderBy(selector);
             else
                 solvingHistoriesQuery = solvingHistoriesQuery.OrderByDescending(selector);
@@ -55,8 +58,7 @@ public class GetSolvingHistoriesByPaginationHandler :
         
         var totalCount = await solvingHistoriesQuery.CountAsync(cancellationToken);
         
-        var solvingHistories = await solvingHistoriesQuery
-            .GetItemsWithPagination(query.Page, query.PageSize)
+        var solvingHistories = await QueriesExtensions.GetItemsWithPagination(solvingHistoriesQuery, query.Page, query.PageSize)
             .Include(th => th.TaskHistories.OrderBy(sn => sn.SerialNumber))
             .ToListAsync(cancellationToken);
 

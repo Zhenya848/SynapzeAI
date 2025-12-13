@@ -493,6 +493,8 @@ $RECYCLE.BIN/
 **/*.env*
 .env*
 
-# etc
-**/etc/
-**/etc*/
+# private key
+SynapzeAI/UserService/src/UserService.API/etc/key.private
+
+# appsettings
+*appsettings.json

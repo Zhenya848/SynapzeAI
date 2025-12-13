@@ -11,4 +11,5 @@ public record UserInfo()
     
     
     public int Balance { get; set; }
+    public int TrialBalance { get; set; }
 }

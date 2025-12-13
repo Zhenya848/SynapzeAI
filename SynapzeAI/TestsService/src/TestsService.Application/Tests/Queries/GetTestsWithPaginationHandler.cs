@@ -1,8 +1,11 @@
 using System.Linq.Expressions;
+using Application.Abstractions;
+using Application.Pagination;
 using Microsoft.EntityFrameworkCore;
 using TestsService.Application.Abstractions;
 using TestsService.Application.Repositories;
 using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
+using QueriesExtensions = Application.Pagination.QueriesExtensions;
 
 namespace TestsService.Application.Tests.Queries;
 
@@ -78,8 +81,7 @@ public class GetTestsWithPaginationHandler : IQueryHandler<GetTestsWithPaginatio
         GetTestsWithPaginationQuery queryParams,
         CancellationToken cancellationToken = default)
     {
-        var tests = await query
-            .GetItemsWithPagination(queryParams.Page, queryParams.PageSize)
+        var tests = await QueriesExtensions.GetItemsWithPagination(query, queryParams.Page, queryParams.PageSize)
             .Include(st => st.SavedTests.Where(ui => ui.UserId == queryParams.UserId))
             .Include(t => t.Tasks.OrderBy(sn => sn.SerialNumber))
             .ThenInclude(ts => ts.TaskStatistics.Where(ui => ui.UserId == queryParams.UserId))

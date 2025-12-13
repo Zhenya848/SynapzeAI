@@ -1,3 +1,4 @@
+using Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using TestsService.Application.Abstractions;
 using TestsService.Application.Repositories;
@@ -19,10 +20,10 @@ public class GetTestsHandler : IQueryHandler<Guid, IEnumerable<TestDto>>
         CancellationToken cancellationToken = default)
     {
         var testsQuery = _readDbContext.Tests
+            .Where(ui => ui.UserId == userId)
             .Include(st => st.SavedTests.Where(ui => ui.UserId == userId))
             .Include(t => t.Tasks.OrderBy(sn => sn.SerialNumber))
-            .ThenInclude(ts => ts.TaskStatistics.Where(ui => ui.UserId == userId))
-            .Where(ui => ui.UserId == userId);
+            .ThenInclude(ts => ts.TaskStatistics.Where(ui => ui.UserId == userId));
 
         var tests = await testsQuery.ToListAsync(cancellationToken);
         

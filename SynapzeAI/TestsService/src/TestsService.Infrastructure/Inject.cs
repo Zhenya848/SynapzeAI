@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Security.Cryptography;
+using Application.Abstractions;
 using Elastic.CommonSchema.Serilog;
 using Elastic.Ingest.Elasticsearch;
 using Elastic.Ingest.Elasticsearch.DataStreams;
@@ -14,9 +15,10 @@ using OpenTelemetry.Resources;
 using Serilog;
 using Serilog.Events;
 using TestsService.Application.Abstractions;
+using TestsService.Application.Providers;
 using TestsService.Application.Repositories;
-using TestsService.Domain.Shared;
 using TestsService.Infrastructure.DbContexts;
+using TestsService.Infrastructure.Providers;
 using TestsService.Infrastructure.Repositories;
 using TestsService.Presentation.Authorization;
 using File = System.IO.File;
@@ -35,6 +37,7 @@ public static class Inject
         services.AddScoped<AppDbContext>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ITestRepository, TestRepository>();
+        services.AddSingleton<IAiProvider, AiProvider>();
         
         var authOptions = configuration.GetSection(AuthOptions.Auth).Get<AuthOptions>()
                           ?? throw new ApplicationException("Auth options not found");
@@ -87,6 +90,7 @@ public static class Inject
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddRuntimeInstrumentation()
+                .AddProcessInstrumentation()
                 .AddPrometheusExporter());
         
         return services;
