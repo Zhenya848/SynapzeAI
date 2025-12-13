@@ -1,9 +1,9 @@
+using Application.Abstractions;
 using Core;
 using CSharpFunctionalExtensions;
 using TestsService.Application.Abstractions;
 using TestsService.Application.Repositories;
 using TestsService.Domain;
-using TestsService.Domain.Shared;
 using TestsService.Domain.Shared.ValueObjects.Id;
 using TestsService.Domain.ValueObjects;
 using Task = TestsService.Domain.Task;
@@ -30,8 +30,6 @@ public class CreateTestHandler : ICommandHandler<CreateTestCommand, Result<Guid,
         CreateTestCommand command, 
         CancellationToken cancellationToken = default)
     {
-        using var transaction = await _unitOfWork.BeginTransaction(cancellationToken);
-        
         LimitTime? limitTime = null;
 
         if (command.Seconds is not null || command.Minutes is not null)
@@ -73,18 +71,6 @@ public class CreateTestHandler : ICommandHandler<CreateTestCommand, Result<Guid,
         var result = _testRepository.Add(test.Value);
         
         await _unitOfWork.SaveChanges(cancellationToken);
-        
-        var subtractTokenFromBalance = await _greeterService
-            .SubtractTokenFromBalance(command.UserId, cancellationToken);
-
-        if (subtractTokenFromBalance.IsFailure)
-        {
-            transaction.Rollback();
-            
-            return subtractTokenFromBalance.Error;
-        }
-        
-        transaction.Commit();
 
         return result;
     }

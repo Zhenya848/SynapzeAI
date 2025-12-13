@@ -153,6 +153,7 @@ public static class Inject
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddRuntimeInstrumentation()
+                .AddProcessInstrumentation()
                 .AddPrometheusExporter());
         
         services.AddControllers();

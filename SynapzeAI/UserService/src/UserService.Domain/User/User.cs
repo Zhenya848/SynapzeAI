@@ -8,9 +8,9 @@ namespace UserService.Domain.User;
 
 public class User : IdentityUser<Guid>
 {
-    public string Name { get; private set; }
+    public string UniqueName { get; private set; }
     public string Telegram { get;  private set; }
-    public bool IsVerified { get; private set; } = false;
+    public bool IsVerified { get; private set; }
     
     private List<Role> _roles;
     public IReadOnlyList<Role> Roles => _roles;
@@ -19,6 +19,7 @@ public class User : IdentityUser<Guid>
     public AdminAccount? AdminAccount { get; }
     
     public int Balance { get; private set; }
+    public int TrialBalance { get; private set; } = UserConstants.TRIAL_USER_BALANSE;
 
     private User()
     {
@@ -29,11 +30,10 @@ public class User : IdentityUser<Guid>
     {
         var user = new User
         {
-            Name = username,
-            UserName = uniqueUserName,
+            UniqueName = uniqueUserName,
+            UserName = username,
             _roles = [role], 
-            Telegram = telegram,
-            Balance = 1
+            Telegram = telegram
         };
 
         return user;
@@ -41,12 +41,12 @@ public class User : IdentityUser<Guid>
     
     public void UpdateUsername(string username)
     {
-        Name = username;
+        UserName = username;
 
-        var startCodeIndex = UserName!.IndexOf('_');
+        var startCodeIndex = UniqueName.IndexOf('_');
         
-        UserName = username + UserName
-            .Substring(startCodeIndex, UserName.Length - startCodeIndex);
+        UniqueName = username + UniqueName
+            .Substring(startCodeIndex, UniqueName.Length - startCodeIndex);
     }
     
     public static User CreateParticipant(
@@ -102,6 +102,16 @@ public class User : IdentityUser<Guid>
             return Error.Validation("invalid.user.balance", "Balance cannot be negative");
         
         Balance = balance;
+
+        return Result.Success<Error>();
+    }
+    
+    public UnitResult<Error> SetTrialBalance(int balance)
+    {
+        if (balance < 0)
+            return Error.Validation("invalid.user.balance", "Balance cannot be negative");
+        
+        TrialBalance = balance;
 
         return Result.Success<Error>();
     }

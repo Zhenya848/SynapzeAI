@@ -1,5 +1,5 @@
+using Application.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
-using TestsService.Application.Abstractions;
 
 namespace TestsService.Application;
 

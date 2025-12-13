@@ -67,9 +67,10 @@ public class LoginUserHandler : ICommandHandler<LoginUserCommand, Result<LoginRe
         {
             Id = user.Id,
             Telegram = user.Telegram,
-            UniqueUserName = user.UserName!,
-            UserName = user.Name,
-            Balance = user.Balance
+            UniqueUserName = user.UniqueName,
+            UserName = user.UserName!,
+            Balance = user.Balance,
+            TrialBalance = user.TrialBalance
         };
         
         return new LoginResponse(accessToken.AccessToken, refreshToken, userData);

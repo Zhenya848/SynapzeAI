@@ -11,4 +11,9 @@
         public const int MAX_ATTEMPTS = 5;
         public const int ExpiresMinutes = 5;
     }
+
+    public class UserConstants
+    {
+        public const int TRIAL_USER_BALANSE = 3;
+    }
 }

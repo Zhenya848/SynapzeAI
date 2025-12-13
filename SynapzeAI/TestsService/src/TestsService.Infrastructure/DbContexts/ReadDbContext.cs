@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using TestsService.Application.Repositories;
-using TestsService.Domain.Shared.ValueObjects.Dtos;
 using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 
 namespace TestsService.Infrastructure.DbContexts;

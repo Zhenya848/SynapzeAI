@@ -1,5 +1,8 @@
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using TestsService.API;
 using TestsService.API.Middleware;
 using TestsService.Application;
 using TestsService.Infrastructure;

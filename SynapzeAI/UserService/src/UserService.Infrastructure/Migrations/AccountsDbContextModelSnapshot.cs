@@ -374,11 +374,6 @@ namespace UserService.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lockout_end");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)")
@@ -410,9 +405,18 @@ namespace UserService.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("telegram");
 
+                    b.Property<int>("TrialBalance")
+                        .HasColumnType("integer")
+                        .HasColumnName("trial_balance");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("two_factor_enabled");
+
+                    b.Property<string>("UniqueName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("unique_name");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)

@@ -1,7 +1,5 @@
 using Core;
 using CSharpFunctionalExtensions;
-using TestsService.Domain.Shared;
-using TestsService.Domain.Shared.ValueObjects.Dtos.ForQuery;
 using TestsService.Domain.Shared.ValueObjects.Id;
 using TestsService.Domain.ValueObjects;
 
@@ -20,13 +18,13 @@ public class Test : Core.Entity<TestId>
     
     public bool IsPublished { get; private set; }
     
-    private List<Task> _tasks  = new List<Task>();
+    private readonly List<Task> _tasks  = [];
     public IReadOnlyList<Task> Tasks => _tasks;
     
-    private List<SolvingHistory> _solvingHistories = new List<SolvingHistory>();
+    private readonly List<SolvingHistory> _solvingHistories = [];
     public IReadOnlyList<SolvingHistory> SolvingHistories => _solvingHistories;
     
-    private List<SavedTest> _savedTests = new List<SavedTest>();
+    private readonly List<SavedTest> _savedTests = [];
     public IReadOnlyList<SavedTest> SavedTests => _savedTests;
 
     private Test(TestId id) : base(id)
@@ -66,13 +64,13 @@ public class Test : Core.Entity<TestId>
         IEnumerable<Task>? tasks = null)
     {
         if (string.IsNullOrWhiteSpace(uniqueUserName))
-            return Errors.General.ValueIsRequired("имя пользователя");
+            return Errors.General.ValueIsRequired("user name");
         
         if (string.IsNullOrWhiteSpace(testName))
-            return Errors.General.ValueIsRequired("название викторины");
+            return Errors.General.ValueIsRequired("test name");
         
         if (string.IsNullOrWhiteSpace(theme))
-            return Errors.General.ValueIsRequired("тема викторины");
+            return Errors.General.ValueIsRequired("test theme");
         
         return new Test(id, userId, uniqueUserName, testName, theme, isPublished, limitTime, tasks);
     }
@@ -88,9 +86,17 @@ public class Test : Core.Entity<TestId>
         }
     }
 
-    public void UpdateTasks(IEnumerable<Task> tasks)
+    public UnitResult<ErrorList> UpdateTasks(IEnumerable<Task> tasks)
     {
         var tasksById = tasks.ToDictionary(t => t.Id);
+        var existingIds = _tasks.ToDictionary(t => t.Id);
+        
+        var notFoundIds = tasksById.Keys
+            .Where(id => existingIds.ContainsKey(id) == false).ToList();
+
+        if (notFoundIds.Count > 0)
+            return (ErrorList)notFoundIds
+                .Select(id => Errors.General.NotFound(id));
 
         foreach (var task in _tasks)
         {
@@ -103,12 +109,16 @@ public class Test : Core.Entity<TestId>
                     newTask.Answers);
             }
         }
+        
+        return Result.Success<ErrorList>();
     }
 
     public List<Task> GetTasksByIds(IEnumerable<Guid> taskIds)
     {
+        taskIds = taskIds.ToArray();
+        
         if (taskIds.Any() == false)
-            return new List<Task>();
+            return [];
     
         var taskIdsSet = new HashSet<Guid>(taskIds);
         
@@ -126,13 +136,13 @@ public class Test : Core.Entity<TestId>
         LimitTime? limitTime)
     {
         if (string.IsNullOrWhiteSpace(uniqueUserName))
-            return Errors.General.ValueIsRequired("имя пользователя");
+            return Errors.General.ValueIsRequired("user name");
         
         if (string.IsNullOrWhiteSpace(testName))
-            return Errors.General.ValueIsRequired("название викторины");
+            return Errors.General.ValueIsRequired("test name");
         
         if (string.IsNullOrWhiteSpace(theme))
-            return Errors.General.ValueIsRequired("тема викторины");
+            return Errors.General.ValueIsRequired("test theme");
         
         TestName = testName;
         Theme = theme;

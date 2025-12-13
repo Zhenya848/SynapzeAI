@@ -88,13 +88,13 @@ public class CreateUserHandler : ICommandHandler<CreateUserCommand, UnitResult<E
             if (sendResult.IsFailure)
             {
                 transaction.Rollback();
-                
-                return (ErrorList)Errors.General.Failure();   
+
+                return (ErrorList)sendResult.Error;
             }
             
             transaction.Commit();
         
-            _logger.LogInformation("User created: {userName} a new account with password.", user.Name);
+            _logger.LogInformation("User created: {userName} a new account with password.", user.UniqueName);
         }
         catch (Exception ex)
         {

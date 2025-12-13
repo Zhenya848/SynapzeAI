@@ -1,8 +1,8 @@
+using Application.Abstractions;
 using Core;
 using CSharpFunctionalExtensions;
 using TestsService.Application.Abstractions;
 using TestsService.Application.Repositories;
-using TestsService.Domain.Shared;
 using TestsService.Domain.Shared.ValueObjects.Id;
 using TestsService.Domain.ValueObjects;
 using Task = TestsService.Domain.Task;
@@ -98,7 +98,10 @@ public class UpdateTestHandler : ICommandHandler<UpdateTestCommand, Result<Guid,
                     .Select(e => e.Error)
                     .ToList();
             
-            test.UpdateTasks(tasks.Select(t => t.Value));
+            var updateTasksResult = test.UpdateTasks(tasks.Select(t => t.Value));
+            
+            if (updateTasksResult.IsFailure)
+                return updateTasksResult.Error;
         }
 
         if (command.TaskIdsToDelete is not null)

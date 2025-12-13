@@ -1,11 +1,10 @@
+using Application.Abstractions;
 using Core;
 using CSharpFunctionalExtensions;
 using TestsService.Application.Abstractions;
 using TestsService.Application.Repositories;
 using TestsService.Domain;
-using TestsService.Domain.Shared;
 using TestsService.Domain.Shared.ValueObjects.Id;
-using TestsService.Domain.ValueObjects;
 
 namespace TestsService.Application.SolvingHistories.Commands.Create;
 

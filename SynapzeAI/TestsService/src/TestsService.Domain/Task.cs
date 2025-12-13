@@ -16,7 +16,7 @@ public class Task : Core.Entity<TaskId>
     public string? RightAnswer { get; private set; }
     
     
-    private List<TaskStatistic> _taskStatistics = new List<TaskStatistic>();
+    private List<TaskStatistic> _taskStatistics = [];
     public IReadOnlyList<TaskStatistic> TaskStatistics =>  _taskStatistics;
     
     public List<string>? Answers { get; private set; }
