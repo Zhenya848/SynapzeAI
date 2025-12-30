@@ -87,12 +87,12 @@ public class AccountRepository : IAccountRepository
         return verification.Id;
     }
 
-    public async Task<Result<Verification, Error>> GetVerificationByUserId(
-        Guid userId, CancellationToken 
-            cancellationToken = default)
+    public async Task<Result<Verification, Error>> GetVerificationByUsername(
+        string username,
+        CancellationToken cancellationToken = default)
     {
         var verificationResult = await _accountsDbContext.Verifications
-            .FirstOrDefaultAsync(v => v.UserId == userId, cancellationToken);
+            .FirstOrDefaultAsync(v => v.Username == username, cancellationToken);
 
         if (verificationResult is null)
             return Errors.General.NotFound();

@@ -34,23 +34,16 @@ public class LoginUserHandler : ICommandHandler<LoginUserCommand, Result<LoginRe
         LoginUserCommand userCommand, 
         CancellationToken cancellationToken = default)
     {
+        var telegramWithoutAt = userCommand.Telegram.TrimStart('@');
+        var telegramWithAt = "@" + telegramWithoutAt;
+        
         var userResult = await _accountRepository
-            .FindUserByTelegram(userCommand.Telegram, cancellationToken);
+            .FindUserByTelegram(telegramWithAt, cancellationToken);
 
         if (userResult.IsFailure)
             return (ErrorList)Errors.User.WrongCredentials();
         
         var user = userResult.Value;
-
-        if (user.IsVerified == false)
-        {
-            var result = await _userManager.DeleteAsync(user);
-            
-            if (result.Succeeded == false)
-                _logger.LogError(Join(Environment.NewLine, result.Errors.Select(e => e.Description)));
-            
-            return (ErrorList)Error.Failure("user.login.failure", "Пользователь без подтверждения. Попробуйте зарегистрироваться заново");
-        }
         
         var passwordConfirmed = await _userManager.CheckPasswordAsync(user, userCommand.Password);
 
@@ -66,7 +59,7 @@ public class LoginUserHandler : ICommandHandler<LoginUserCommand, Result<LoginRe
         var userData = new UserInfo()
         {
             Id = user.Id,
-            Telegram = user.Telegram,
+            Telegram = telegramWithAt,
             UniqueUserName = user.UniqueName,
             UserName = user.UserName!,
             Balance = user.Balance,

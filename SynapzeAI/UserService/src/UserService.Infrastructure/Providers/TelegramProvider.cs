@@ -1,7 +1,7 @@
-using System.ComponentModel.DataAnnotations;
-using System.Text;
+using System.Text.Json;
 using Core;
 using CSharpFunctionalExtensions;
+using Framework.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
@@ -11,12 +11,6 @@ using UserService.Domain.Shared;
 using UserService.Infrastructure.Options;
 
 namespace UserService.Infrastructure.Providers;
-
-record SendCodeResult(bool Success, string ErrorMessage = null);
-
-record SendCodeRequest(string Username, int Code);
-
-record SendCodeResponse(bool Success, string Message, string Error);
 
 public class TelegramProvider : IMessageProvider
 {
@@ -30,59 +24,51 @@ public class TelegramProvider : IMessageProvider
         _logger = logger;
         _botClient = new TelegramBotClient(options.Value.Token);
     }
-
-    private async Task<long?> GetChatIdByUsernameAsync(string username)
+    
+    public Result<ChatInfoDto, Error> GetChatInfo(JsonElement json)
     {
-        try
-        {
-            var cleanUsername = username.StartsWith('@') ? username[1..] : username;
-            var updates = await _botClient.GetUpdatesAsync(limit: 20);
-            
-            foreach (var update in updates)
-            {
-                if (update.Message?.From?.Username != null &&
-                    update.Message.From.Username.Equals(cleanUsername, StringComparison.OrdinalIgnoreCase))
-                {
-                    return update.Message.Chat.Id;
-                }
-            }
-            
-            return null;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Ошибка поиска chatId для {Username}", username);
-            return null;
-        }
+        var update = json.ConvertObjectToType<Update>();
+        
+        if (update.IsFailure)
+            return update.Error;
+        
+        var username = update.Value.Message?.From?.Username;
+        
+        if (username == null)
+            return Error.Failure("telegram.username.not.found", "Telegram username not found");
+        
+        var chatId = update.Value.Message?.Chat.Id;
+        
+        if (chatId.HasValue == false)
+            return Error.Failure("telegram.chat.id.not.found", "Telegram chat id not found");
+        
+        var chatInfo = new ChatInfoDto(chatId.Value, username);
+        
+        return chatInfo;
     }
 
-    public async Task<UnitResult<Error>> SendCode(string code, string userMessageName)
+    public async Task<UnitResult<Error>> SendCode(ChatInfoDto chatInfo, string code)
     {
         try
         {
-            var chatId = await GetChatIdByUsernameAsync(userMessageName);
-            
-            if (!chatId.HasValue)
-                return Error.Failure("find.chat.failure", "Failed to find chat");
-            
             var message = $"🔐 **Код подтверждения**\n\n" +
                           $"`{code}`\n\n" +
                           $"⏳ Код действителен 5 минут\n" +
                           $"⚠️ Никому не сообщайте этот код";
             
             await _botClient.SendTextMessageAsync(
-                chatId: chatId.Value,
+                chatId: chatInfo.ChatId,
                 text: message,
                 parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown
             );
-
-            _logger.LogInformation("Код {Code} отправлен пользователю {Username}", code, userMessageName);
+            
+            _logger.LogInformation("Код {Code} отправлен пользователю {Username}", code, chatInfo.Username);
             
             return Result.Success<Error>();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка отправки кода пользователю {Username}", userMessageName);
+            _logger.LogError(ex, "Ошибка отправки кода пользователю {Username}", chatInfo.Username);
             return Error.Failure("send.code.failure", "Failed to send code");
         }
     }

@@ -10,8 +10,8 @@ public class VerificationConfiguration : IEntityTypeConfiguration<Verification>
     {
         builder.ToTable("verifications");
         builder.HasKey(i => i.Id);
-        
-        builder.HasOne(u => u.User).WithOne().HasForeignKey<Verification>(i => i.UserId);
+
+        builder.Property(un => un.Username).IsRequired().HasMaxLength(50);
         
         builder.Property(c => c.Code).IsRequired().HasMaxLength(50);
         builder.Property(ea => ea.ExpiresAt).IsRequired();
