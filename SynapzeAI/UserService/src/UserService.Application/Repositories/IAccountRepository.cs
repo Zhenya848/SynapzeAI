@@ -26,7 +26,7 @@ public interface IAccountRepository
     
     public Guid CreateVerification(Verification verification);
     public Guid DeleteVerification(Verification verification);
-    public Task<Result<Verification, Error>> GetVerificationByUserId(
-        Guid userId, 
+    public Task<Result<Verification, Error>> GetVerificationByUsername(
+        string username,
         CancellationToken cancellationToken = default);
 }

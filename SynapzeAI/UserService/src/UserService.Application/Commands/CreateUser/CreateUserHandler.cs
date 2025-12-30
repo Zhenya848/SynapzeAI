@@ -46,8 +46,11 @@ public class CreateUserHandler : ICommandHandler<CreateUserCommand, UnitResult<E
         if (string.IsNullOrWhiteSpace(command.Telegram))
             return (ErrorList)Errors.General.ValueIsInvalid("telegram");
         
+        var telegramWithoutAt = command.Telegram.TrimStart('@');
+        var telegramWithAt = "@" + telegramWithoutAt;
+        
         var userExist = await _accountRepository
-            .FindUserByTelegram(command.Telegram, cancellationToken);
+            .FindUserByTelegram(telegramWithAt, cancellationToken);
 
         if (userExist.IsSuccess)
             return (ErrorList)Errors.User.AlreadyExist();
@@ -55,58 +58,38 @@ public class CreateUserHandler : ICommandHandler<CreateUserCommand, UnitResult<E
         var role = await _roleManager.FindByNameAsync(AccountRoles.PARTICIPANT)
                    ?? throw new ApplicationException($"Role {AccountRoles.PARTICIPANT} does not exist");
         
-        var user = User.CreateParticipant(command.Username, command.Telegram, role);
+        var user = User.CreateParticipant(command.Username, telegramWithAt, role);
         var participantAccount = ParticipantAccount.CreateParticipant(user);
 
-        var verificationCode = GenerateVerificationCode().ToString();
+        var verificationResult = await _accountRepository
+            .GetVerificationByUsername(telegramWithoutAt, cancellationToken);
         
-        using var transaction = await _unitOfWork.BeginTransaction(cancellationToken);
+        if (verificationResult.IsFailure)
+            return (ErrorList)verificationResult.Error;
+        
+        var verification = verificationResult.Value;
+        
+        var verifyResult = verification.Verify(command.Code);
 
-        try
+        if (verifyResult.IsFailure)
         {
-            var result = await _userManager.CreateAsync(user, command.Password);
-            
-            if (result.Succeeded == false)
-                return (ErrorList)result.Errors
-                    .Select(e => Error.Failure(e.Code, e.Description)).ToList();
-            
-            var verificationResult = Verification.Create(
-                user.Id,
-                verificationCode,
-                DateTime.UtcNow.AddMinutes(VerificationConstants.ExpiresMinutes));
-        
-            if (verificationResult.IsFailure)
-                return (ErrorList)verificationResult.Error;
-
-            _accountRepository.CreateParticipant(participantAccount);
-            _accountRepository.CreateVerification(verificationResult.Value);
+            if (verifyResult.Error.Code is "verification.expired" or "verification.blocked")
+                _accountRepository.DeleteVerification(verification);
             
             await _unitOfWork.SaveChanges(cancellationToken);
-            
-            var sendResult = await _messageProvider.SendCode(verificationCode, command.Telegram);
-
-            if (sendResult.IsFailure)
-            {
-                transaction.Rollback();
-
-                return (ErrorList)sendResult.Error;
-            }
-            
-            transaction.Commit();
+            return (ErrorList)verifyResult.Error;
+        }
         
-            _logger.LogInformation("User created: {userName} a new account with password.", user.UniqueName);
-        }
-        catch (Exception ex)
-        {
-            transaction.Rollback();
-            _logger.LogError(ex, "Error creating user in transaction");
+        var result = await _userManager.CreateAsync(user, command.Password);
             
-            return (ErrorList)Errors.General.Failure();
-        }
+        if (result.Succeeded == false)
+            return (ErrorList)result.Errors
+                .Select(e => Error.Failure(e.Code, e.Description)).ToList();
+        
+        _accountRepository.CreateParticipant(participantAccount);
+        
+        await _unitOfWork.SaveChanges(cancellationToken);
         
         return Result.Success<ErrorList>();
     }
-
-    private int GenerateVerificationCode() => 
-        new Random().Next(10000, 99999);
 }

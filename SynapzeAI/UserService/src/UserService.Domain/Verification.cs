@@ -7,8 +7,7 @@ namespace UserService.Domain;
 
 public class Verification : Core.Entity<Guid>
 {
-    public Guid UserId { get; private set; }
-    public DomainUser User { get; init; }
+    public string Username { get; private set; }
     
     public string Code { get; private set; }
     public DateTime ExpiresAt { get; private set; }
@@ -19,14 +18,14 @@ public class Verification : Core.Entity<Guid>
         
     }
 
-    private Verification(Guid id, Guid userId, string code, DateTime expiresAt) : base(id)
+    private Verification(Guid id, string username, string code, DateTime expiresAt) : base(id)
     {
-        UserId = userId;
+        Username = username;
         Code = code;
         ExpiresAt = expiresAt;
     }
     
-    public static Result<Verification, Error> Create(Guid userId, string code, DateTime expiresAt)
+    public static Result<Verification, Error> Create(string username, string code, DateTime expiresAt)
     {
         if (string.IsNullOrWhiteSpace(code))
             return Errors.General.ValueIsRequired(nameof(code));
@@ -34,7 +33,7 @@ public class Verification : Core.Entity<Guid>
         if (expiresAt <= DateTime.UtcNow)
             return Errors.General.ValueIsInvalid(nameof(expiresAt));
         
-        return new Verification(Guid.NewGuid(), userId, code, expiresAt);
+        return new Verification(Guid.NewGuid(), username, code, expiresAt);
     }
     
     public Result<string, Error> Verify(string code)

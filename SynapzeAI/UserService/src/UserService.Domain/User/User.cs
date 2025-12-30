@@ -10,7 +10,6 @@ public class User : IdentityUser<Guid>
 {
     public string UniqueName { get; private set; }
     public string Telegram { get;  private set; }
-    public bool IsVerified { get; private set; }
     
     private List<Role> _roles;
     public IReadOnlyList<Role> Roles => _roles;
@@ -92,9 +91,6 @@ public class User : IdentityUser<Guid>
 
         return username;
     }
-    
-    public void VerifyUser() => 
-        IsVerified = true;
     
     public UnitResult<Error> SetBalance(int balance)
     {

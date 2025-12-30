@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Core;
 using Framework;
 using Framework.Authorization;
@@ -6,12 +7,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Application.Commands.CreateUser;
+using UserService.Application.Commands.CreateVerification;
 using UserService.Application.Commands.LoginUser;
 using UserService.Application.Commands.LogoutUser;
 using UserService.Application.Commands.RefreshTokens;
 using UserService.Application.Commands.UpdateUser;
-using UserService.Application.Commands.Verify;
-using UserService.Domain.Shared;
 using UserService.Presentation.Requests;
 
 namespace UserService.Presentation;
@@ -20,12 +20,6 @@ namespace UserService.Presentation;
 [Route("api/[controller]")]
 public class AccountController : ControllerBase
 {
-    [HttpGet]
-    public async Task<IActionResult> Get()
-    {
-        return Ok("ok");
-    }
-    
     [HttpPost("registration")]
     public async Task<IActionResult> Register(
         [FromBody] CreateUserRequest request,
@@ -35,7 +29,8 @@ public class AccountController : ControllerBase
         var command = new CreateUserCommand(
             request.Username,
             request.Telegram,
-            request.Password);
+            request.Password,
+            request.Code);
         
         var result = await handler.Handle(command, cancellationToken);
 
@@ -121,20 +116,18 @@ public class AccountController : ControllerBase
         
         return Ok(Envelope.Ok(result.Value));
     }
-
-    [HttpPost("users/verify")]
-    public async Task<IActionResult> VerifyUser(
-        [FromBody] VerifyUserRequest request,
-        [FromServices] VerifyUserHandler handler,
+    
+    [HttpPost("telegram/webhook")]
+    public async Task<IActionResult> CreateVerification(
+        [FromBody] JsonElement json,
+        [FromServices] CreateVerificationHandler handler,
         CancellationToken cancellationToken = default)
     {
-        var command = new VerifyUserCommand(request.Telegram, request.Code);
-        
-        var result = await handler.Handle(command, cancellationToken);
+        var result = await handler.Handle(json, cancellationToken);
 
         if (result.IsFailure)
             return result.Error.ToResponse();
         
-        return Ok();
+        return Ok(Envelope.Ok(result.Value));
     }
 }

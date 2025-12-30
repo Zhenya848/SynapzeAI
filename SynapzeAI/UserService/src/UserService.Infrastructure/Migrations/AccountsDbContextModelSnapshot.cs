@@ -362,10 +362,6 @@ namespace UserService.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("email_confirmed");
 
-                    b.Property<bool>("IsVerified")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_verified");
-
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("lockout_enabled");
@@ -457,16 +453,14 @@ namespace UserService.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("expires_at");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("username");
 
                     b.HasKey("Id")
                         .HasName("pk_verifications");
-
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_verifications_user_id");
 
                     b.ToTable("verifications", (string)null);
                 });
@@ -583,18 +577,6 @@ namespace UserService.Infrastructure.Migrations
                     b.Navigation("Permission");
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("UserService.Domain.Verification", b =>
-                {
-                    b.HasOne("UserService.Domain.User.User", "User")
-                        .WithOne()
-                        .HasForeignKey("UserService.Domain.Verification", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_verifications_users_user_id");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("UserService.Domain.User.Role", b =>

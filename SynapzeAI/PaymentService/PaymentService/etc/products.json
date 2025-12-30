@@ -1,22 +1,22 @@
 [
   {
     "productId": "2_generations",
-    "price": 50,
+    "price": 25,
     "pack": 2
   },
   {
     "productId": "5_generations",
-    "price": 90,
+    "price": 39,
     "pack": 5
   },
   {
     "productId": "15_generations",
-    "price": 190,
+    "price": 99,
     "pack": 15
   },
   {
     "productId": "25_generations",
-    "price": 230,
+    "price": 150,
     "pack": 25
   }
 ]
