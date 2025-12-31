@@ -15,5 +15,11 @@
     public class UserConstants
     {
         public const int TRIAL_USER_BALANSE = 3;
+
+        public const string AllowedUsernameCharacters =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" +
+            "-._@+$!№=#%:^&?*();/ " +
+            "абвгдеёжзийклмнопрстуфхцчшщъыьэюя" +
+            "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
     }
 }

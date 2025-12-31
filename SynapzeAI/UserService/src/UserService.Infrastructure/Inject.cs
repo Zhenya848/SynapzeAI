@@ -20,6 +20,7 @@ using UserService.Application;
 using UserService.Application.Abstractions;
 using UserService.Application.Providers;
 using UserService.Application.Repositories;
+using UserService.Domain.Shared;
 using UserService.Domain.User;
 using UserService.Infrastructure.Consumers;
 using UserService.Infrastructure.Options;
@@ -61,8 +62,12 @@ public static class Inject
         services
             .AddIdentity<User, Role>(options =>
             {
+                options.User.AllowedUserNameCharacters = UserConstants.AllowedUsernameCharacters;
                 options.User.RequireUniqueEmail = false;
+                
                 options.Password.RequiredLength = 8;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
             })
             .AddEntityFrameworkStores<AccountsDbContext>();
 
